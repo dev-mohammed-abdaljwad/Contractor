@@ -13,24 +13,110 @@ class CompanyController extends Controller
 {
     public function index()
     {
-        $companies = Company::where('contractor_id', Auth::id())
+        $today = Carbon::today();
+        $monthStart = Carbon::now()->startOfMonth();
+        $monthEnd = Carbon::now()->endOfMonth();
+
+        $allCompanies = Company::where('contractor_id', Auth::id())
             ->with(['distributions', 'collections'])
             ->orderBy('is_active', 'desc')
             ->orderBy('name', 'asc')
             ->get();
 
-        $companies = $companies->map(function ($company) {
-            $company->total_workers = $company->distributions()
-                ->select('worker_id')
-                ->distinct()
-                ->count();
-            $company->pending_amount = $company->collections()
+        // Enhance company data
+        $enhancedCompanies = $allCompanies->map(function ($company) use ($today, $monthStart, $monthEnd) {
+            // Today's workers
+            $todayDistributions = $company->distributions()
+                ->where('distribution_date', $today)
+                ->get();
+            $company->workers_today = $todayDistributions->count();
+            $company->wage_today = $todayDistributions->sum('daily_wage_snapshot');
+
+            // Monthly totals
+            $monthDistributions = $company->distributions()
+                ->whereBetween('distribution_date', [$monthStart, $monthEnd])
+                ->get();
+            $company->total_month = $monthDistributions->sum('daily_wage_snapshot');
+            $company->days_worked_month = $monthDistributions->pluck('distribution_date')->unique()->count();
+
+            // Payment tracking
+            $lastCollection = $company->collections()
+                ->where('is_paid', true)
+                ->orderByDesc('payment_date')
+                ->first();
+            $company->last_payment_date = $lastCollection?->payment_date?->format('d M') ?? 'لم يتم';
+            
+            // Pending amount (amount due)
+            $company->amount_due = $company->collections()
                 ->where('is_paid', false)
                 ->sum('net_amount');
+
+            // Payment status
+            $unpaidCollection = $company->collections()
+                ->where('is_paid', false)
+                ->orderBy('period_end')
+                ->first();
+
+            if (!$unpaidCollection) {
+                $company->payment_status = 'paid';
+                $company->payment_status_label = 'تم التحصيل';
+                $company->urgency_days = 0;
+                $company->urgency_label = 'آخر دفعة: ' . ($company->last_payment_date ?? 'لم يتم');
+            } else {
+                $dueDate = Carbon::parse($unpaidCollection->period_end)->addDays(7);
+                $daysUntilDue = $dueDate->diffInDays($today, false);
+                
+                if ($daysUntilDue > 0) {
+                    $company->payment_status = 'upcoming';
+                    $company->payment_status_label = $dueDate->format('d M');
+                    $company->urgency_days = $daysUntilDue;
+                    $company->urgency_label = 'موعد الدفع: ' . $dueDate->format('d M');
+                } elseif ($daysUntilDue == 0) {
+                    $company->payment_status = 'due';
+                    $company->payment_status_label = 'يستحق اليوم';
+                    $company->urgency_days = 0;
+                    $company->urgency_label = 'يستحق اليوم';
+                } else {
+                    $company->payment_status = 'overdue';
+                    $company->payment_status_label = 'متأخر ' . abs($daysUntilDue) . ' يوم';
+                    $company->urgency_days = abs($daysUntilDue);
+                    $company->urgency_label = 'متأخر ' . abs($daysUntilDue) . ' يوم!';
+                }
+            }
+
+            // Total workers (all time)
+            $company->total_workers = $company->distributions()
+                ->pluck('worker_id')
+                ->unique()
+                ->count();
+
             return $company;
         });
 
-        return view('contractor.companies.index', compact('companies'));
+        // Separate active and inactive
+        $activeCompanies = $enhancedCompanies->where('is_active', true)->values();
+        $inactiveCompanies = $enhancedCompanies->where('is_active', false)->values();
+
+        // Calculate statistics
+        $today_count = $activeCompanies->sum('workers_today');
+        $total_due = $activeCompanies->sum('amount_due');
+        $overdue_count = $activeCompanies->where('payment_status', 'overdue')->count();
+        $active_count = $activeCompanies->count();
+
+        // Group by payment cycle for filters
+        $paymentCycles = $activeCompanies->groupBy('payment_cycle')->keys();
+        $overdueCompanies = $activeCompanies->where('payment_status', 'overdue');
+
+        return view('contractor.companies.index', compact(
+            'activeCompanies',
+            'inactiveCompanies',
+            'active_count',
+            'today_count',
+            'total_due',
+            'overdue_count',
+            'paymentCycles',
+            'overdueCompanies'
+        ));
     }
 
     public function create()
