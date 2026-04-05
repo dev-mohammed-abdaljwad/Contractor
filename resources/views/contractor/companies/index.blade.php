@@ -504,9 +504,128 @@ function deactivateCompany(companyId) {
 }
 
 function openCompanyModal(isEdit, companyId) {
-  // Placeholder for modal implementation
-  alert('سيتم فتح نموذج الشركة');
+  const modal = document.getElementById('company-form-modal');
+  const form = document.getElementById('company-form');
+  const title = document.getElementById('modal-title');
+  const submitText = document.getElementById('submit-btn-text');
+  
+  if (isEdit && companyId) {
+    // Load company data for editing
+    fetch(`/contractor/companies/${companyId}/edit`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const company = data.company;
+          
+          // Set form values
+          document.getElementById('form-name').value = company.name || '';
+          document.getElementById('form-contact_person').value = company.contact_person || '';
+          document.getElementById('form-phone').value = company.phone || '';
+          document.getElementById('form-daily_wage').value = company.daily_wage || '';
+          document.getElementById('form-payment_cycle').value = company.payment_cycle || '';
+          document.getElementById('form-weekly_pay_day').value = company.weekly_pay_day || '';
+          document.getElementById('form-contract_start_date').value = company.contract_start_date || '';
+          document.getElementById('form-is_active').value = company.is_active ? '1' : '0';
+          document.getElementById('form-notes').value = company.notes || '';
+          document.getElementById('status-field').style.display = 'block';
+          
+          // Update form action and method
+          form.action = `/contractor/companies/${companyId}`;
+          document.getElementById('form-method').value = 'PUT';
+          
+          title.textContent = 'تعديل: ' + company.name;
+          submitText.textContent = 'حفظ التعديلات';
+          
+          // Show modal
+          modal.classList.add('show');
+          document.body.style.overflow = 'hidden';
+          
+          // Focus first input
+          setTimeout(() => document.getElementById('form-name').focus(), 100);
+        }
+      })
+      .catch(error => {
+        alert('حدث خطأ أثناء تحميل بيانات الشركة');
+        console.error(error);
+      });
+  } else {
+    // Reset form for new company
+    form.reset();
+    document.getElementById('status-field').style.display = 'none';
+    form.action = '/contractor/companies';
+    document.getElementById('form-method').value = 'POST';
+    
+    title.textContent = 'شركة جديدة';
+    submitText.textContent = 'حفظ الشركة';
+    
+    // Show modal
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus first input
+    setTimeout(() => document.getElementById('form-name').focus(), 100);
+  }
 }
+
+function closeCompanyModal() {
+  const modal = document.getElementById('company-form-modal');
+  modal.classList.remove('show');
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('company-form-modal');
+  const form = document.getElementById('company-form');
+  
+  // Close modal on background click
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeCompanyModal();
+    }
+  });
+  
+  // Handle form submission
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const method = document.getElementById('form-method').value;
+    const action = form.action;
+    
+    fetch(action, {
+      method: method,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json',
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        // Display validation errors
+        if (data.errors) {
+          Object.keys(data.errors).forEach(field => {
+            const errorEl = document.getElementById(`error-${field}`);
+            if (errorEl) {
+              errorEl.textContent = data.errors[field][0];
+              errorEl.style.display = 'block';
+            }
+          });
+        } else {
+          alert(data.message || 'فشل حفظ الشركة');
+        }
+      }
+    })
+    .catch(error => {
+      alert('حدث خطأ أثناء حفظ الشركة');
+      console.error(error);
+    });
+  });
+});
 </script>
 
 @include('components.company-form-modal')

@@ -187,6 +187,25 @@ class CompanyController extends Controller
             abort(403);
         }
 
+        // Return JSON for modal edit form
+        if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'company' => [
+                    'id' => $company->id,
+                    'name' => $company->name,
+                    'contact_person' => $company->contact_person,
+                    'phone' => $company->phone,
+                    'daily_wage' => $company->daily_wage,
+                    'payment_cycle' => $company->payment_cycle,
+                    'weekly_pay_day' => $company->weekly_pay_day,
+                    'contract_start_date' => $company->contract_start_date ? $company->contract_start_date->format('Y-m-d') : '',
+                    'is_active' => $company->is_active ? 1 : 0,
+                    'notes' => $company->notes,
+                ]
+            ]);
+        }
+
         return view('contractor.companies.edit', compact('company'));
     }
 
