@@ -40,9 +40,14 @@ class WorkerController extends Controller
                 ->with('company')
                 ->first();
 
+            // Set today's assignment flags
             $worker->assigned_today = $todayDistribution;
+            $worker->distribution_today = (bool)$todayDistribution;
             $worker->assigned_company = $todayDistribution?->company->name ?? null;
+            $worker->company_today = $todayDistribution?->company->name ?? null;
+            $worker->daily_wage = $todayDistribution?->daily_wage_snapshot ?? ($todayDistribution?->company->daily_wage ?? 0);
 
+            // Calculate work days
             $daysWorked = $worker->distributions()
                 ->whereBetween('distribution_date', [$monthStart, $monthEnd])
                 ->select('distribution_date')
@@ -52,12 +57,25 @@ class WorkerController extends Controller
             $worker->attendance_rate = $daysInMonthSoFar > 0 ? round(($daysWorked / $daysInMonthSoFar) * 100) : 0;
             $worker->days_worked = $daysWorked;
 
+            // Get last worked date
+            $lastWork = $worker->distributions()
+                ->orderByDesc('distribution_date')
+                ->first();
+            $worker->last_worked_date = $lastWork?->distribution_date?->format('d/m/Y') ?? 'لم يعمل بعد';
+
             // Get pending advances
             $pendingAdvances = $worker->advances()
                 ->where('is_settled', false)
                 ->get();
             $worker->has_pending_advance = $pendingAdvances->count() > 0;
             $worker->pending_advance_amount = $pendingAdvances->sum('amount');
+
+            // Get today's deductions
+            $todayDeductions = $worker->deductions()
+                ->where('deduction_date', $today)
+                ->get();
+            $worker->has_deduction = $todayDeductions->count() > 0;
+            $worker->deduction_amount = $todayDeductions->sum('amount');
 
             return $worker;
         };
@@ -94,7 +112,20 @@ class WorkerController extends Controller
             );
         }
 
-        return view('contractor.workers.index', compact('activeWorkers', 'inactiveWorkers', 'search', 'filter'));
+        // Calculate statistics
+        $total_workers = $allWorkers->where('is_active', true)->count();
+        $assigned_today = $activeWorkers->filter(fn($w) => $w->assigned_today)->count();
+        $has_advances = $activeWorkers->filter(fn($w) => $w->has_pending_advance)->count();
+        $unassigned = $activeWorkers->filter(fn($w) => !$w->assigned_today)->count();
+        $inactive_count = $inactiveWorkers->count();
+
+        // Use 'workers' as the variable name for the template
+        $workers = $activeWorkers;
+
+        return view(
+            'contractor.workers.index',
+            compact('workers', 'inactiveWorkers', 'search', 'filter', 'total_workers', 'assigned_today', 'has_advances', 'unassigned', 'inactive_count')
+        );
     }
 
     /**

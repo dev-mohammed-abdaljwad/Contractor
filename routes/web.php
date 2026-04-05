@@ -34,8 +34,8 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::get('/', [WorkerController::class, 'index'])->name('contractor.workers.index');
         Route::get('/create', [WorkerController::class, 'create'])->name('contractor.workers.create');
         Route::post('/', [WorkerController::class, 'store'])->name('contractor.workers.store');
-        Route::get('/{id}', [WorkerController::class, 'show'])->name('contractor.workers.show');
         Route::get('/{id}/edit', [WorkerController::class, 'edit'])->name('contractor.workers.edit');
+        Route::get('/{id}', [WorkerController::class, 'show'])->name('contractor.workers.show');
         Route::put('/{id}', [WorkerController::class, 'update'])->name('contractor.workers.update');
         Route::delete('/{id}', [WorkerController::class, 'destroy'])->name('contractor.workers.destroy');
     });

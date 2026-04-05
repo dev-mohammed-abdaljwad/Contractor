@@ -88,20 +88,24 @@ function closeSidebar() {
 
 // ============ WORKER TABS ============
 function switchTab(el, tabId) {
-    // Remove active from all tabs
-    document.querySelectorAll('.tab-item').forEach(function(t) {
-        t.classList.remove('active');
+    // Remove active from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.remove('active');
     });
 
-    // Add active to clicked tab
-    el.classList.add('active');
+    // Add active to clicked button
+    if (el && el.classList) {
+        el.classList.add('active');
+    }
 
-    // Hide all tab content
-    const tabs = ['tab-attendance', 'tab-deductions', 'tab-advances', 'tab-account'];
-    tabs.forEach(function(t) {
-        const tabEl = document.getElementById(t);
-        if (tabEl) {
-            tabEl.style.display = t === tabId ? 'block' : 'none';
+    // Hide all tab content and show the selected one
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+        if (content.id === tabId) {
+            content.classList.add('active');
+            content.style.display = 'block';
+        } else {
+            content.classList.remove('active');
+            content.style.display = 'none';
         }
     });
 }

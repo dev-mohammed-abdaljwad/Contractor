@@ -208,43 +208,55 @@
         }
 
         .modal-header {
-            padding: 16px 14px;
+            padding: 14px 12px;
         }
 
         #workerForm {
-            padding: 14px;
-            gap: 12px;
+            padding: 12px;
+            gap: 10px !important;
         }
 
         #workerForm > div {
-            gap: 4px !important;
+            gap: 3px !important;
         }
 
         #workerForm input {
-            height: 40px !important;
+            height: 38px !important;
             font-size: 14px !important;
+            padding: 0 10px !important;
         }
 
         label {
-            font-size: 11px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
         }
 
         span {
             font-size: 10px !important;
         }
 
+        /* Button container */
         #workerForm > div:last-child {
-            gap: 10px !important;
+            gap: 8px !important;
             margin-top: 16px !important;
+            padding-top: 12px !important;
         }
 
         #workerForm > div:last-child button {
-            height: 40px !important;
+            height: 38px !important;
             font-size: 12px !important;
+            padding: 0 12px !important;
+            flex: 1 !important;
+            border-radius: 6px !important;
         }
 
         .modal-header h2 {
-            font-size: 16px !important;
+            font-size: 15px !important;
+        }
+
+        .modal-header button {
+            font-size: 20px !important;
+            padding: 0 4px !important;
         }
     }
 </style>

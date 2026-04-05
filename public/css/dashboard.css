@@ -730,11 +730,13 @@ body {
     }
 
     .content {
-        padding-bottom: 20px !important;
+        padding: 16px !important;
+        padding-bottom: 100px !important;
     }
 
     /* Additional padding for company pages and other content */
     div[style*="padding:28px"] {
+        padding: 16px !important;
         padding-bottom: 100px !important;
     }
 }
@@ -745,7 +747,13 @@ body {
         display: block !important;
     }
 
+    .content {
+        padding: 20px !important;
+        padding-bottom: 100px !important;
+    }
+
     div[style*="padding:28px"] {
+        padding: 20px !important;
         padding-bottom: 100px !important;
     }
 }
