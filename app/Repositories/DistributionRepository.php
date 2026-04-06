@@ -17,7 +17,9 @@ class DistributionRepository implements DistributionRepositoryInterface
 
     public function getByWorkerAndDate(int $workerId, string $date): ?DailyDistribution
     {
-        return DailyDistribution::where('worker_id', $workerId)
+        return DailyDistribution::whereHas('workers', function ($query) use ($workerId) {
+            $query->where('worker_id', $workerId);
+        })
             ->where('distribution_date', $date)
             ->first();
     }
@@ -31,7 +33,9 @@ class DistributionRepository implements DistributionRepositoryInterface
 
     public function getByWorkerAndPeriod(int $workerId, string $from, string $to): Collection
     {
-        return DailyDistribution::where('worker_id', $workerId)
+        return DailyDistribution::whereHas('workers', function ($query) use ($workerId) {
+            $query->where('worker_id', $workerId);
+        })
             ->whereBetween('distribution_date', [$from, $to])
             ->get();
     }

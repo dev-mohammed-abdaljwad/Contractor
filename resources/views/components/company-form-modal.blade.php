@@ -1,5 +1,5 @@
 <!-- Company Form Modal -->
-<div id="company-form-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:flex-end;justify-content:center;flex-direction:column">
+<div id="company-form-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;flex-direction:column">
     <div style="background:#fff;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)">
         <!-- Modal Header -->
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:0.5px solid #d0d0c8;position:sticky;top:0;background:#fff;z-index:10">
@@ -158,12 +158,12 @@
         overflow-y: auto;
     }
 
-    /* Tablet: Adjust modal width */
-    @media(max-width: 768px) {
+    /* Tablet & Mobile: Adjust modal width */
+    @media(max-width: 768px) and (min-width: 481px) {
         #company-form-modal > div {
             width: 95% !important;
             max-width: 95% !important;
-            max-height: 95vh !important;
+            max-height: 90vh !important;
             border-radius: 12px;
         }
 
@@ -200,6 +200,33 @@
         .btn {
             height: 38px !important;
             font-size: 12px !important;
+        }
+    }
+
+    /* Desktop (769px+): Centered modal with animation */
+    @media(min-width: 769px) {
+        #company-form-modal {
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #company-form-modal > div {
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            border-radius: 12px;
+            animation: fadeSlideDown 0.3s ease-out;
+        }
+
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     }
 
@@ -326,106 +353,3 @@
     }
 </style>
 
-
-<style>
-    #company-form-modal {
-        display: none;
-        padding: 0;
-    }
-
-    #company-form-modal.show {
-        display: flex !important;
-    }
-
-    #company-form-modal input,
-    #company-form-modal select,
-    #company-form-modal textarea {
-        font-family: 'Tajawal', sans-serif;
-    }
-
-    #company-form-modal > div {
-        width: 90%;
-        max-width: 700px;
-        max-height: 90vh;
-        border-radius: 12px;
-    }
-
-    /* Tablet & Mobile: Adjust modal width */
-    @media(max-width: 768px) {
-        #company-form-modal > div {
-            width: 95% !important;
-            max-width: 95% !important;
-            max-height: 95vh !important;
-        }
-
-        #company-form-modal{
-            padding: 8px;
-        }
-
-        /* Stack form fields to 1 column on tablet */
-        [style*="grid-template-columns:1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-            gap: 16px !important;
-        }
-    }
-
-    /* Mobile: Full optimization */
-    @media(max-width: 480px) {
-        #company-form-modal > div {
-            width: 98% !important;
-            max-width: 98% !important;
-            max-height: 98vh !important;
-            border-radius: 8px;
-        }
-
-        #company-form-modal {
-            padding: 2px;
-        }
-
-        /* Modal Header: Reduce padding and font size */
-        [style*="padding:20px 24px;border-bottom"] {
-            padding: 16px 12px !important;
-        }
-
-        [style*="padding:20px 24px;border-bottom"] h2 {
-            font-size: 16px !important;
-        }
-
-        /* Modal Content: Reduce padding */
-        #company-form-modal [style*="padding:24px"] {
-            padding: 16px !important;
-        }
-
-        /* Form Labels: Slightly smaller */
-        #company-form-modal label {
-            font-size: 12px !important;
-        }
-
-        /* Form Helper Text: Adjust size */
-        #company-form-modal p[style*="color:#707a6c"] {
-            font-size: 10px !important;
-        }
-
-        /* Form Inputs: Better sizing */
-        #company-form-modal input,
-        #company-form-modal select,
-        #company-form-modal textarea {
-            font-size: 14px !important;
-            padding: 10px 10px !important;
-        }
-
-        /* Modal Footer: Stack buttons vertically if needed */
-        #company-form-modal [style*="justify-content:flex-end"] {
-            padding: 16px 12px !important;
-        }
-
-        #company-form-modal .btn {
-            font-size: 12px !important;
-            flex: 1;
-        }
-
-        #company-form-modal .ms {
-            font-size: 14px !important;
-        }
-    }
-</style>

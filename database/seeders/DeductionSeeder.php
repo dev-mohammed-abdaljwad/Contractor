@@ -15,29 +15,33 @@ class DeductionSeeder extends Seeder
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            // Get some distributions
+            // Get some distributions with workers
             $distributions = DailyDistribution::where('contractor_id', $contractor->id)
+                ->with('workers', 'company')
                 ->limit(10)
                 ->get();
 
             foreach ($distributions as $dist) {
-                // Randomly create deductions
-                if (rand(0, 1)) {
-                    $type = ['quarter', 'half'][rand(0, 1)];
-                    $amount = match($type) {
-                        'quarter' => $dist->daily_wage_snapshot * 0.25,
-                        'half' => $dist->daily_wage_snapshot * 0.5,
-                    };
+                // For each worker in the distribution, randomly create deductions
+                foreach ($dist->workers as $worker) {
+                    if (rand(0, 1)) {
+                        $type = ['quarter', 'half'][rand(0, 1)];
+                        $dailyWage = $dist->company->daily_wage;
+                        $amount = match($type) {
+                            'quarter' => $dailyWage * 0.25,
+                            'half' => $dailyWage * 0.5,
+                        };
 
-                    Deduction::create([
-                        'contractor_id' => $contractor->id,
-                        'worker_id' => $dist->worker_id,
-                        'company_id' => $dist->company_id,
-                        'deduction_date' => $dist->distribution_date,
-                        'type' => $type,
-                        'amount' => $amount,
-                        'reason' => 'خصم تأديبي',
-                    ]);
+                        Deduction::create([
+                            'contractor_id' => $contractor->id,
+                            'worker_id' => $worker->id,
+                            'company_id' => $dist->company_id,
+                            'deduction_date' => $dist->distribution_date,
+                            'type' => $type,
+                            'amount' => $amount,
+                            'reason' => 'خصم تأديبي',
+                        ]);
+                    }
                 }
             }
         }

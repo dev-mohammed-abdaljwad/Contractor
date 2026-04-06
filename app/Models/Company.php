@@ -41,7 +41,15 @@ class Company extends Model
 
     public function workers()
     {
-        return $this->hasMany(DailyDistribution::class)->select('worker_id')->distinct();
+        // Get workers through the distribution_worker pivot table
+        return $this->hasManyThrough(
+            Worker::class,
+            DailyDistribution::class,
+            'company_id', // Foreign key on daily_distributions
+            'id',         // Foreign key on workers
+            'id',         // Local key on companies
+            'id'          // Local key on daily_distributions
+        );
     }
 
     public function distributions()

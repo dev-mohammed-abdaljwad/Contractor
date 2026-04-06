@@ -39,14 +39,14 @@
     <div id="mobile-overlay" onclick="closeSidebar()"></div>
 
     <!-- MOBILE TOPBAR -->
-    @include('components.dashboard.mobile-topbar')
+    {{-- @include('components.dashboard.mobile-topbar') --}}
 
     <!-- SIDEBAR -->
     @include('components.dashboard.sidebar')
 
     <!-- MAIN CONTENT -->
     <main id="main">
-        @include('components.dashboard.topbar')
+        {{-- @include('components.dashboard.topbar') --}}
         
         <div class="content">
             @yield('content')

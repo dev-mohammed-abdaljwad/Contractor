@@ -31,7 +31,7 @@ class DeductionService
             throw new InsufficientWageException('No distribution found for worker on this date');
         }
 
-        $snapshot = $distribution->daily_wage_snapshot;
+        $snapshot = $distribution->company->daily_wage;
 
         return match($type) {
             'quarter' => $snapshot * 0.25,

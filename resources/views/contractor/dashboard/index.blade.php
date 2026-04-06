@@ -85,20 +85,26 @@
                     </thead>
                     <tbody>
                         @foreach($todayDistributions as $dist)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-4 py-2">{{ $dist->company->name }}</td>
-                                <td class="px-4 py-2">{{ $dist->worker->name }}</td>
-                                <td class="px-4 py-2 font-semibold">{{ number_format($dist->daily_wage_snapshot, 2) }} جنيه</td>
-                                <td class="px-4 py-2">
-                                    <form method="POST" action="{{ route('distributions.destroy', $dist->id) }}" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 text-xs" onclick="return confirm('هل تريد الحذف؟')">
-                                            حذف
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
+                            @forelse($dist->workers as $worker)
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-2">{{ $dist->company->name }}</td>
+                                    <td class="px-4 py-2">{{ $worker->name }}</td>
+                                    <td class="px-4 py-2 font-semibold">{{ number_format($dist->company->daily_wage, 2) }} جنيه</td>
+                                    <td class="px-4 py-2">
+                                        <form method="POST" action="{{ route('distributions.destroy', $dist->id) }}" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 text-xs" onclick="return confirm('هل تريد الحذف؟')">
+                                                حذف
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-2" colspan="4">لا توجد بيانات</td>
+                                </tr>
+                            @endforelse
                         @endforeach
                     </tbody>
                 </table>

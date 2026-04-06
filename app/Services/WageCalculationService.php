@@ -24,7 +24,7 @@ class WageCalculationService
         $advances = $this->advanceRepository->getByWorker($workerId);
 
         // Calculate totals
-        $grossWages = $distributions->sum('daily_wage_snapshot');
+        $grossWages = $distributions->sum(fn($dist) => $dist->company->daily_wage);
         $totalDeductions = $deductions->sum('amount');
         $totalAdvances = $advances->sum('amount');
         $netPayable = $grossWages - $totalDeductions - $totalAdvances;
@@ -41,7 +41,7 @@ class WageCalculationService
                     'company_names' => [],
                 ];
             }
-            $breakdown[$date]['gross_wage'] += $dist->daily_wage_snapshot;
+            $breakdown[$date]['gross_wage'] += $dist->company->daily_wage;
             $breakdown[$date]['company_names'][] = $dist->company->name;
         }
 
@@ -71,9 +71,9 @@ class WageCalculationService
 
         return [
             'total_days' => $distributions->count(),
-            'total_wages' => $distributions->sum('daily_wage_snapshot'),
+            'total_wages' => $distributions->sum(fn($dist) => $dist->company->daily_wage),
             'total_deductions' => $deductions->sum('amount'),
-            'net_owed' => $distributions->sum('daily_wage_snapshot') - $deductions->sum('amount'),
+            'net_owed' => $distributions->sum(fn($dist) => $dist->company->daily_wage) - $deductions->sum('amount'),
         ];
     }
 }

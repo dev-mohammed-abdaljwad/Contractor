@@ -1,262 +1,266 @@
-<div id="workerModal" class="modal-overlay">
-    <div class="modal-content">
+<div id="workerModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;flex-direction:column">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2)">
         <!-- Modal Header -->
-        <div class="modal-header">
-            <h2 id="workerModalTitle" style="font-size: 18px; font-weight: 700; color: #1a1c19; margin: 0">إضافة عامل جديد</h2>
-            <button onclick="closeWorkerModal()" style="background: none; border: none; cursor: pointer; color: #707a6c; font-size: 24px; padding: 0">✕</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:0.5px solid #d0d0c8;position:sticky;top:0;background:#fff;z-index:10">
+            <h2 style="font-size:18px;font-weight:700;color:#1a1c19;margin:0" id="workerModalTitle">إضافة عامل جديد</h2>
+            <button onclick="closeWorkerModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#707a6c;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center">✕</button>
         </div>
 
-        <!-- Modal Body -->
-        <form id="workerForm" style="display: flex; flex-direction: column; gap: 16px">
-            @csrf
-            <input type="hidden" id="workerId" name="id">
+        <!-- Modal Content -->
+        <div style="padding:24px">
+            <form id="workerForm" method="POST" action="">
+                @csrf
+                <input type="hidden" id="workerId" name="id">
 
-            <!-- Name -->
-            <div style="display: flex; flex-direction: column; gap: 6px">
-                <label for="workerName" style="font-size: 12px; font-weight: 700; color: #1a1c19">
-                    الاسم الكامل *
-                </label>
-                <input 
-                    type="text" 
-                    id="workerName" 
-                    name="name" 
-                    placeholder="مثال: أحمد محمد علي"
-                    style="width: 100%; height: 42px; border: 1px solid #d0d0c8; border-radius: 8px; background: #fafaf5; font-family: 'Tajawal', sans-serif; font-size: 14px; color: #1a1c19; padding: 0 12px; outline: none; transition: border 0.15s"
-                    onfocus="this.style.borderColor='#0d631b'; this.style.background='#fff'"
-                    onblur="this.style.borderColor='#d0d0c8'; this.style.background='#fafaf5'"
-                >
-                <span id="nameError" style="font-size: 11px; color: #ba1a1a; display: none">❌ الاسم مطلوب</span>
-                <span style="font-size: 11px; color: #0d631b">💡 أدخل الاسم الكامل للعامل بوضوح</span>
-            </div>
+                <!-- Name -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
+                    <label for="workerName" style="font-size:12px;font-weight:700;color:#1a1c19">الاسم الكامل *</label>
+                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 أدخل الاسم الكامل للعامل بوضوح</p>
+                    <input type="text" id="workerName" name="name" placeholder="مثال: أحمد محمد علي"
+                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
+                    <span id="nameError" style="font-size:11px;color:#ba1a1a;display:none">❌ الاسم مطلوب</span>
+                </div>
 
-            <!-- Phone -->
-            <div style="display: flex; flex-direction: column; gap: 6px">
-                <label for="workerPhone" style="font-size: 12px; font-weight: 700; color: #1a1c19">
-                    رقم الجوال *
-                </label>
-                <input 
-                    type="tel" 
-                    id="workerPhone" 
-                    name="phone" 
-                    placeholder="مثال: 0123456789"
-                    style="width: 100%; height: 42px; border: 1px solid #d0d0c8; border-radius: 8px; background: #fafaf5; font-family: 'Tajawal', sans-serif; font-size: 14px; color: #1a1c19; padding: 0 12px; outline: none; transition: border 0.15s"
-                    onfocus="this.style.borderColor='#0d631b'; this.style.background='#fff'"
-                    onblur="this.style.borderColor='#d0d0c8'; this.style.background='#fafaf5'"
-                    maxlength="20"
-                >
-                <span id="phoneError" style="font-size: 11px; color: #ba1a1a; display: none">❌ رقم الجوال مطلوب</span>
-                <span style="font-size: 11px; color: #0d631b">💡 استخدم أي رقم جوال صحيح لتتمكن من التواصل</span>
-            </div>
+                <!-- Phone -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
+                    <label for="workerPhone" style="font-size:12px;font-weight:700;color:#1a1c19">رقم الجوال *</label>
+                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 استخدم أي رقم جوال صحيح</p>
+                    <input type="tel" id="workerPhone" name="phone" placeholder="مثال: 0123456789" maxlength="20"
+                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
+                    <span id="phoneError" style="font-size:11px;color:#ba1a1a;display:none">❌ رقم الجوال مطلوب</span>
+                </div>
 
-            <!-- National ID -->
-            <div style="display: flex; flex-direction: column; gap: 6px">
-                <label for="workerNationalId" style="font-size: 12px; font-weight: 700; color: #1a1c19">
-                    الرقم القومي (اختياري)
-                </label>
-                <input 
-                    type="text" 
-                    id="workerNationalId" 
-                    name="national_id" 
-                    placeholder="مثال: 12345678901234"
-                    style="width: 100%; height: 42px; border: 1px solid #d0d0c8; border-radius: 8px; background: #fafaf5; font-family: 'Tajawal', sans-serif; font-size: 14px; color: #1a1c19; padding: 0 12px; outline: none; transition: border 0.15s"
-                    onfocus="this.style.borderColor='#0d631b'; this.style.background='#fff'"
-                    onblur="this.style.borderColor='#d0d0c8'; this.style.background='#fafaf5'"
-                    maxlength="20"
-                >
-                <span style="font-size: 11px; color: #0d631b">💡 الرقم القومي يساعد في التحقق من هوية العامل</span>
-            </div>
+                <!-- National ID -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
+                    <label for="workerNationalId" style="font-size:12px;font-weight:700;color:#1a1c19">الرقم القومي (اختياري)</label>
+                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 الرقم القومي يساعد في التحقق من الهوية</p>
+                    <input type="text" id="workerNationalId" name="national_id" placeholder="مثال: 12345678901234" maxlength="20"
+                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
+                </div>
 
-            <!-- Join Date -->
-            <div style="display: flex; flex-direction: column; gap: 6px">
-                <label for="workerJoinedDate" style="font-size: 12px; font-weight: 700; color: #1a1c19">
-                    تاريخ الالتحاق
-                </label>
-                <input 
-                    type="date" 
-                    id="workerJoinedDate" 
-                    name="joined_date" 
-                    style="width: 100%; height: 42px; border: 1px solid #d0d0c8; border-radius: 8px; background: #fafaf5; font-family: 'Tajawal', sans-serif; font-size: 14px; color: #1a1c19; padding: 0 12px; outline: none; transition: border 0.15s"
-                    onfocus="this.style.borderColor='#0d631b'; this.style.background='#fff'"
-                    onblur="this.style.borderColor='#d0d0c8'; this.style.background='#fafaf5'"
-                >
-                <span id="joinedDateError" style="font-size: 11px; color: #ba1a1a; display: none">❌ التاريخ غير صحيح</span>
-                <span style="font-size: 11px; color: #0d631b">💡 يتم تعيينها اليوم تلقائياً إذا لم تغيرها</span>
-            </div>
+                <!-- Join Date -->
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:28px">
+                    <label for="workerJoinedDate" style="font-size:12px;font-weight:700;color:#1a1c19">تاريخ الالتحاق</label>
+                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 يتم تعيينها اليوم تلقائياً إذا لم تغيرها</p>
+                    <input type="date" id="workerJoinedDate" name="joined_date"
+                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
+                    <span id="joinedDateError" style="font-size:11px;color:#ba1a1a;display:none">❌ التاريخ غير صحيح</span>
+                </div>
 
-            <!-- Modal Footer -->
-            <div style="display: flex; gap: 12px; margin-top: 20px; border-top: 0.5px solid #e8e8e3; padding-top: 16px">
-                <button 
-                    type="button" 
-                    onclick="closeWorkerModal()" 
-                    style="flex: 1; height: 42px; border: 1px solid #d0d0c8; border-radius: 8px; background: #fff; color: #707a6c; font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s"
-                    onhover="this.style.background='#fafaf5'"
-                >
-                    إلغاء
-                </button>
-                <button 
-                    type="submit" 
-                    style="flex: 1; height: 42px; border: none; border-radius: 8px; background: #0d631b; color: #fff; font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s"
-                    onmouseover="this.style.background='#0a5216'"
-                    onmouseout="this.style.background='#0d631b'"
-                >
-                    حفظ العامل
-                </button>
-            </div>
-        </form>
+                <!-- Modal Footer -->
+                <div style="display:flex;gap:12px;justify-content:flex-end;border-top:0.5px solid #d0d0c8;padding-top:20px">
+                    <button type="button" onclick="closeWorkerModal()" style="height:40px;padding:0 20px;font-size:13px;font-weight:600;border:0.5px solid #d0d0c8;background:#fff;border-radius:8px;cursor:pointer;color:#707a6c">
+                        إلغاء
+                    </button>
+                    <button type="submit" style="height:40px;padding:0 20px;white-space:nowrap;font-size:13px;font-weight:600;background:#0d631b;color:#fff;border:none;border-radius:8px;cursor:pointer">
+                        حفظ العامل
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <style>
     #workerModal {
         display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 50;
-        align-items: center;
-        justify-content: center;
+        padding: 0;
     }
 
     #workerModal.show {
-        display: flex;
+        display: flex !important;
     }
 
-    .modal-content {
+    #workerModal input,
+    #workerModal select,
+    #workerModal textarea {
+        font-family: 'Tajawal', sans-serif;
+        transition: border-color 0.2s;
+    }
+
+    #workerModal input:focus,
+    #workerModal select:focus,
+    #workerModal textarea:focus {
+        border-color: #0d631b !important;
+        background: #fff !important;
+    }
+
+    #workerModal > div {
         width: 90%;
         max-width: 700px;
         max-height: 90vh;
-        background: #fff;
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         display: flex;
         flex-direction: column;
     }
 
-    .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 24px;
-        border-bottom: 0.5px solid #e8e8e3;
-        flex-shrink: 0;
-        position: sticky;
-        top: 0;
-        background: #fff;
-        border-radius: 12px 12px 0 0;
-    }
-
-    #workerForm {
-        padding: 24px;
-        overflow-y: auto;
+    #workerModal > div > div:last-child {
         flex: 1;
+        overflow-y: auto;
     }
 
-    #workerModal .modal-content > *:last-child {
-        flex-shrink: 0;
-    }
-
-    /* Desktop */
+    /* Desktop (769px+): Centered modal */
     @media(min-width: 769px) {
-        .modal-content {
-            width: 700px;
-            max-width: 90%;
+        #workerModal {
+            align-items: center !important;
+            justify-content: center !important;
         }
 
-        .modal-header {
-            padding: 24px;
+        #workerModal > div {
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            border-radius: 12px;
+            animation: fadeSlideDown 0.3s ease-out;
         }
 
-        #workerForm {
-            padding: 24px;
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     }
 
-    /* Tablet (481px - 768px) */
+    /* Tablet (481px - 768px): Centered and slightly adjusted */
     @media(max-width: 768px) and (min-width: 481px) {
-        .modal-content {
+        #workerModal {
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #workerModal > div {
             width: 95%;
             max-width: 700px;
+            max-height: 90vh;
+            border-radius: 12px;
+            animation: fadeSlideDown 0.3s ease-out;
         }
 
-        .modal-header {
-            padding: 18px;
-        }
-
-        #workerForm {
-            padding: 18px;
-        }
-
-        #workerForm > div:first-child input,
-        #workerForm > div input[name="phone"],
-        #workerForm > div input[name="national_id"],
-        #workerForm > div input[name="joined_date"] {
-            font-size: 13px;
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     }
 
-    /* Mobile (max-width: 480px) */
+    /* Mobile: Full optimization with slide-up effect */
     @media(max-width: 480px) {
         #workerModal {
-            align-items: flex-end;
+            padding: 0;
+            align-items: flex-end !important;
+            justify-content: flex-end !important;
         }
 
-        .modal-content {
-            width: 100%;
-            max-width: 100%;
-            max-height: 95vh;
+        #workerModal > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 95vh !important;
             border-radius: 16px 16px 0 0;
+            animation: slideUp 0.3s ease-out;
         }
 
-        .modal-header {
-            padding: 14px 12px;
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        #workerForm {
-            padding: 12px;
-            gap: 10px !important;
+        /* Modal Header: Reduce padding and font size */
+        #workerModal [style*="padding:20px 24px"] {
+            padding: 14px 12px !important;
         }
 
-        #workerForm > div {
-            gap: 3px !important;
-        }
-
-        #workerForm input {
-            height: 38px !important;
-            font-size: 14px !important;
-            padding: 0 10px !important;
-        }
-
-        label {
-            font-size: 12px !important;
-            font-weight: 600 !important;
-        }
-
-        span {
-            font-size: 10px !important;
-        }
-
-        /* Button container */
-        #workerForm > div:last-child {
-            gap: 8px !important;
-            margin-top: 16px !important;
-            padding-top: 12px !important;
-        }
-
-        #workerForm > div:last-child button {
-            height: 38px !important;
-            font-size: 12px !important;
-            padding: 0 12px !important;
-            flex: 1 !important;
-            border-radius: 6px !important;
-        }
-
-        .modal-header h2 {
+        #workerModal [style*="padding:20px 24px"] h2 {
             font-size: 15px !important;
+            font-weight: 700;
         }
 
-        .modal-header button {
+        #workerModal [style*="padding:20px 24px"] button {
+            width: 28px !important;
+            height: 28px !important;
             font-size: 20px !important;
-            padding: 0 4px !important;
+        }
+
+        /* Modal Content: Reduce padding */
+        #workerModal > div > div:nth-child(3) {
+            padding: 14px 12px !important;
+            padding-bottom: 16px !important;
+        }
+
+        /* Form Labels: Slightly smaller */
+        #workerModal label {
+            font-size: 11px !important;
+            font-weight: 600;
+        }
+
+        /* Form Helper Text: Adjust size */
+        #workerModal p[style*="color:#707a6c"] {
+            font-size: 9px !important;
+            margin-bottom: 4px !important;
+        }
+
+        /* Form Inputs: Better sizing for touch */
+        #workerModal input,
+        #workerModal select,
+        #workerModal textarea {
+            font-size: 14px !important;
+            padding: 10px 10px !important;
+            min-height: 38px;
+        }
+
+        /* Form sections */
+        #workerModal > div > div:nth-child(3) > form > div {
+            margin-bottom: 14px !important;
+        }
+
+        /* Modal Footer: Adjust button layout */
+        #workerModal [style*="justify-content:flex-end"] {
+            padding: 14px 12px !important;
+            gap: 8px !important;
+            border-top: 0.5px solid #d0d0c8;
+        }
+
+        #workerModal button[type="button"] {
+            background: #f5f6f8 !important;
+            border: 0.5px solid #d0d0c8 !important;
+            color: #1a1c19 !important;
+            font-size: 12px !important;
+            height: 36px !important;
+            padding: 0 14px !important;
+            flex: 1;
+            border-radius: 8px;
+        }
+
+        #workerModal button[type="submit"] {
+            background: #0d631b !important;
+            color: #fff !important;
+            border: none !important;
+            font-size: 12px !important;
+            height: 36px !important;
+            padding: 0 14px !important;
+            flex: 1;
+            border-radius: 8px;
+        }
+
+        /* Error messages */
+        #workerModal [style*="color:#ba1a1a"] {
+            font-size: 10px !important;
+            margin-top: 3px !important;
         }
     }
 </style>
@@ -266,7 +270,7 @@ function openWorkerModal(isEdit = false, workerId = null) {
     const modal = document.getElementById('workerModal');
     const form = document.getElementById('workerForm');
     const title = document.getElementById('workerModalTitle');
-    const button = form.querySelector('button[type="submit"]');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
     // Reset form
     form.reset();
@@ -274,10 +278,7 @@ function openWorkerModal(isEdit = false, workerId = null) {
     clearWorkerErrors();
 
     if (isEdit && workerId) {
-        title.textContent = 'تعديل بيانات العامل';
-        button.textContent = 'حفظ التعديلات';
-
-        // Fetch worker data
+        // Load worker data
         fetch(`/contractor/workers/${workerId}`, {
             headers: {
                 'Accept': 'application/json',
@@ -291,19 +292,32 @@ function openWorkerModal(isEdit = false, workerId = null) {
             document.getElementById('workerPhone').value = data.phone;
             document.getElementById('workerNationalId').value = data.national_id || '';
             document.getElementById('workerJoinedDate').value = data.joined_date || new Date().toISOString().split('T')[0];
+            
+            title.textContent = 'تعديل: ' + data.name;
+            submitBtn.textContent = 'حفظ التعديلات';
+            
+            // Show modal
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
     } else {
         title.textContent = 'إضافة عامل جديد';
-        button.textContent = 'حفظ العامل';
+        submitBtn.textContent = 'حفظ العامل';
         document.getElementById('workerJoinedDate').value = new Date().toISOString().split('T')[0];
+        
+        // Show modal
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
     }
-
-    modal.classList.add('show');
 }
 
 function closeWorkerModal() {
     const modal = document.getElementById('workerModal');
     modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
 }
 
 function clearWorkerErrors() {
@@ -320,61 +334,77 @@ function displayWorkerErrors(errors) {
 }
 
 // Form submission
-document.getElementById('workerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const workerId = document.getElementById('workerId').value;
-    const url = workerId 
-        ? `/contractor/workers/${workerId}` 
-        : '/contractor/workers';
-    const method = workerId ? 'PUT' : 'POST';
-
-    const formData = {
-        name: document.getElementById('workerName').value,
-        phone: document.getElementById('workerPhone').value,
-        national_id: document.getElementById('workerNationalId').value,
-        joined_date: document.getElementById('workerJoinedDate').value,
-        _token: document.querySelector('input[name="_token"]').value
-    };
-
-    if (workerId) {
-        formData._method = 'PUT';
-    }
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => {
-        if (response.status === 422) {
-            return response.json().then(data => {
-                displayWorkerErrors(data.errors);
-                throw new Error('Validation failed');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('workerForm');
+    const modal = document.getElementById('workerModal');
+    
+    // Close modal on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
             closeWorkerModal();
-            // Reload workers list
-            window.location.reload();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const workerId = document.getElementById('workerId').value;
+        const url = workerId 
+            ? `/contractor/workers/${workerId}` 
+            : '/contractor/workers';
+        const method = workerId ? 'PUT' : 'POST';
+
+        const formData = {
+            name: document.getElementById('workerName').value,
+            phone: document.getElementById('workerPhone').value,
+            national_id: document.getElementById('workerNationalId').value,
+            joined_date: document.getElementById('workerJoinedDate').value,
+            _token: document.querySelector('input[name="_token"]').value
+        };
+
+        if (workerId) {
+            formData._method = 'PUT';
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.status === 422) {
+                return response.json().then(data => {
+                    displayWorkerErrors(data.errors);
+                    throw new Error('Validation failed');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                closeWorkerModal();
+                // Reload workers list
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
 });
 
-// Close modal on outside click
-document.getElementById('workerModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeWorkerModal();
-    }
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('workerModal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeWorkerModal();
+        }
+    });
 });
 </script>

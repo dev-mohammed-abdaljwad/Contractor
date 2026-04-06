@@ -652,6 +652,7 @@ function saveWorkerEdit(workerId) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
@@ -688,6 +689,7 @@ function saveDeduction(workerId) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
@@ -726,6 +728,7 @@ function saveAdvance(workerId) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({
@@ -773,6 +776,7 @@ function deactivateWorker(workerId) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
       },
       body: JSON.stringify({ is_active: false })
@@ -792,6 +796,7 @@ function reactivateWorker(workerId) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
       },
       body: JSON.stringify({ is_active: true })

@@ -131,6 +131,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
 .page-title {
@@ -138,11 +139,14 @@ body {
     font-weight: 700;
     color: #1a1c19;
     flex: 1;
+    min-width: 0;
 }
 
 .topbar-date {
     font-size: 12px;
     color: #707a6c;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .content {
@@ -525,12 +529,13 @@ body {
 #mobile-topbar {
     display: none;
     background: #0d631b;
-    padding: 12px 16px;
+    padding: 14px 12px;
     align-items: center;
     justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 30;
+    gap: 12px;
 }
 
 /* ============ DISC BUTTONS ============ */
@@ -584,6 +589,44 @@ body {
 
     #mobile-topbar {
         display: flex;
+        padding: 14px 12px;
+    }
+
+    #mobile-topbar > div:first-child {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    #mobile-topbar #sidebar-toggle {
+        display: flex;
+        min-width: 44px;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    #mobile-topbar #sidebar-toggle .ms {
+        font-size: 24px;
+    }
+
+    #mobile-topbar span:nth-of-type(1) {
+        font-size: 16px;
+        font-weight: 900;
+        color: #fff;
+        white-space: nowrap;
+    }
+
+    #mobile-topbar span:last-child {
+        font-size: 12px;
+        color: rgba(255,255,255,0.7);
+        text-align: right;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     #mobile-footer {
@@ -743,6 +786,19 @@ body {
 
 /* ============ TABLET (480px to 768px) ============ */
 @media(max-width: 768px) and (min-width: 481px) {
+    .topbar {
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .page-title {
+        font-size: 16px;
+    }
+
+    .topbar-date {
+        font-size: 11px;
+    }
+
     #mobile-footer {
         display: block !important;
     }
@@ -760,6 +816,35 @@ body {
 
 /* ============ SMALL MOBILE (max-width: 480px) ============ */
 @media(max-width: 480px) {
+    #mobile-topbar {
+        padding: 12px 10px;
+        gap: 8px;
+    }
+
+    #mobile-topbar > div:first-child {
+        gap: 8px;
+        flex: 1;
+    }
+
+    #mobile-topbar span:nth-of-type(1) {
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    #mobile-topbar span:last-child {
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    #mobile-topbar #sidebar-toggle {
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    #mobile-topbar #sidebar-toggle .ms {
+        font-size: 22px;
+    }
+
     .mobile-footer-label {
         font-size: 10px;
     }
@@ -775,5 +860,31 @@ body {
 
     div[style*="padding:28px"] {
         padding-bottom: 95px !important;
+    }
+}
+
+/* ============ VERY SMALL MOBILE (max-width: 360px) ============ */
+@media(max-width: 360px) {
+    #mobile-topbar {
+        padding: 11px 8px;
+        gap: 6px;
+    }
+
+    #mobile-topbar span:nth-of-type(1) {
+        font-size: 13px;
+    }
+
+    #mobile-topbar span:last-child {
+        font-size: 10px;
+        display: none;
+    }
+
+    #mobile-topbar #sidebar-toggle {
+        min-width: 38px;
+        min-height: 38px;
+    }
+
+    #mobile-topbar #sidebar-toggle .ms {
+        font-size: 20px;
     }
 }

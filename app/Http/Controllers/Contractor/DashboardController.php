@@ -19,27 +19,27 @@ class DashboardController extends Controller
         // Get today's statistics
         $todayDistributions = DailyDistribution::where('contractor_id', $contractorId)
             ->where('distribution_date', $today)
-            ->with(['company', 'worker'])
+            ->with(['company', 'workers'])
             ->get();
 
         $activeCompanies = Company::where('contractor_id', $contractorId)
             ->where('is_active', true)
             ->get();
 
-        $totalWagesToday = $todayDistributions->sum('daily_wage_snapshot');
+        $totalWagesToday = $todayDistributions->sum(fn($dist) => $dist->workers->count() * $dist->company->daily_wage);
 
         // Get today's companies with distribution data
         $companiesWithDistributions = $activeCompanies->map(function ($company) use ($today) {
             $distributions = DailyDistribution::where('company_id', $company->id)
                 ->where('distribution_date', $today)
-                ->count();
-            $totalWage = DailyDistribution::where('company_id', $company->id)
-                ->where('distribution_date', $today)
-                ->sum('daily_wage_snapshot');
+                ->with('workers')
+                ->get();
+            
+            $totalWage = $distributions->sum(fn($dist) => $dist->workers->count() * $company->daily_wage);
 
             return [
                 'company' => $company,
-                'workers_count' => $distributions,
+                'workers_count' => $distributions->sum(fn($d) => $d->workers->count()),
                 'total_wage' => $totalWage,
             ];
         });

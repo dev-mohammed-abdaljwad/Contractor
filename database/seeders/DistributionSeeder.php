@@ -25,23 +25,25 @@ class DistributionSeeder extends Seeder
 
                 foreach ($companies as $company) {
                     // Randomly assign 2-3 workers to each company per day
-                    for ($i = 0; $i < rand(2, 3); $i++) {
-                        $worker = $workers->random();
-                        
-                        // Check if worker already assigned that day
-                        $exists = DailyDistribution::where('worker_id', $worker->id)
-                            ->where('distribution_date', $date)
-                            ->exists();
+                    $numWorkers = rand(2, min(3, $workers->count()));
+                    $assignedWorkers = $workers->random($numWorkers);
+                    
+                    // Check if distribution already exists for this company on this date
+                    $existingDistribution = DailyDistribution::where('company_id', $company->id)
+                        ->where('distribution_date', $date)
+                        ->first();
 
-                        if (!$exists) {
-                            DailyDistribution::create([
-                                'contractor_id' => $contractor->id,
-                                'distribution_date' => $date,
-                                'company_id' => $company->id,
-                                'worker_id' => $worker->id,
-                                'daily_wage_snapshot' => $company->daily_wage,
-                            ]);
-                        }
+                    if (!$existingDistribution) {
+                        // Create new distribution
+                        $distribution = DailyDistribution::create([
+                            'contractor_id' => $contractor->id,
+                            'distribution_date' => $date,
+                            'company_id' => $company->id,
+                            'total_amount' => $assignedWorkers->count() * $company->daily_wage,
+                        ]);
+
+                        // Attach workers to the distribution
+                        $distribution->workers()->attach($assignedWorkers->pluck('id')->toArray());
                     }
                 }
             }

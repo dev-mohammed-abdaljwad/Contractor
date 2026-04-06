@@ -14,13 +14,13 @@ class UpdateCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'daily_wage' => 'required|numeric|min:0',
-            'payment_cycle' => 'required|in:daily,weekly,bimonthly',
+            'name' => 'sometimes|required|string|max:255',
+            'contact_person' => 'sometimes|required|string|max:255',
+            'phone' => 'sometimes|required|string|max:20',
+            'daily_wage' => 'sometimes|required|numeric|min:0',
+            'payment_cycle' => 'sometimes|required|in:يومي,أسبوعي,نص شهري',
             'weekly_pay_day' => 'nullable|string|max:20',
-            'contract_start_date' => 'required|date_format:Y-m-d',
+            'contract_start_date' => 'sometimes|required|date_format:Y-m-d',
             'notes' => 'nullable|string',
             'is_active' => 'nullable|boolean',
         ];

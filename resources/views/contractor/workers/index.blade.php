@@ -320,8 +320,8 @@
           @endif
         </div>
         <div class="w-card-actions" onclick="event.stopPropagation()">
-          <button class="btn-edit" onclick="openWorkerModal(true, {{ $worker->id }})">تعديل</button>
-          <button class="btn-deactivate" onclick="deactivateWorker({{ $worker->id }})">إيقاف</button>
+          <button type="button" class="btn-edit" onclick="openWorkerModal(true, {{ $worker->id }})">تعديل</button>
+          <button type="button" class="btn-deactivate" onclick="deactivateWorker({{ $worker->id }})">إيقاف</button>
         </div>
       </div>
     </div>
@@ -366,73 +366,425 @@
 <!-- Include Worker Form Modal -->
 @include('components.worker-form-modal')
 
+<!-- Alert Modal -->
+<div id="workerAlertModal" class="worker-alert-modal">
+  <div class="worker-alert-overlay" onclick="closeWorkerAlertModal()"></div>
+  <div class="worker-alert-content">
+    <div class="worker-alert-header">
+      <h3 id="workerAlertTitle" class="worker-alert-title">إشعار</h3>
+      <button type="button" class="worker-alert-close" onclick="closeWorkerAlertModal()">&times;</button>
+    </div>
+    <div class="worker-alert-body">
+      <div id="workerAlertMessage" class="worker-alert-message">هناك رسالة بانتظارك</div>
+    </div>
+    <div class="worker-alert-footer">
+      <button type="button" class="alert-btn" onclick="closeWorkerAlertModal()">حسناً</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="workerConfirmModal" class="worker-confirm-modal">
+  <div class="worker-confirm-overlay" onclick="closeWorkerConfirmModal()"></div>
+  <div class="worker-confirm-content">
+    <div class="worker-confirm-header">
+      <h3 id="workerConfirmTitle" class="worker-confirm-title">تأكيد</h3>
+      <button type="button" class="worker-confirm-close" onclick="closeWorkerConfirmModal()">&times;</button>
+    </div>
+    <div class="worker-confirm-body">
+      <div id="workerConfirmMessage" class="worker-confirm-message">هل أنت متأكد؟</div>
+    </div>
+    <div class="worker-confirm-footer">
+      <button type="button" id="workerCancelBtn" class="worker-confirm-btn-cancel" onclick="closeWorkerConfirmModal()">إلغاء</button>
+      <button type="button" id="workerConfirmBtn" class="worker-confirm-btn-action" onclick="confirmWorkerAction()">موافق</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Alert Modal Styles */
+.worker-alert-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.worker-alert-modal.show {
+  display: flex;
+}
+
+.worker-alert-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.worker-alert-content {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-in-out;
+}
+
+.worker-alert-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.worker-alert-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.worker-alert-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.worker-alert-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.worker-alert-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.worker-alert-message {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.worker-alert-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.alert-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #0d631b;
+  color: #fff;
+  min-height: 44px;
+}
+
+.alert-btn:hover {
+  background: #0a5216;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 99, 27, 0.2);
+}
+
+/* Confirmation Modal Styles */
+.worker-confirm-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.worker-confirm-modal.show {
+  display: flex;
+}
+
+.worker-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.worker-confirm-content {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 420px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-in-out;
+}
+
+.worker-confirm-header {
+  padding: 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.worker-confirm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.worker-confirm-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.worker-confirm-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.worker-confirm-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.worker-confirm-message {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.worker-confirm-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.worker-confirm-btn-cancel,
+.worker-confirm-btn-action {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+}
+
+.worker-confirm-btn-cancel {
+  background: #f3f4f6;
+  color: #666;
+  border: 1px solid #e5e7eb;
+}
+
+.worker-confirm-btn-cancel:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.worker-confirm-btn-action {
+  background: #0d631b;
+  color: #fff;
+}
+
+.worker-confirm-btn-action:hover {
+  background: #0a5216;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 99, 27, 0.2);
+}
+
+.worker-confirm-btn-action:focus {
+  outline: 2px solid #0d631b;
+  outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media(max-width: 480px) {
+  .worker-alert-content,
+  .worker-confirm-content {
+    width: 95%;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .worker-alert-header,
+  .worker-confirm-header {
+    padding: 16px;
+  }
+
+  .worker-alert-title,
+  .worker-confirm-title {
+    font-size: 16px;
+  }
+
+  .worker-alert-body,
+  .worker-confirm-body {
+    padding: 16px;
+  }
+
+  .worker-alert-message,
+  .worker-confirm-message {
+    font-size: 13px;
+  }
+
+  .worker-alert-footer,
+  .worker-confirm-footer {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .alert-btn,
+  .worker-confirm-btn-cancel,
+  .worker-confirm-btn-action {
+    padding: 10px 16px;
+    font-size: 13px;
+    min-height: 40px;
+    flex: 1;
+  }
+}
+</style>
+
 <script>
     /**
      * Deactivate a worker (soft delete) - hides from daily distribution but keeps history
      */
     function deactivateWorker(workerId) {
-        if (!confirm('هل تريد إيقاف هذا العامل؟\nسيتم إخفاؤه من التوزيعات اليومية ولكن سيبقى سجله محفوظاً')) {
-            return;
-        }
-
-        fetch(`/contractor/workers/${workerId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: JSON.stringify({ is_active: false })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('حدث خطأ');
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Reload to reflect changes
-                window.location.reload();
-            } else {
-                alert(data.message || 'فشل إيقاف العامل');
+        showConfirmModal(
+            'إيقاف العامل',
+            'هل تريد فعلاً إيقاف هذا العامل؟\nسيتم إخفاؤه من التوزيعات اليومية ولكن سيبقى سجله محفوظاً',
+            'warning',
+            function() {
+                fetch(`/contractor/workers/${workerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({ is_active: false })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('حدث خطأ');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Reload to reflect changes
+                        window.location.reload();
+                    } else {
+                        showAlertModal('خطأ', data.message || 'فشل إيقاف العامل', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlertModal('خطأ', 'حدث خطأ أثناء إيقاف العامل', 'error');
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('حدث خطأ أثناء إيقاف العامل');
-        });
+        );
     }
 
     /**
      * Reactivate a deactivated worker
      */
     function reactivateWorker(workerId) {
-        if (!confirm('هل تريد تفعيل هذا العامل مرة أخرى؟')) {
-            return;
-        }
-
-        fetch(`/contractor/workers/${workerId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: JSON.stringify({ is_active: true })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('حدث خطأ');
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Reload to reflect changes
-                window.location.reload();
-            } else {
-                alert(data.message || 'فشل تفعيل العامل');
+        showConfirmModal(
+            'تفعيل العامل',
+            'هل تريد تفعيل هذا العامل مرة أخرى؟',
+            'info',
+            function() {
+                fetch(`/contractor/workers/${workerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({ is_active: true })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('حدث خطأ');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Reload to reflect changes
+                        window.location.reload();
+                    } else {
+                        showAlertModal('خطأ', data.message || 'فشل تفعيل العامل', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlertModal('خطأ', 'حدث خطأ أثناء تفعيل العامل', 'error');
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('حدث خطأ أثناء تفعيل العامل');
-        });
+        );
     }
 
     /**
@@ -468,7 +820,7 @@
             })
             .catch(error => {
                 console.error('Error loading worker:', error);
-                alert('فشل تحميل بيانات العامل');
+                showAlertModal('خطأ', 'فشل تحميل بيانات العامل', 'error');
                 closeWorkerModal();
             });
         } else {
@@ -520,6 +872,7 @@
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     },
                     body: JSON.stringify(formData)
@@ -529,12 +882,12 @@
                     if (data.success) {
                         window.location.reload();
                     } else {
-                        alert(data.message || 'حدث خطأ أثناء الحفظ');
+                        showAlertModal('خطأ', data.message || 'حدث خطأ أثناء الحفظ', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('حدث خطأ أثناء الحفظ');
+                    showAlertModal('خطأ', 'حدث خطأ أثناء الحفظ', 'error');
                 });
             });
         }
@@ -549,6 +902,125 @@
             });
         }
     });
+
+// Alert Modal Function
+function showAlertModal(title, message, type = 'info') {
+  const modal = document.getElementById('workerAlertModal');
+  const titleEl = document.getElementById('workerAlertTitle');
+  const messageEl = document.getElementById('workerAlertMessage');
+  const btnEl = document.querySelector('#workerAlertModal .alert-btn');
+
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+
+  // Style button based on type
+  if (type === 'error') {
+    btnEl.style.background = '#ba1a1a';
+    btnEl.onmouseover = function() {
+      this.style.background = '#991b1b';
+    };
+    btnEl.onmouseout = function() {
+      this.style.background = '#ba1a1a';
+    };
+  } else if (type === 'success') {
+    btnEl.style.background = '#059669';
+    btnEl.onmouseover = function() {
+      this.style.background = '#047857';
+    };
+    btnEl.onmouseout = function() {
+      this.style.background = '#059669';
+    };
+  } else {
+    btnEl.style.background = '#0d631b';
+    btnEl.onmouseover = function() {
+      this.style.background = '#0a5216';
+    };
+    btnEl.onmouseout = function() {
+      this.style.background = '#0d631b';
+    };
+  }
+
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeWorkerAlertModal() {
+  const modal = document.getElementById('workerAlertModal');
+  modal.classList.remove('show');
+  document.body.style.overflow = 'auto';
+}
+
+// Confirmation Modal Function
+function showConfirmModal(title, message, type = 'warning', onConfirm = null) {
+  const modal = document.getElementById('workerConfirmModal');
+  const titleEl = document.getElementById('workerConfirmTitle');
+  const messageEl = document.getElementById('workerConfirmMessage');
+  const confirmBtn = document.getElementById('workerConfirmBtn');
+  const cancelBtn = document.getElementById('workerCancelBtn');
+
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+
+  // Store the callback
+  window.confirmCallback = onConfirm;
+
+  // Style buttons based on type
+  if (type === 'warning' || type === 'error') {
+    confirmBtn.style.background = '#ba1a1a';
+    confirmBtn.onmouseover = function() {
+      this.style.background = '#991b1b';
+    };
+    confirmBtn.onmouseout = function() {
+      this.style.background = '#ba1a1a';
+    };
+  } else {
+    confirmBtn.style.background = '#0d631b';
+    confirmBtn.onmouseover = function() {
+      this.style.background = '#0a5216';
+    };
+    confirmBtn.onmouseout = function() {
+      this.style.background = '#0d631b';
+    };
+  }
+
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => confirmBtn.focus(), 100);
+}
+
+function closeWorkerConfirmModal() {
+  const modal = document.getElementById('workerConfirmModal');
+  modal.classList.remove('show');
+  document.body.style.overflow = 'auto';
+  window.confirmCallback = null;
+}
+
+function confirmWorkerAction() {
+  if (window.confirmCallback && typeof window.confirmCallback === 'function') {
+    window.confirmCallback();
+  }
+  closeWorkerConfirmModal();
+}
+
+// Close modals on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Alert Modal overlay click
+  const alertModal = document.getElementById('workerAlertModal');
+  alertModal?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeWorkerAlertModal();
+    }
+  });
+
+  // Confirm Modal overlay click
+  const confirmModal = document.getElementById('workerConfirmModal');
+  confirmModal?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeWorkerConfirmModal();
+    }
+  });
+});
+</script>
 
 @endsection
 

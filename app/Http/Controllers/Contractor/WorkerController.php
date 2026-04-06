@@ -45,7 +45,7 @@ class WorkerController extends Controller
             $worker->distribution_today = (bool)$todayDistribution;
             $worker->assigned_company = $todayDistribution?->company->name ?? null;
             $worker->company_today = $todayDistribution?->company->name ?? null;
-            $worker->daily_wage = $todayDistribution?->daily_wage_snapshot ?? ($todayDistribution?->company->daily_wage ?? 0);
+            $worker->daily_wage = $todayDistribution?->company->daily_wage ?? 0;
 
             // Calculate work days
             $daysWorked = $worker->distributions()
@@ -262,8 +262,8 @@ class WorkerController extends Controller
                     'day' => $day,
                     'day_name' => $dayName,
                     'company_name' => $dist->company->name ?? 'غير محدد',
-                    'rate_label' => number_format($dist->daily_wage_snapshot) . ' ج/يوم',
-                    'amount' => number_format($dist->daily_wage_snapshot, 0),
+                    'rate_label' => number_format($dist->company->daily_wage) . ' ج/يوم',
+                    'amount' => number_format($dist->company->daily_wage, 0),
                     'status' => $hasDeduction ? 'partial' : 'full',
                 ];
             })->values();

@@ -60,9 +60,13 @@ function showPage(name) {
 
     // Update page title and action
     const info = pages[name] || {};
-    document.getElementById('desktop-page-title').textContent = info.title || '';
-    document.getElementById('mob-page-title').textContent = info.title || '';
-    document.getElementById('topbar-action').innerHTML = '<span class="ms" style="font-size:16px">add</span> ' + (info.action || '');
+    const desktopTitle = document.getElementById('desktop-page-title');
+    const mobTitle = document.getElementById('mob-page-title');
+    const topbarAction = document.getElementById('topbar-action');
+    
+    if (desktopTitle) desktopTitle.textContent = info.title || '';
+    if (mobTitle) mobTitle.textContent = info.title || '';
+    if (topbarAction) topbarAction.innerHTML = '<span class="ms" style="font-size:16px">add</span> ' + (info.action || '');
 
     // Close sidebar on mobile
     closeSidebar();

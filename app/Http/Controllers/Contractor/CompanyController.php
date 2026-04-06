@@ -28,15 +28,17 @@ class CompanyController extends Controller
             // Today's workers
             $todayDistributions = $company->distributions()
                 ->where('distribution_date', $today)
+                ->with('workers')
                 ->get();
-            $company->workers_today = $todayDistributions->count();
-            $company->wage_today = $todayDistributions->sum('daily_wage_snapshot');
+            $company->workers_today = $todayDistributions->sum(fn($d) => $d->workers->count());
+            $company->wage_today = $todayDistributions->sum(fn($d) => $d->workers->count() * $company->daily_wage);
 
             // Monthly totals
             $monthDistributions = $company->distributions()
                 ->whereBetween('distribution_date', [$monthStart, $monthEnd])
+                ->with('workers')
                 ->get();
-            $company->total_month = $monthDistributions->sum('daily_wage_snapshot');
+            $company->total_month = $monthDistributions->sum(fn($d) => $d->workers->count() * $company->daily_wage);
             $company->days_worked_month = $monthDistributions->pluck('distribution_date')->unique()->count();
 
             // Payment tracking
@@ -86,7 +88,9 @@ class CompanyController extends Controller
 
             // Total workers (all time)
             $company->total_workers = $company->distributions()
-                ->pluck('worker_id')
+                ->with('workers')
+                ->get()
+                ->flatMap(fn($dist) => $dist->workers->pluck('id'))
                 ->unique()
                 ->count();
 
@@ -150,17 +154,45 @@ class CompanyController extends Controller
         }
 
         // Eager load distributions with workers
-        $company->load('distributions.worker');
+        $company->load('distributions.workers');
 
-        // Calculate statistics
+        // Calculate statistics - count unique workers across all distributions
         $company->total_workers = $company->distributions()
-            ->select('worker_id')
-            ->distinct()
+            ->with('workers')
+            ->get()
+            ->flatMap(fn($dist) => $dist->workers->pluck('id'))
+            ->unique()
             ->count();
 
         $company->pending_amount = $company->collections()
             ->where('is_paid', false)
             ->sum('net_amount');
+
+        // Get today's distributions for this company with workers
+        $today = Carbon::today();
+        $todayDistributions = $company->distributions()
+            ->where('distribution_date', $today)
+            ->with('workers')
+            ->get();
+
+        // Extract workers for today
+        $workersToday = $todayDistributions
+            ->flatMap(fn($dist) => $dist->workers)
+            ->unique('id')
+            ->values();
+
+        // Get distribution history (last 30 days)
+        $thirtyDaysAgo = Carbon::today()->subDays(30);
+        $distributionHistory = $company->distributions()
+            ->where('distribution_date', '>=', $thirtyDaysAgo)
+            ->orderByDesc('distribution_date')
+            ->with('workers')
+            ->get();
+
+        // Get collections/payments history
+        $paymentsHistory = $company->collections()
+            ->orderByDesc('created_at')
+            ->get();
 
         // Return JSON for modal edit form
         if (request()->expectsJson() || request()->header('Accept') === 'application/json') {
@@ -178,7 +210,7 @@ class CompanyController extends Controller
             ]);
         }
 
-        return view('contractor.companies.show', compact('company'));
+        return view('contractor.companies.show', compact('company', 'workersToday', 'distributionHistory', 'paymentsHistory'));
     }
 
     public function edit(Company $company)

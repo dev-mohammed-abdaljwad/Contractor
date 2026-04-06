@@ -217,21 +217,6 @@ So that I can verify the number before confirming.
 
 ---
 
-### US-12 · Assign One Worker to Multiple Companies on the Same Day
-**Priority:** 🟡 Should Have
-
-```
-As a contractor,
-I want to assign a single worker to more than one company on the same day,
-So that I can handle partial shifts or workers who move between companies.
-```
-
-**Acceptance Criteria:**
-- Each assignment carries its own wage based on the respective company
-- The worker's daily total is the sum of all assignments that day
-- A warning appears if the worker is already fully assigned elsewhere
-
----
 
 ### US-13 · Edit or Cancel a Past Distribution
 **Priority:** 🟡 Should Have

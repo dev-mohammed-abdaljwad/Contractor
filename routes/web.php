@@ -54,12 +54,25 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
     // Collections Management
     Route::prefix('collections')->group(function () {
         Route::get('/', [CollectionController::class, 'index'])->name('contractor.collections.index');
+        Route::post('/generate', [CollectionController::class, 'generate'])->name('contractor.collections.generate');
         Route::get('/{id}', [CollectionController::class, 'show'])->name('contractor.collections.show');
     });
 
     // Distributions Management
     Route::prefix('distributions')->group(function () {
+        // API Endpoints for real-time calculations (before resourceful routes)
+        Route::post('/calculate-earnings', [DistributionController::class, 'calculateEarnings'])->name('contractor.distributions.calculate-earnings');
+        Route::get('/assigned-workers', [DistributionController::class, 'getAssignedWorkers'])->name('contractor.distributions.get-assigned-workers');
+        Route::get('/available-workers', [DistributionController::class, 'getAvailableWorkers'])->name('contractor.distributions.get-available-workers');
+        
+        // Resourceful routes
+        Route::get('/', [DistributionController::class, 'index'])->name('contractor.distributions.index');
+        Route::get('/create', [DistributionController::class, 'create'])->name('contractor.distributions.create');
         Route::post('/', [DistributionController::class, 'store'])->name('contractor.distributions.store');
+        Route::get('/{id}', [DistributionController::class, 'show'])->name('contractor.distributions.show');
+        Route::get('/{id}/edit', [DistributionController::class, 'edit'])->name('contractor.distributions.edit');
+        Route::put('/{id}', [DistributionController::class, 'update'])->name('contractor.distributions.update');
+        Route::delete('/{id}', [DistributionController::class, 'destroy'])->name('contractor.distributions.destroy');
     });
 
     // Deductions Management

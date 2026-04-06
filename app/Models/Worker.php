@@ -36,7 +36,8 @@ class Worker extends Model
 
     public function distributions()
     {
-        return $this->hasMany(DailyDistribution::class);
+        return $this->belongsToMany(DailyDistribution::class, 'distribution_worker', 'worker_id', 'distribution_id')
+            ->withTimestamps();
     }
 
     public function deductions()

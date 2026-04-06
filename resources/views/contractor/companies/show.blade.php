@@ -232,15 +232,15 @@
     <div class="stat-label">أجر/عامل (ج)</div>
   </div>
   <div class="stat-card">
-    <div class="stat-val v-green">0</div>
+    <div class="stat-val v-green">{{ $workersToday->count() }}</div>
     <div class="stat-label">عمال اليوم</div>
   </div>
   <div class="stat-card">
-    <div class="stat-val v-green" style="font-size:12px;">0</div>
+    <div class="stat-val v-green" style="font-size:12px;">{{ number_format($company->distributions()->whereBetween('distribution_date', [now()->startOfMonth(), now()->endOfMonth()])->get()->sum(fn($d) => $d->workers->count() * $d->company->daily_wage), 0) }}</div>
     <div class="stat-label">إجمالي الشهر</div>
   </div>
   <div class="stat-card">
-    <div class="stat-val v-amber" style="font-size:12px;">0</div>
+    <div class="stat-val v-amber" style="font-size:12px;">{{ number_format($company->collections()->where('is_paid', false)->sum('net_amount'), 0) }}</div>
     <div class="stat-label">مستحق الآن</div>
   </div>
 </div>
@@ -299,24 +299,82 @@
   <div class="tab-content" id="tab1">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div class="sec-title" style="margin:0;">عمال اليوم</div>
-      <span style="background:#ECFDF5;color:#065F46;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">0 عامل</span>
+      <span style="background:#ECFDF5;color:#065F46;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">{{ count($workersToday) }} عامل</span>
     </div>
-    <div style="color: #aaa; text-align: center; padding: 20px;">لا يوجد عمال موزعين اليوم</div>
+    @if($workersToday->count() > 0)
+      <div style="display:grid;gap:8px;">
+        @foreach($workersToday as $worker)
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;border-radius:10px;border-left:3px solid #1D9E75;">
+            <div style="font-size:13px;font-weight:500;color:#222;">{{ $worker->name }}</div>
+            <div style="font-size:12px;color:#aaa;">{{ $company->daily_wage }} ج</div>
+          </div>
+        @endforeach
+      </div>
+    @else
+      <div style="color: #aaa; text-align: center; padding: 20px;">لا يوجد عمال موزعين اليوم</div>
+    @endif
   </div>
 
   <!-- TAB 2: History -->
   <div class="tab-content" id="tab2">
     <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
-      <span style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;">هذا الأسبوع</span>
-      <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:4px 12px;font-size:12px;">هذا الشهر</span>
-      <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:4px 12px;font-size:12px;">مخصوص</span>
+      <span style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;" onclick="filterDistributions('week')">هذا الأسبوع</span>
+      <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;" onclick="filterDistributions('month')">هذا الشهر</span>
     </div>
-    <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد سجلات توزيع</div>
+    @if($distributionHistory->count() > 0)
+      <div style="display:grid;gap:10px;">
+        @foreach($distributionHistory as $dist)
+          <div style="padding:12px;background:#f8f9fa;border-radius:10px;border-right:3px solid #1D9E75;">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+              <div style="font-size:13px;font-weight:600;color:#222;">
+                {{ $dist->distribution_date->format('d/m') }}
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#1D9E75;">
+                {{ number_format($dist->total_amount ?? 0) }} ج
+              </div>
+            </div>
+            <div style="font-size:12px;color:#666;">{{ $dist->workers->count() }} عامل</div>
+          </div>
+        @endforeach
+      </div>
+    @else
+      <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد سجلات توزيع</div>
+    @endif
   </div>
 
   <!-- TAB 3: Collection -->
   <div class="tab-content" id="tab3">
-    <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد دفعات مسجلة</div>
+    @if($paymentsHistory->count() > 0)
+      <div style="display:grid;gap:10px;margin-bottom:16px;">
+        @foreach($paymentsHistory as $payment)
+          <div style="padding:14px;background:{{ $payment->is_paid ? '#ECFDF5' : '#FEF3C7' }};border-radius:10px;border-right:3px solid {{ $payment->is_paid ? '#1D9E75' : '#D97706' }};">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#222;">
+                  {{ $payment->period_start->format('d/m') }} - {{ $payment->period_end->format('d/m/Y') }}
+                </div>
+                <div style="font-size:11px;color:#999;margin-top:2px;">
+                  {{ $payment->is_paid ? 'تم التحصيل' : 'بانتظار الدفع' }}
+                </div>
+              </div>
+              <div style="text-align:left;">
+                <div style="font-size:14px;font-weight:700;color:{{ $payment->is_paid ? '#1D9E75' : '#D97706' }};">
+                  {{ number_format($payment->net_amount, 0) }} ج
+                </div>
+                <div style="font-size:11px;color:#999;margin-top:2px;">صاف</div>
+              </div>
+            </div>
+            @if($payment->is_paid)
+              <div style="font-size:11px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid rgba(29,158,117,0.1);">
+                تم بتاريخ: {{ $payment->payment_date->format('d/m/Y') }}
+              </div>
+            @endif
+          </div>
+        @endforeach
+      </div>
+    @else
+      <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد دفعات مسجلة</div>
+    @endif
     <button style="width: 100%; padding: 13px; background: #1D9E75; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;" onclick="openModal('paymentModal')">+ تسجيل دفعة جديدة</button>
   </div>
 
@@ -465,6 +523,7 @@ function deactivateCompany(companyId) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({ is_active: false })
@@ -492,6 +551,7 @@ function saveCompanyEdit(companyId) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify(data)
@@ -521,6 +581,7 @@ function savePayment(companyId) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({

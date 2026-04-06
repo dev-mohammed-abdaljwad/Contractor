@@ -20,27 +20,37 @@ class CollectionService
      */
     public function generateStatement(int $companyId, string $from, string $to): array
     {
-        $distributions = $this->distributionRepository->getByCompanyAndPeriod($companyId, $from, $to);
+        $distributions = $this->distributionRepository->getByCompanyAndPeriod($companyId, $from, $to)
+            ->with('workers');
         $deductions = $this->deductionRepository->getByCompanyAndPeriod($companyId, $from, $to);
 
-        $totalDays = $distributions->count();
-        $totalWages = $distributions->sum('daily_wage_snapshot');
+        // Calculate total workers across all distributions (each distribution can have multiple workers)
+        $totalWorkerDays = $distributions->sum(fn($dist) => $dist->workers->count());
+        $totalWages = $distributions->sum(fn($dist) => $dist->workers->count() * $dist->company->daily_wage);
         $totalDeductions = $deductions->sum('amount');
         $netAmount = $totalWages - $totalDeductions;
+
+        // Flatten distribution-worker pairs
+        $distributionDetails = [];
+        foreach ($distributions as $dist) {
+            foreach ($dist->workers as $worker) {
+                $distributionDetails[] = [
+                    'date' => $dist->distribution_date,
+                    'worker_name' => $worker->name,
+                    'wage' => $dist->company->daily_wage,
+                ];
+            }
+        }
 
         return [
             'company_id' => $companyId,
             'period_start' => $from,
             'period_end' => $to,
-            'total_days_worked' => $totalDays,
+            'total_days_worked' => $totalWorkerDays,
             'total_wages' => (float) $totalWages,
             'total_deductions' => (float) $totalDeductions,
             'net_amount' => (float) $netAmount,
-            'distribution_details' => $distributions->map(fn($d) => [
-                'date' => $d->distribution_date,
-                'worker_name' => $d->worker->name,
-                'wage' => $d->daily_wage_snapshot,
-            ])->toArray(),
+            'distribution_details' => $distributionDetails,
             'deduction_details' => $deductions->map(fn($d) => [
                 'date' => $d->deduction_date,
                 'worker_name' => $d->worker->name,
