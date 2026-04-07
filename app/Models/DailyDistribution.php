@@ -22,7 +22,7 @@ class DailyDistribution extends Model
     protected function casts(): array
     {
         return [
-            'distribution_date' => 'date',
+            'distribution_date' => 'date:Y-m-d',
             'total_amount' => 'decimal:2',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -61,14 +61,6 @@ class DailyDistribution extends Model
             return true; // New distributions can be edited
         }
         return $this->created_at->addDays(7)->isFuture();
-    }
-
-    /**
-     * Get workers count
-     */
-    public function getWorkersCountAttribute(): int
-    {
-        return $this->workers()->count();
     }
 }
 

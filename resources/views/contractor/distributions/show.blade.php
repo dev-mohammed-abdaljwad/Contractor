@@ -131,7 +131,7 @@
   <div class="comp-meta">{{ $distribution->created_at->format('l، j F Y') }}</div>
   <div class="info-grid">
     <div class="info-box">
-      <div class="info-val">{{ $distribution->workers->count() }}</div>
+      <div class="info-val">{{ $distribution->workers_count }}</div>
       <div class="info-lbl">عدد العمال</div>
     </div>
     <div class="info-box">

@@ -200,15 +200,22 @@ function openPayModal(company, amount) {
 
 // ============ COMPANY MODAL FUNCTIONS ============
 function openCompanyModal(isEdit = false, companyId = null) {
+    // Check if modal and form elements exist on this page
+    const form = document.getElementById('company-form');
+    const modal = document.getElementById('company-form-modal');
+    
+    if (!form || !modal) {
+        console.error('Company form modal or form elements not found on this page');
+        return;
+    }
+    
     // Reset form
-    document.getElementById('company-form').reset();
+    form.reset();
     document.querySelectorAll('.form-error').forEach(el => el.style.display = 'none');
     
-    const modal = document.getElementById('company-form-modal');
     const statusField = document.getElementById('status-field');
     const modalTitle = document.getElementById('modal-title');
     const submitBtnText = document.getElementById('submit-btn-text');
-    const form = document.getElementById('company-form');
     
     if (isEdit && companyId) {
         // Edit mode

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فحص Service Worker - iDara</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0a4f14 0%, #1D9E75 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { color: #0a4f14; margin-bottom: 20px; text-align: center; }
+        .test { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border-radius: 10px;
+            border-right: 4px solid #ddd;
+        }
+        .test.running { background: #fff8e1; border-right-color: #ff9800; }
+        .test.success { background: #e8f5e9; border-right-color: #4caf50; }
+        .test.error { background: #ffebee; border-right-color: #f44336; }
+        .test-title { font-weight: 700; margin-bottom: 8px; }
+        .test-result { 
+            font-size: 13px; 
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            color: #333;
+        }
+        .success-icon { color: #4caf50; font-size: 18px; margin-right: 8px; }
+        .error-icon { color: #f44336; font-size: 18px; margin-right: 8px; }
+        .running-icon { color: #ff9800; font-size: 18px; margin-right: 8px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 فحص Service Worker</h1>
+        
+        <!-- Test 1 -->
+        <div id="test1" class="test running">
+            <div class="test-title">
+                <span class="running-icon">⏳</span>
+                Test 1: هل ملف /sw.js موجود؟
+            </div>
+            <div class="test-result">جاري الفحص...</div>
+        </div>
+
+        <!-- Test 2 -->
+        <div id="test2" class="test running">
+            <div class="test-title">
+                <span class="running-icon">⏳</span>
+                Test 2: هل يعمل تسجيل Service Worker؟
+            </div>
+            <div class="test-result">جاري الفحص...</div>
+        </div>
+
+        <!-- Test 3 -->
+        <div id="test3" class="test running">
+            <div class="test-title">
+                <span class="running-icon">⏳</span>
+                Test 3: هل هناك تسجيلات نشطة؟
+            </div>
+            <div class="test-result">جاري الفحص...</div>
+        </div>
+
+        <!-- Test 4 -->
+        <div id="test4" class="test running">
+            <div class="test-title">
+                <span class="running-icon">⏳</span>
+                Test 4: هل Manifest موجود؟
+            </div>
+            <div class="test-result">جاري الفحص...</div>
+        </div>
+
+        <!-- Test 5 -->
+        <div id="test5" class="test running">
+            <div class="test-title">
+                <span class="running-icon">⏳</span>
+                Test 5: حالة beforeinstallprompt
+            </div>
+            <div class="test-result">جاري الانتظار (5 ثانية)...</div>
+        </div>
+
+        <!-- Summary -->
+        <div id="summary" style="margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 10px;">
+            <h3 style="color: #0a4f14; margin-bottom: 15px;">📊 النتائج</h3>
+            <div id="summary-text" style="font-size: 13px; line-height: 1.8; color: #666;">جاري إجراء الفحوصات...</div>
+        </div>
+    </div>
+
+    <script>
+        function updateTest(testId, status, message) {
+            const el = document.getElementById(testId);
+            el.className = 'test ' + status;
+            
+            const icon = status === 'success' ? '✅' : 
+                        status === 'error' ? '❌' : '⏳';
+            const iconClass = status === 'success' ? 'success-icon' : 
+                             status === 'error' ? 'error-icon' : 'running-icon';
+            
+            const titleMatch = el.querySelector('.test-title');
+            titleMatch.innerHTML = titleMatch.innerHTML.replace(/<span[^>]*>.*?<\/span>/, 
+                `<span class="${iconClass}">${icon}</span>`);
+            
+            el.querySelector('.test-result').textContent = message;
+        }
+
+        let results = {
+            test1: false,
+            test2: false,
+            test3: false,
+            test4: false,
+            test5: false
+        };
+
+        // Test 1: Check if /sw.js exists
+        fetch('/sw.js')
+            .then(r => {
+                if (r.ok) {
+                    updateTest('test1', 'success', `✅ ملف /sw.js موجود (Status: 200, Size: ${r.headers.get('content-length') || '?'} bytes)`);
+                    results.test1 = true;
+                } else {
+                    updateTest('test1', 'error', `❌ /sw.js موجود لكن الحالة: ${r.status}`);
+                }
+            })
+            .catch(e => {
+                updateTest('test1', 'error', `❌ خطأ: ${e.message}`);
+            });
+
+        // Test 2: Try to register Service Worker
+        setTimeout(() => {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(reg => {
+                    updateTest('test2', 'success', 
+                        `✅ تم تسجيل Service Worker!\n` +
+                        `   Scope: ${reg.scope}\n` +
+                        `   Active: ${!!reg.active ? 'نعم ✓' : 'لا (ربما جاري التفعيل)'}`
+                    );
+                    results.test2 = true;
+                })
+                .catch(e => {
+                    updateTest('test2', 'error', `❌ خطأ التسجيل: ${e.message}`);
+                });
+        }, 500);
+
+        // Test 3: Check current registrations
+        setTimeout(() => {
+            navigator.serviceWorker.getRegistrations()
+                .then(regs => {
+                    if (regs.length > 0) {
+                        const active = regs.some(r => r.active);
+                        updateTest('test3', active ? 'success' : 'running', 
+                            `${active ? '✅' : '⏳'} عدد التسجيلات: ${regs.length}\n` +
+                            `   ${regs.map((r, i) => `${i+1}. ${r.scope} (Active: ${!!r.active ? '✓' : '✗'})`).join('\n   ')}`
+                        );
+                        results.test3 = active;
+                    } else {
+                        updateTest('test3', 'error', '❌ لا توجد تسجيلات');
+                    }
+                });
+        }, 1000);
+
+        // Test 4: Check Manifest
+        fetch('/manifest.json')
+            .then(r => r.json())
+            .then(manifest => {
+                updateTest('test4', 'success', 
+                    `✅ Manifest موجود\n` +
+                    `   Name: ${manifest.name}\n` +
+                    `   Icons: ${manifest.icons?.length || 0}`
+                );
+                results.test4 = true;
+            })
+            .catch(e => {
+                updateTest('test4', 'error', `❌ خطأ: ${e.message}`);
+            });
+
+        // Test 5: beforeinstallprompt
+        let promptFired = false;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            promptFired = true;
+            updateTest('test5', 'success', '✅ beforeinstallprompt جاهز! اضغط install');
+            results.test5 = true;
+        });
+
+        setTimeout(() => {
+            if (!promptFired) {
+                updateTest('test5', 'error', '❌ beforeinstallprompt لم يحدث (تحقق من Service Worker)');
+            }
+        }, 5000);
+
+        // Summary
+        setTimeout(() => {
+            const passing = Object.values(results).filter(Boolean).length;
+            const total = Object.keys(results).length;
+            
+            let summary = `<strong>النتيجة: ${passing}/${total} فحوصات نجحت</strong><br><br>`;
+            
+            if (results.test1 && results.test2 && results.test3) {
+                summary += '✅ Service Worker يعمل بشكل صحيح!<br>';
+                if (!results.test5) {
+                    summary += '⚠️ لكن beforeinstallprompt لم يظهر بعد - جرب الانتظار قليلاً أو إعادة التحميل';
+                } else {
+                    summary += '✅ يجب أن يظهر اقتراح التثبيت!';
+                }
+            } else {
+                summary += '❌ مشاكل مكتشفة:<br>';
+                if (!results.test1) summary += '• ملف /sw.js غير موجود أو معطوب<br>';
+                if (!results.test2) summary += '• فشل تسجيل Service Worker<br>';
+                if (!results.test3) summary += '• Service Worker غير نشط<br>';
+                summary += '<br>🔧 الحل: تحقق من أن Laravel server يعمل:';
+                summary += '<br><code>php artisan serve</code>';
+            }
+            
+            document.getElementById('summary-text').innerHTML = summary;
+        }, 6000);
+    </script>
+</body>
+</html>

@@ -236,11 +236,11 @@
     <div class="stat-label">عمال اليوم</div>
   </div>
   <div class="stat-card">
-    <div class="stat-val v-green" style="font-size:12px;">{{ number_format($company->distributions()->whereBetween('distribution_date', [now()->startOfMonth(), now()->endOfMonth()])->get()->sum(fn($d) => $d->workers->count() * $d->company->daily_wage), 0) }}</div>
+    <div class="stat-val v-green" style="font-size:12px;">{{ number_format($monthlyTotal, 0) }}</div>
     <div class="stat-label">إجمالي الشهر</div>
   </div>
   <div class="stat-card">
-    <div class="stat-val v-amber" style="font-size:12px;">{{ number_format($company->collections()->where('is_paid', false)->sum('net_amount'), 0) }}</div>
+    <div class="stat-val v-amber" style="font-size:12px;">{{ number_format($pendingAmount, 0) }}</div>
     <div class="stat-label">مستحق الآن</div>
   </div>
 </div>
@@ -524,16 +524,19 @@ function deactivateCompany(companyId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify({ is_active: false })
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     alert('تم إيقاف الشركة بنجاح');
     location.reload();
   })
-  .catch(e => alert('خطأ: ' + e));
+  .catch(e => alert('خطأ: ' + e.message));
 }
 
 // ============ EDIT COMPANY ============
@@ -552,11 +555,14 @@ function saveCompanyEdit(companyId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify(data)
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       alert('تم تحديث البيانات بنجاح');
@@ -566,7 +572,7 @@ function saveCompanyEdit(companyId) {
       alert('خطأ: ' + (data.message || 'حدث خطأ'));
     }
   })
-  .catch(e => alert('خطأ: ' + e));
+  .catch(e => alert('خطأ: ' + e.message));
 }
 
 // ============ PAYMENT ============
@@ -582,7 +588,7 @@ function savePayment(companyId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify({
       amount: parseFloat(amount),
@@ -590,7 +596,10 @@ function savePayment(companyId) {
       notes: document.getElementById('paymentNotes').value
     })
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       alert('تم تسجيل الدفعة بنجاح');

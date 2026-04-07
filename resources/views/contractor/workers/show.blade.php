@@ -653,14 +653,17 @@ function saveWorkerEdit(workerId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify({
       is_active: parseInt(status),
       notes: notes
     })
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       alert('تم تحديث البيانات بنجاح');
@@ -690,7 +693,7 @@ function saveDeduction(workerId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify({
       amount: parseFloat(amount),
@@ -699,7 +702,10 @@ function saveDeduction(workerId) {
       company_name: company
     })
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       alert('تم تسجيل الخصم بنجاح');
@@ -710,7 +716,7 @@ function saveDeduction(workerId) {
       alert('خطأ: ' + (data.message || 'حدث خطأ'));
     }
   })
-  .catch(e => alert('خطأ: ' + e));
+  .catch(e => alert('خطأ: ' + e.message));
 }
 
 // ============ ADVANCE ============
@@ -729,7 +735,7 @@ function saveAdvance(workerId) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
     body: JSON.stringify({
       amount: parseFloat(amount),
@@ -737,7 +743,10 @@ function saveAdvance(workerId) {
       notes: notes
     })
   })
-  .then(r => r.json())
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+    return r.json();
+  })
   .then(data => {
     if (data.success) {
       alert('تم تسجيل السلفة بنجاح');
@@ -748,7 +757,7 @@ function saveAdvance(workerId) {
       alert('خطأ: ' + (data.message || 'حدث خطأ'));
     }
   })
-  .catch(e => alert('خطأ: ' + e));
+  .catch(e => alert('خطأ: ' + e.message));
 }
 
 
@@ -777,16 +786,19 @@ function deactivateWorker(workerId) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
       },
       body: JSON.stringify({ is_active: false })
     })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+      return r.json();
+    })
     .then(data => {
       alert('تم إيقاف العامل بنجاح');
       location.reload();
     })
-    .catch(e => alert('حدث خطأ: ' + e));
+    .catch(e => alert('حدث خطأ: ' + e.message));
   }
 }
 
@@ -797,16 +809,19 @@ function reactivateWorker(workerId) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
       },
       body: JSON.stringify({ is_active: true })
     })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+      return r.json();
+    })
     .then(data => {
       alert('تم تفعيل العامل بنجاح');
       location.reload();
     })
-    .catch(e => alert('حدث خطأ: ' + e));
+    .catch(e => alert('حدث خطأ: ' + e.message));
   }
 }
 </script>

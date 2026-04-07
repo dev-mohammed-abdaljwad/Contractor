@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تثبيت iDara PWA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a4f14 0%, #1D9E75 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #0a4f14;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px solid #b7e4c7;
+            border-radius: 12px;
+        }
+
+        .section h2 {
+            color: #0a4f14;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .status.success {
+            color: #22863a;
+            background: #dcedda;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 4px solid #28a745;
+        }
+
+        .status.error {
+            color: #721c24;
+            background: #f8d7da;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 4px solid #f5222d;
+        }
+
+        .status.warning {
+            color: #856404;
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 4px solid #ffc107;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0a4f14 0%, #1D9E75 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 158, 117, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0a4f14;
+            border: 2px solid #0a4f14;
+        }
+
+        .btn-secondary:hover {
+            background: #f0fdf4;
+        }
+
+        .icon-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            object-fit: cover;
+        }
+
+        .icon-item p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: '○';
+            font-size: 20px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .checklist li.done::before {
+            content: '✓';
+            color: #28a745;
+        }
+
+        .checklist li.error::before {
+            content: '✗';
+            color: #f5222d;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+            border-right: 4px solid #0a4f14;
+        }
+
+        .emoji {
+            font-size: 20px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ اختبار تثبيت iDara PWA</h1>
+
+        <!-- Service Worker Status -->
+        <div class="section">
+            <h2><span class="emoji">🔧</span> Service Worker</h2>
+            <ul class="checklist" id="sw-list">
+                <li id="sw-item">جاري الفحص...</li>
+            </ul>
+        </div>
+
+        <!-- Manifest Status -->
+        <div class="section">
+            <h2><span class="emoji">📋</span> Web App Manifest</h2>
+            <ul class="checklist" id="manifest-list">
+                <li id="manifest-item">جاري الفحص...</li>
+            </ul>
+        </div>
+
+        <!-- Icons Status -->
+        <div class="section">
+            <h2><span class="emoji">🎨</span> الأيقونات</h2>
+            <div id="icons-status">جاري الفحص...</div>
+            <div class="icon-preview" id="icon-preview"></div>
+        </div>
+
+        <!-- Install Prompt -->
+        <div class="section">
+            <h2><span class="emoji">📱</span> اقتراح التثبيت</h2>
+            <div id="install-status">جاري الفحص...</div>
+            <div class="buttons">
+                <button id="install-btn" style="display: none;" class="btn-primary">
+                    ثبت التطبيق
+                </button>
+            </div>
+        </div>
+
+        <!-- Requirements Checklist -->
+        <div class="section">
+            <h2><span class="emoji">✅</span> متطلبات التثبيت</h2>
+            <ul class="checklist" id="requirements-list">
+                <li>Service Worker مسجل ومُفعّل</li>
+                <li>Web App Manifest محمل</li>
+                <li>الأيقونات موجودة (192x192 و 512x512)</li>
+                <li>HTTPS أو localhost</li>
+                <li>Display mode = standalone</li>
+                <li>beforeinstallprompt event ready</li>
+            </ul>
+        </div>
+
+        <!-- Debug Info -->
+        <div class="section">
+            <h2><span class="emoji">🔍</span> معلومات التصحيح</h2>
+            <details style="cursor: pointer;">
+                <summary style="color: #0a4f14; font-weight: 700;">عرض تفاصيل التصحيح</summary>
+                <div class="code-block" id="debug-info">
+                    جاري جمع المعلومات...
+                </div>
+            </details>
+        </div>
+
+        <!-- Actions -->
+        <div class="buttons">
+            <button class="btn-secondary" onclick="location.reload()">
+                أعيد تحميل الصفحة
+            </button>
+            <button class="btn-secondary" onclick="clearCache()">
+                مسح بيانات الموقع
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let deferredPrompt = null;
+        const MAX_ICONS_TO_SHOW = 4;
+
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+            updateInstallStatus('✅ اقتراح التثبيت متاح! اضغط على الزر أدناه.');
+            updateRequirement(5, true); // beforeinstallprompt event
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ App installed successfully!');
+            alert('🎉 تم تثبيت التطبيق بنجاح!');
+        });
+
+        // Install button handler
+        document.getElementById('install-btn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`✅ User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                document.getElementById('install-btn').style.display = 'none';
+            }
+        });
+
+        // Check Service Worker
+        async function checkServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    if (regs.length > 0) {
+                        const reg = regs[0];
+                        const isActive = !!reg.active;
+                        updateStatus('sw-item', 
+                            `✅ Service Worker مسجل: ${reg.scope} (الحالة: ${isActive ? 'مُفعّل' : 'غير مُفعّل'})`,
+                            isActive ? 'done' : 'error'
+                        );
+                        updateRequirement(0, isActive);
+                        return isActive;
+                    } else {
+                        updateStatus('sw-item', '❌ Service Worker غير مسجل - جاري التسجيل...', 'error');
+                        // Try to register
+                        await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+                        setTimeout(checkServiceWorker, 2000);
+                        return false;
+                    }
+                } catch (e) {
+                    updateStatus('sw-item', `❌ خطأ: ${e.message}`, 'error');
+                    return false;
+                }
+            } else {
+                updateStatus('sw-item', '❌ متصفح غير مدعوم', 'error');
+                return false;
+            }
+        }
+
+        // Check Manifest
+        async function checkManifest() {
+            try {
+                const response = await fetch('/manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    updateStatus('manifest-item', 
+                        `✅ Manifest محمل - الاسم: "${manifest.short_name}"`,
+                        'done'
+                    );
+                    updateRequirement(1, true);
+                    return manifest;
+                } else {
+                    updateStatus('manifest-item', '❌ Manifest غير موجود (404)', 'error');
+                    updateRequirement(1, false);
+                    return null;
+                }
+            } catch (e) {
+                updateStatus('manifest-item', `❌ خطأ: ${e.message}`, 'error');
+                updateRequirement(1, false);
+                return null;
+            }
+        }
+
+        // Check Icons
+        async function checkIcons(manifest) {
+            if (!manifest || !manifest.icons) {
+                document.getElementById('icons-status').innerHTML = '<div class="status error">❌ لا توجد أيقونات في Manifest</div>';
+                updateRequirement(2, false);
+                return;
+            }
+
+            let statusHtml = `<div class="status success">✅ عدد الأيقونات: ${manifest.icons.length}</div>`;
+            let has192 = false;
+            let has512 = false;
+            let previewHtml = '';
+            let checkedCount = 0;
+
+            for (const icon of manifest.icons) {
+                try {
+                    const response = await fetch(icon.src, { method: 'HEAD' });
+                    const exists = response.ok;
+
+                    if (icon.sizes.includes('192')) has192 = exists;
+                    if (icon.sizes.includes('512')) has512 = exists;
+
+                    if (checkedCount < MAX_ICONS_TO_SHOW && exists) {
+                        previewHtml += `
+                            <div class="icon-item">
+                                <img src="${icon.src}" alt="icon-${icon.sizes}">
+                                <p>${icon.sizes}</p>
+                            </div>
+                        `;
+                        checkedCount++;
+                    }
+
+                    statusHtml += `<div class="status ${exists ? 'success' : 'error'}">
+                        ${exists ? '✅' : '❌'} ${icon.src} (${icon.sizes})
+                    </div>`;
+                } catch (e) {
+                    statusHtml += `<div class="status error">❌ خطأ في: ${icon.src}</div>`;
+                }
+            }
+
+            document.getElementById('icons-status').innerHTML = statusHtml;
+            if (previewHtml) {
+                document.getElementById('icon-preview').innerHTML = previewHtml;
+            }
+
+            const iconsOk = has192 && has512;
+            updateRequirement(2, iconsOk);
+        }
+
+        // Check HTTPS/Localhost
+        function checkHTTPS() {
+            const isHTTPS = location.protocol === 'https:';
+            const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            const isOk = isHTTPS || isLocalhost;
+
+            updateRequirement(3, isOk);
+            if (!isOk) {
+                console.warn('⚠️ Not HTTPS - installation won\'t work on production!');
+            }
+        }
+
+        // Update display mode requirement
+        async function checkDisplayMode(manifest) {
+            const isStandalone = manifest?.display === 'standalone';
+            updateRequirement(4, isStandalone);
+        }
+
+        // UI Helpers
+        function updateStatus(elementId, text, className) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.innerHTML = text;
+                el.className = className;
+            }
+        }
+
+        function updateInstallStatus(text) {
+            const el = document.getElementById('install-status');
+            if (el && !el.querySelector('.status')) {
+                el.innerHTML = `<div class="status success">${text}</div>`;
+            }
+        }
+
+        function updateRequirement(index, done) {
+            const items = document.querySelectorAll('#requirements-list li');
+            if (items[index]) {
+                items[index].className = done ? 'done' : 'error';
+            }
+        }
+
+        function showInstallButton() {
+            document.getElementById('install-btn').style.display = 'block';
+        }
+
+        function clearCache() {
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(r => r.unregister());
+                });
+            }
+            alert('تم مسح البيانات. سيتم إعادة التحميل...');
+            location.reload();
+        }
+
+        // Debug Info
+        function updateDebugInfo() {
+            const info = {
+                'URL': location.href,
+                'HTTPS': location.protocol === 'https:' ? 'نعم' : 'لا',
+                'Manifest': '(جاري الفحص...)',
+                'Service Worker': '(جاري الفحص...)',
+                'Browser': navigator.userAgent.substring(0, 100)
+            };
+
+            document.getElementById('debug-info').innerHTML = JSON.stringify(info, null, 2);
+        }
+
+        // Run all checks
+        async function runAllChecks() {
+            updateDebugInfo();
+            checkHTTPS();
+            await checkServiceWorker();
+            const manifest = await checkManifest();
+            await checkIcons(manifest);
+            if (manifest) {
+                await checkDisplayMode(manifest);
+            }
+        }
+
+        // Wait for DOM and check install status
+        window.addEventListener('load', () => {
+            runAllChecks();
+            
+            // Update install status if not triggered yet
+            setTimeout(() => {
+                const installStatus = document.getElementById('install-status');
+                if (installStatus.innerHTML === 'جاري الفحص...') {
+                    installStatus.innerHTML = `<div class="status warning">⚠️ اقتراح التثبيت غير متاح - تحقق من جميع المتطلبات</div>`;
+                    updateRequirement(5, false);
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

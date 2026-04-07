@@ -808,7 +808,10 @@
             fetch(`/contractor/workers/${workerId}`, {
                 headers: { 'Accept': 'application/json' }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
                 document.getElementById('workerId').value = data.id;
                 document.getElementById('workerName').value = data.name;
@@ -820,7 +823,7 @@
             })
             .catch(error => {
                 console.error('Error loading worker:', error);
-                showAlertModal('خطأ', 'فشل تحميل بيانات العامل', 'error');
+                showAlertModal('خطأ', 'فشل تحميل بيانات العامل: ' + error.message, 'error');
                 closeWorkerModal();
             });
         } else {
@@ -877,7 +880,10 @@
                     },
                     body: JSON.stringify(formData)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         window.location.reload();
@@ -887,7 +893,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlertModal('خطأ', 'حدث خطأ أثناء الحفظ', 'error');
+                    showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error');
                 });
             });
         }

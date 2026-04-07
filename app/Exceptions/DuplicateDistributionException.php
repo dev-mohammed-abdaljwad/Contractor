@@ -2,9 +2,15 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class DuplicateDistributionException extends Exception
+class DuplicateDistributionException extends \Exception
 {
-    protected $message = 'This worker is already assigned to a company on this date.';
+    public function __construct(private int $workerId)
+    {
+        parent::__construct("Worker ID {$workerId} is already assigned");
+    }
+
+    public function getWorkerId(): int
+    {
+        return $this->workerId;
+    }
 }

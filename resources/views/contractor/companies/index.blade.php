@@ -712,7 +712,12 @@ function deactivateCompany(companyId) {
         },
         body: JSON.stringify({ is_active: false })
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           window.location.reload();
@@ -720,7 +725,7 @@ function deactivateCompany(companyId) {
           showAlertModal('خطأ', data.message || 'فشل إيقاف الشركة', 'error');
         }
       })
-      .catch(error => showAlertModal('خطأ', 'حدث خطأ أثناء إيقاف الشركة', 'error'));
+      .catch(error => showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error'));
     }
   );
 }
@@ -731,33 +736,60 @@ function openCompanyModal(isEdit, companyId) {
   const title = document.getElementById('modal-title');
   const submitText = document.getElementById('submit-btn-text');
   
+  if (!modal || !form || !title || !submitText) {
+    console.error('Required modal elements not found');
+    return;
+  }
+  
   if (isEdit && companyId) {
     // Load company data for editing
     fetch(`/contractor/companies/${companyId}/edit`, {
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
       }
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           const company = data.company;
           
           // Set form values
-          document.getElementById('form-name').value = company.name || '';
-          document.getElementById('form-contact_person').value = company.contact_person || '';
-          document.getElementById('form-phone').value = company.phone || '';
-          document.getElementById('form-daily_wage').value = company.daily_wage || '';
-          document.getElementById('form-payment_cycle').value = company.payment_cycle || '';
-          document.getElementById('form-weekly_pay_day').value = company.weekly_pay_day || '';
-          document.getElementById('form-contract_start_date').value = company.contract_start_date || '';
-          document.getElementById('form-is_active').value = company.is_active ? '1' : '0';
-          document.getElementById('form-notes').value = company.notes || '';
-          document.getElementById('status-field').style.display = 'block';
+          const formFields = {
+            'form-name': company.name || '',
+            'form-contact_person': company.contact_person || '',
+            'form-phone': company.phone || '',
+            'form-daily_wage': company.daily_wage || '',
+            'form-payment_cycle': company.payment_cycle || '',
+            'form-weekly_pay_day': company.weekly_pay_day || '',
+            'form-contract_start_date': company.contract_start_date || '',
+            'form-is_active': company.is_active ? '1' : '0',
+            'form-notes': company.notes || ''
+          };
+          
+          Object.keys(formFields).forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+              field.value = formFields[fieldId];
+            }
+          });
+          
+          const statusField = document.getElementById('status-field');
+          if (statusField) {
+            statusField.style.display = 'block';
+          }
           
           // Update form action and method
           form.action = `/contractor/companies/${companyId}`;
-          document.getElementById('form-method').value = 'PUT';
+          const methodField = document.getElementById('form-method');
+          if (methodField) {
+            methodField.value = 'PUT';
+          }
           
           title.textContent = 'تعديل: ' + company.name;
           submitText.textContent = 'حفظ التعديلات';
@@ -767,19 +799,30 @@ function openCompanyModal(isEdit, companyId) {
           document.body.style.overflow = 'hidden';
           
           // Focus first input
-          setTimeout(() => document.getElementById('form-name').focus(), 100);
+          setTimeout(() => {
+            const nameField = document.getElementById('form-name');
+            if (nameField) nameField.focus();
+          }, 100);
+        } else {
+          showAlertModal('خطأ', data.message || 'فشل تحميل بيانات الشركة', 'error');
         }
       })
       .catch(error => {
-        showAlertModal('خطأ', 'حدث خطأ أثناء تحميل بيانات الشركة', 'error');
+        showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error');
         console.error(error);
       });
   } else {
     // Reset form for new company
     form.reset();
-    document.getElementById('status-field').style.display = 'none';
+    const statusField = document.getElementById('status-field');
+    if (statusField) {
+      statusField.style.display = 'none';
+    }
     form.action = '/contractor/companies';
-    document.getElementById('form-method').value = 'POST';
+    const methodField = document.getElementById('form-method');
+    if (methodField) {
+      methodField.value = 'POST';
+    }
     
     title.textContent = 'شركة جديدة';
     submitText.textContent = 'حفظ الشركة';
@@ -789,7 +832,10 @@ function openCompanyModal(isEdit, companyId) {
     document.body.style.overflow = 'hidden';
     
     // Focus first input
-    setTimeout(() => document.getElementById('form-name').focus(), 100);
+    setTimeout(() => {
+      const nameField = document.getElementById('form-name');
+      if (nameField) nameField.focus();
+    }, 100);
   }
 }
 
@@ -799,59 +845,7 @@ function closeCompanyModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Close modal when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('company-form-modal');
-  const form = document.getElementById('company-form');
-  
-  // Close modal on background click
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeCompanyModal();
-    }
-  });
-  
-  // Handle form submission
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(form);
-    const method = document.getElementById('form-method').value;
-    const action = form.action;
-    
-    fetch(action, {
-      method: method,
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-        'Accept': 'application/json',
-      },
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        window.location.reload();
-      } else {
-        // Display validation errors
-        if (data.errors) {
-          Object.keys(data.errors).forEach(field => {
-            const errorEl = document.getElementById(`error-${field}`);
-            if (errorEl) {
-              errorEl.textContent = data.errors[field][0];
-              errorEl.style.display = 'block';
-            }
-          });
-        } else {
-          showAlertModal('خطأ', data.message || 'فشل حفظ الشركة', 'error');
-        }
-      }
-    })
-    .catch(error => {
-      showAlertModal('خطأ', 'حدث خطأ أثناء حفظ الشركة', 'error');
-      console.error(error);
-    });
-  });
-});
+// Company form modal will be initialized after component loads
 
 // Add workers modal functions
 let currentCompanyData = {
@@ -861,6 +855,23 @@ let currentCompanyData = {
 };
 
 function openAddWorkersModal(companyId, companyName, dailyWage) {
+  // Verify all required elements exist before proceeding
+  const requiredElements = {
+    'modalCompanyId': 'input',
+    'modalCompanyName': 'div',
+    'previewCompanyName': 'div',
+    'previewDailyWage': 'div',
+    'addWorkersModal': 'div'
+  };
+  
+  for (const [id, type] of Object.entries(requiredElements)) {
+    const el = document.getElementById(id);
+    if (!el) {
+      console.error(`Element #${id} not found`);
+      return;
+    }
+  }
+  
   currentCompanyData = {
     id: companyId,
     name: companyName,
@@ -882,32 +893,53 @@ function openAddWorkersModal(companyId, companyName, dailyWage) {
 }
 
 function closeAddWorkersModal() {
-  document.getElementById('addWorkersModal').classList.add('hidden');
+  const modal = document.getElementById('addWorkersModal');
+  if (!modal) return;
+  
+  modal.classList.add('hidden');
   document.body.style.overflow = 'auto';
-  document.getElementById('addWorkersForm').reset();
+  
+  const form = document.getElementById('addWorkersForm');
+  if (form) form.reset();
+  
   updateAddWorkersPreview();
 }
 
 async function loadCompanyWorkers() {
   const today = new Date().toISOString().split('T')[0];
+  const modalWorkersList = document.getElementById('modalWorkersList');
+  
+  if (!modalWorkersList) {
+    console.error('modalWorkersList element not found');
+    return;
+  }
+  
   try {
     const response = await fetch(`/contractor/distributions/available-workers?date=${today}`, {
+      method: 'GET',
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
       }
     });
+    
+    // Check if HTTP response is successful
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const result = await response.json();
     
-    if (result.success) {
+    if (result.success && result.data) {
       populateCompanyWorkersList(result.data);
     } else {
-      document.getElementById('modalWorkersList').innerHTML = 
+      modalWorkersList.innerHTML = 
         '<div style="text-align: center; padding: 20px; color: #dc2626;">فشل تحميل قائمة العمال</div>';
     }
   } catch (error) {
     console.error('Error loading workers:', error);
-    document.getElementById('modalWorkersList').innerHTML = 
-      '<div style="text-align: center; padding: 20px; color: #dc2626;">خطأ في تحميل قائمة العمال</div>';
+    modalWorkersList.innerHTML = 
+      '<div style="text-align: center; padding: 20px; color: #dc2626;">خطأ في تحميل قائمة العمال: ' + error.message + '</div>';
   }
 }
 
@@ -1457,9 +1489,7 @@ function confirmAction() {
 }
 </style>
 
-<script>
 
-<!-- Add Workers Modal -->
 <div id="addWorkersModal" class="add-workers-modal hidden">
   <div class="modal-overlay" onclick="closeAddWorkersModal()"></div>
   <div class="modal-content">
@@ -1765,5 +1795,78 @@ function confirmAction() {
 </style>
 
 @include('components.company-form-modal')
+
+<script>
+// Initialize company form modal after component loads
+function initCompanyFormModal() {
+  const modal = document.getElementById('company-form-modal');
+  const form = document.getElementById('company-form');
+  
+  if (!modal || !form) {
+    console.error('Company form modal or form elements not found');
+    return;
+  }
+  
+  // Close modal on background click
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeCompanyModal();
+    }
+  });
+  
+  // Handle form submission
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const method = document.getElementById('form-method').value;
+    const action = form.action;
+    
+    fetch(action, {
+      method: method,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json',
+      },
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        // Display validation errors
+        if (data.errors) {
+          Object.keys(data.errors).forEach(field => {
+            const errorEl = document.getElementById(`error-${field}`);
+            if (errorEl) {
+              errorEl.textContent = data.errors[field][0];
+              errorEl.style.display = 'block';
+            }
+          });
+        } else {
+          showAlertModal('خطأ', data.message || 'فشل حفظ الشركة', 'error');
+        }
+      }
+    })
+    .catch(error => {
+      showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error');
+      console.error(error);
+    });
+  });
+}
+
+// Initialize when document is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCompanyFormModal);
+} else {
+  initCompanyFormModal();
+}
+</script>
 @endsection
 

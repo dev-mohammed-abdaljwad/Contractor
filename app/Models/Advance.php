@@ -10,6 +10,16 @@ class Advance extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'contractor_id',
+        'worker_id',
+        'amount',
+        'advance_date',
+        'notes',
+        'is_settled',
+        'settled_date',
+    ];
+
     protected function casts(): array
     {
         return [

@@ -1,8 +1,8 @@
 @extends('layouts.auth')
-@section('title', 'تسجيل الدخول - نظام حصاد')
+@section('title', 'تسجيل الدخول - iDara')
 
 @section('content')
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,400,0&display=swap" rel="stylesheet">
 
 <style>
@@ -478,11 +478,11 @@
 
     <!-- Left Panel -->
     <div class="left-panel">
-        <div class="brand-logo">
-            <span style="font-family:'Material Symbols Outlined';font-size:34px;color:#fff;font-variation-settings:'FILL' 1">engineering</span>
+        <div class="brand-logo" style="background: linear-gradient(135deg, #0a4f14 0%, #1D9E75 100%); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1px;">
+            <span style="color: #a7f3d0;">i</span><span style="color: #fff;">D</span>
         </div>
-        <div class="brand-name">حصاد</div>
-        <div class="brand-sub">نظام إدارة العمالة الزراعية للمقاولين في مصر</div>
+        <div class="brand-name" style="font-family: 'Plus Jakarta Sans', sans-serif;"><span style="color: #66BB6A;">i</span>Dara</div>
+        <div class="brand-sub">نظام إدارة العمالة الذكي للمفاولين في مصر</div>
         <div class="brand-dots">
             <div class="dot active"></div>
             <div class="dot"></div>
@@ -590,7 +590,7 @@
             <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
 
-        <div class="footer-text">نظام حصاد لإدارة المقاولات الزراعية © 2025</div>
+        <div class="footer-text">نظام iDara لإدارة العمالة الذكية © 2025</div>
     </div>
 
 </div>

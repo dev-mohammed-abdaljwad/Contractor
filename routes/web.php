@@ -16,11 +16,33 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// PWA Routes (must NOT use middleware and must serve with correct headers)
+Route::get('/manifest.json', function () {
+    $manifest = json_decode(file_get_contents(public_path('manifest.json')), true);
+    return response()->json($manifest)
+        ->header('Content-Type', 'application/manifest+json')
+        ->header('Cache-Control', 'public, max-age=3600');
+});
+
+Route::get('/sw.js', function () {
+    return response()->file(public_path('sw.js'), [
+        'Content-Type' => 'application/javascript',
+        'Cache-Control' => 'public, max-age=3600',
+        'Service-Worker-Allowed' => '/'
+    ]);
+});
+
 // Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
+
+// Public Routes
+Route::get('/request-registration', function () {
+    return view('auth.request-registration');
+})->name('request-registration');
+Route::post('/request-registration', [AuthController::class, 'submitRegistrationRequest'])->name('request-registration.submit');
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 

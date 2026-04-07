@@ -10,6 +10,15 @@ class DistributionActionLog extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'contractor_id',
+        'daily_distribution_id',
+        'action',
+        'reason',
+        'old_data',
+        'new_data',
+    ];
+
     protected function casts(): array
     {
         return [

@@ -10,6 +10,16 @@ class Deduction extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'contractor_id',
+        'worker_id',
+        'company_id',
+        'deduction_date',
+        'type',
+        'amount',
+        'reason',
+    ];
+
     protected function casts(): array
     {
         return [

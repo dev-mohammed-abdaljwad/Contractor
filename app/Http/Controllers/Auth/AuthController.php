@@ -38,6 +38,25 @@ class AuthController extends Controller
         ])->onlyInput('phone');
     }
 
+    public function submitRegistrationRequest(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string',
+            'company_name' => 'required|string|max:255',
+            'message' => 'nullable|string|max:1000',
+        ], [
+            'name.required' => 'الاسم مطلوب',
+            'phone.required' => 'رقم الهاتف مطلوب',
+            'company_name.required' => 'اسم الشركة مطلوب',
+        ]);
+
+        // Save registration request
+        \App\Models\RegistrationRequest::create($validated);
+        
+        return redirect()->back()->with('success', 'تم استقبال طلبك! سيتواصل معك فريق الدعم قريباً.');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();

@@ -10,6 +10,21 @@ class Collection extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'contractor_id',
+        'company_id',
+        'period_start',
+        'period_end',
+        'total_days_worked',
+        'total_wages',
+        'total_deductions',
+        'net_amount',
+        'payment_method',
+        'payment_date',
+        'is_paid',
+        'notes',
+    ];
+
     protected function casts(): array
     {
         return [

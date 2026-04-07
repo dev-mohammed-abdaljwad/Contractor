@@ -160,7 +160,7 @@
 <div style="padding:0 16px;">
   <div class="select-all-row" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:6px;">
     <div style="font-size:12px;font-weight:600;color:#185FA5;cursor:pointer;" onclick="toggleSelectAll()">تحديد الكل</div>
-    <div style="font-size:12px;color:#aaa;" id="selCount">{{ $distribution->workers->count() }} محدد</div>
+    <div style="font-size:12px;color:#aaa;" id="selCount">{{ $distribution->workers_count }} محدد</div>
   </div>
 
   @foreach($workers as $worker)
