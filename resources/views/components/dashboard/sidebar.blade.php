@@ -28,5 +28,31 @@
                 <div class="user-role">مقاول  </div>
             </div>
         </div>
+        
+        <!-- LOGOUT BUTTON -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="margin-top: 12px;">
+            @csrf
+            <button 
+                type="button"
+                onclick="handleLogout()"
+                style="
+                    width: 100%;
+                    padding: 10px;
+                    background: #dc2626;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: background 0.2s;
+                "
+                onmouseover="this.style.background='#b91c1c'"
+                onmouseout="this.style.background='#dc2626'"
+            >
+                <span class="ms ms-fill" style="margin-left: 8px;">logout</span>
+                تسجيل الخروج
+            </button>
+        </form>
     </div>
 </aside>

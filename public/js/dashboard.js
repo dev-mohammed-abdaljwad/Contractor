@@ -353,3 +353,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ============ LOGOUT HANDLER ============
+/**
+ * Clear Service Worker cache and Log user out
+ */
+async function handleLogout() {
+    try {
+        // Clear Service Worker cache if available
+        if ('serviceWorker' in navigator && 'caches' in window) {
+            // Clear all caches
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.map(cacheName => caches.delete(cacheName))
+            );
+            console.log('[Logout] Service Worker caches cleared');
+            
+            // Tell Service Worker to clear its cache too
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CLEAR_CACHE'
+                });
+            }
+        }
+        
+        // Unregister Service Worker
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                await registration.unregister();
+                console.log('[Logout] Service Worker unregistered');
+            }
+        }
+        
+        // Clear localStorage and sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('[Logout] Local and session storage cleared');
+        
+        // Submit logout form
+        document.getElementById('logout-form').submit();
+        
+    } catch (error) {
+        console.error('[Logout] Error during cleanup:', error);
+        // Still proceed with logout even if cleanup fails
+        document.getElementById('logout-form').submit();
+    }
+}

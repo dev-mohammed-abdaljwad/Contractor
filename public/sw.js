@@ -1,122 +1,196 @@
-// iDara Service Worker v1.0
-// CACHING DISABLED - Network-only strategy
-const CACHE_NAME = 'idara-v1.0.0';
+/**
+ * iDara Service Worker v2.0
+ * 
+ * Strategy:
+ * ✅ HTML Pages → Network-first (Laravel middleware must always run for redirects)
+ * ✅ Static Assets → Cache-first (CSS, JS, fonts, images, SVG)
+ * ✅ Offline Fallback → Simple text message (no cached HTML pages)
+ * ✅ Excluded URLs → Never cached: /login, /logout, /dashboard, /contractor/*, POST
+ */
+
+const CACHE_VERSION = 'idara-v2.0.0';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+
+// URLs that must NEVER be cached (auth-related pages)
+const NEVER_CACHE_URLS = [
+  '/login',
+  '/logout',
+  '/dashboard',
+  '/contractor/',
+  '/admin/',
+  '/api/',
+];
 
 /**
- * Install Event - Skip caching
+ * INSTALL EVENT
+ * Skip waiting — take over immediately without waiting for old tabs to close
  */
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing (Caching Disabled)...');
-  return self.skipWaiting();
+  console.log('[SW] Installing...', CACHE_VERSION);
+  self.skipWaiting();
 });
 
 /**
- * Activate Event - Clear all caches
+ * ACTIVATE EVENT
+ * Clean up old caches and claim all clients
  */
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating (Clearing all caches)...');
-  
+  console.log('[SW] Activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          console.log('[Service Worker] Deleting cache:', cacheName);
-          return caches.delete(cacheName);
+        cacheNames.map((name) => {
+          // Delete any cache that doesn't match current version
+          if (!name.includes(CACHE_VERSION)) {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          }
         })
       );
     }).then(() => {
+      console.log('[SW] Claiming all clients...');
       return self.clients.claim();
     })
   );
 });
 
 /**
- * Fetch Event - Network-only (no caching)
+ * FETCH EVENT
+ * Implement Network-first for HTML, Cache-first for static assets
  */
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  
-  // All requests go directly to network - no caching
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (!response) {
-          return new Response('Offline - No cache available', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({
-              'Content-Type': 'text/plain; charset=UTF-8'
-            })
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        console.log('[Service Worker] Network failed for:', request.url);
-        return new Response('Offline - Network unavailable', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain; charset=UTF-8'
-          })
-        });
-      })
+  const url = new URL(request.url);
+
+  // Skip non-GET requests (POST, PUT, DELETE, etc.) and non-HTTP
+  if (request.method !== 'GET' || !url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Check if URL should never be cached
+  const shouldNotCache = NEVER_CACHE_URLS.some(
+    (path) => url.pathname.includes(path)
   );
+
+  if (shouldNotCache) {
+    // Network-only for auth-protected pages
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response('لا يوجد اتصال بالإنترنت\n(No internet connection)', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
+        })
+      )
+    );
+    return;
+  }
+
+  // HTML pages → Network-first (so Laravel redirects work)
+  if (request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+
+  // Static assets → Cache-first
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(cacheFirstStrategy(request));
+    return;
+  }
+
+  // Everything else → Network-first
+  event.respondWith(networkFirstStrategy(request));
 });
 
-      // Cache successful HTML responses
-      if (request.headers.get('accept')?.includes('text/html')) {
-        const responseToCache = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => {
-          cache.put(request, responseToCache);
-          console.log('[Service Worker] Cached HTML:', request.url);
-        });
+/**
+ * NETWORK-FIRST STRATEGY
+ * Try network first, fall back to cache only if offline
+ */
+function networkFirstStrategy(request) {
+  return fetch(request)
+    .then((response) => {
+      // Don't cache error responses
+      if (!response || response.status >= 400) {
+        return response;
       }
-
       return response;
     })
     .catch(() => {
-      console.log('[Service Worker] Network failed, trying cache:', request.url);
-      
-      // Try to return cached version
-      return caches.match(request).then((response) => {
-        if (response) {
-          return response;
-        }
-
-        // Return offline page as last resort
-        return caches.match('/offline.html') || 
-               new Response('Offline - Please check your connection', {
-                 status: 503,
-                 statusText: 'Service Unavailable',
-                 headers: new Headers({
-                   'Content-Type': 'text/plain; charset=UTF-8'
-                 })
-               });
+      // Network failed — show offline message (no cached page)
+      return new Response('لا يوجد اتصال بالإنترنت\n(No internet connection)', {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
       });
     });
 }
 
 /**
- * Check if request is for a static asset
+ * CACHE-FIRST STRATEGY
+ * Check cache first, fall back to network if not found
  */
-function isStaticAsset(url) {
-  return /\.(css|js|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot)$/i.test(url);
+function cacheFirstStrategy(request) {
+  return caches.match(request).then((cachedResponse) => {
+    if (cachedResponse) {
+      console.log('[SW] Cache hit:', request.url);
+      return cachedResponse;
+    }
+
+    return fetch(request)
+      .then((response) => {
+        // Don't cache failed requests
+        if (!response || response.status >= 400) {
+          return response;
+        }
+
+        // Cache successful static assets
+        const responseToCache = response.clone();
+        caches.open(STATIC_CACHE).then((cache) => {
+          cache.put(request, responseToCache);
+          console.log('[SW] Cached static asset:', request.url);
+        });
+
+        return response;
+      })
+      .catch(() => {
+        // Network failed and no cache available
+        return new Response('لا يوجد اتصال بالإنترنت\n(No internet connection)', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
+        });
+      });
+  });
 }
 
 /**
- * Message handling for cache updates
+ * Check if URL is a static asset
+ */
+function isStaticAsset(pathname) {
+  const staticExtensions = /\.(css|js|jpg|jpeg|png|gif|svg|woff|woff2|ttf|eot|webp)$/i;
+  return staticExtensions.test(pathname);
+}
+
+/**
+ * MESSAGE HANDLER
+ * Allow clients to send messages to Service Worker
  */
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+  if (event.data?.type === 'SKIP_WAITING') {
+    console.log('[SW] Received SKIP_WAITING message');
     self.skipWaiting();
   }
-  
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-    caches.delete(STATIC_CACHE);
-    caches.delete(RUNTIME_CACHE);
-    console.log('[Service Worker] Caches cleared');
+
+  if (event.data?.type === 'CLEAR_CACHE') {
+    console.log('[SW] Clearing all caches on logout...');
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          console.log('[SW] Deleting cache:', key);
+          return caches.delete(key);
+        })
+      );
+    }).then(() => {
+      console.log('[SW] All caches cleared successfully');
+    });
   }
 });
 
-console.log('[Service Worker] Service Worker loaded');
+console.log('[Service Worker] Loaded - v2.0.0 (Network-first HTML, Cache-first Assets)');
