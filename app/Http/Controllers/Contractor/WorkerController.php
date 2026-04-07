@@ -97,18 +97,40 @@ class WorkerController extends Controller
 
     public function show($id): JsonResponse|View
     {
+        \Log::info("Attempting to load worker: {$id} for user: " . Auth::id());
+        \Log::info("Request expects JSON: " . (request()->expectsJson() ? 'yes' : 'no'));
+        \Log::info("Request headers:", ['accept' => request()->header('Accept')]);
+        
         $worker = $this->workerRepository->findByIdWithFullData($id);
-        $this->authorize('view', $worker);
-
+        
+        \Log::info("Worker loaded:", ['worker' => $worker ? $worker->toArray() : null]);
+      
+        // Check if worker exists
+        if (!$worker) {
+            \Log::warning("Worker not found: {$id}");
+            return request()->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'العامل غير موجود'], 404)
+                : abort(404, 'العامل غير موجود');
+        }
+        
+        // Check authorization
+        try {
+            $this->authorize('view', $worker);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            \Log::warning("Authorization failed for worker: {$id}", ['userId' => Auth::id(), 'contractorId' => $worker->contractor_id]);
+            return request()->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'ليس لديك صلاحية للوصول إلى هذا العامل'], 403)
+                : abort(403, 'Unauthorized');
+        }
+        
         if (request()->expectsJson()) {
-            return response()->json([
+            $response = [
+                'success' => true,
                 'id'          => $worker->id,
                 'name'        => $worker->name,
-                'phone'       => $worker->phone,
-                'national_id' => $worker->national_id,
-                'joined_date' => $worker->joined_date?->format('Y-m-d'),
-                'is_active'   => $worker->is_active,
-            ]);
+            ];
+            \Log::info("Returning JSON response:", $response);
+            return response()->json($response);
         }
 
         $from   = Carbon::today()->subDays(30)->toDateString();

@@ -9,7 +9,11 @@ interface WorkerRepositoryInterface
 {
     public function getAllByContractor(int $contractorId): Collection;
     
+    public function getAllByContractorWithFullData(int $contractorId): Collection;
+    
     public function findById(int $id): ?Worker;
+    
+    public function findByIdWithFullData(int $id): ?Worker;
     
     public function create(array $data): Worker;
     

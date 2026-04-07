@@ -217,8 +217,6 @@
   .w-card { cursor: pointer; }
   .w-card-actions { display: flex; gap: 6px; margin-top: 8px; padding: 8px 0 0; border-top: 0.5px solid #e8e8e3; }
   .w-card-actions button { flex: 1; height: 32px; font-size: 11px; padding: 0 6px; border-radius: 6px; border: 1px solid; cursor: pointer; font-weight: 600; font-family: 'Tajawal', sans-serif; transition: all 0.15s; }
-  .btn-edit { background: #fff; border-color: #d0d0c8; color: #0d631b; }
-  .btn-edit:hover { background: #E1F5EE; }
   .btn-deactivate { background: #fff5f5; border-color: #f0e0e0; color: #ba1a1a; }
   .btn-deactivate:hover { background: #ffe8e8; }
   .w-info { }
@@ -320,7 +318,6 @@
           @endif
         </div>
         <div class="w-card-actions" onclick="event.stopPropagation()">
-          <button type="button" class="btn-edit" onclick="openWorkerModal(true, {{ $worker->id }})">تعديل</button>
           <button type="button" class="btn-deactivate" onclick="deactivateWorker({{ $worker->id }})">إيقاف</button>
         </div>
       </div>
@@ -1032,4 +1029,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
+
 
