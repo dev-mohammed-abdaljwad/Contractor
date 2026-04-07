@@ -13,6 +13,11 @@ use App\Http\Controllers\Admin\AdminController;
 
 // Public Routes
 Route::get('/', function () {
+    // Redirect authenticated users to dashboard
+    if (auth()->check()) {
+        return redirect('/contractor/dashboard')->with('refresh', true);
+    }
+    
     return view('welcome');
 });
 

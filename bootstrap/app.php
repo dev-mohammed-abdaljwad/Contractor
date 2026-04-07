@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Disable cache for all responses
+        $middleware->append(\App\Http\Middleware\DisableCache::class);
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'contractor' => \App\Http\Middleware\ContractorMiddleware::class,
