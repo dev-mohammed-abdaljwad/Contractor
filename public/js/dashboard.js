@@ -360,43 +360,29 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function handleLogout() {
     try {
-        // Clear Service Worker cache if available
-        if ('serviceWorker' in navigator && 'caches' in window) {
-            // Clear all caches
+        // 1. Clear all caches
+        if ('caches' in window) {
             const cacheNames = await caches.keys();
-            await Promise.all(
-                cacheNames.map(cacheName => caches.delete(cacheName))
-            );
-            console.log('[Logout] Service Worker caches cleared');
-            
-            // Tell Service Worker to clear its cache too
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'CLEAR_CACHE'
-                });
-            }
+            await Promise.all(cacheNames.map(n => caches.delete(n)));
+            console.log('[Logout] Caches cleared');
         }
-        
-        // Unregister Service Worker
-        if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (let registration of registrations) {
-                await registration.unregister();
-                console.log('[Logout] Service Worker unregistered');
-            }
+
+        // 2. Tell SW to clear its cache
+        if (navigator.serviceWorker?.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'CLEAR_CACHE'
+            });
         }
-        
-        // Clear localStorage and sessionStorage
+
+        // 3. Clear storage
         localStorage.clear();
         sessionStorage.clear();
-        console.log('[Logout] Local and session storage cleared');
-        
-        // Submit logout form
+
+        // 4. Logout
         document.getElementById('logout-form').submit();
-        
+
     } catch (error) {
-        console.error('[Logout] Error during cleanup:', error);
-        // Still proceed with logout even if cleanup fails
+        console.error('[Logout] Error:', error);
         document.getElementById('logout-form').submit();
     }
 }
