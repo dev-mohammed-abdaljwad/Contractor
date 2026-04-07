@@ -15,10 +15,10 @@ class UpdateCompanyRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'contact_person' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:20',
+            'contact_person' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
             'daily_wage' => 'sometimes|required|numeric|min:0',
-            'payment_cycle' => 'sometimes|required|in:يومي,أسبوعي,نص شهري',
+            'payment_cycle' => 'sometimes|required|in:daily,weekly,bimonthly',
             'weekly_pay_day' => 'nullable|string|max:20',
             'contract_start_date' => 'sometimes|required|date_format:Y-m-d',
             'notes' => 'nullable|string',

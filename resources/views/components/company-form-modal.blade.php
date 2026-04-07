@@ -24,26 +24,6 @@
                     </div>
 
                     <div>
-                        <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">جهة الاتصال *</label>
-                        <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 اسم المسؤول أو المدير</p>
-                        <input type="text" name="contact_person" id="form-contact_person"
-                            style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none"
-                            placeholder="مثال: أحمد محمد">
-                        <p class="form-error" id="error-contact_person" style="color:#ba1a1a;font-size:11px;margin-top:4px;display:none"></p>
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
-                    <div>
-                        <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">رقم الهاتف *</label>
-                        <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 رقم جوال المسؤول الأساسي</p>
-                        <input type="text" name="phone" id="form-phone"
-                            style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none"
-                            placeholder="01001234567">
-                        <p class="form-error" id="error-phone" style="color:#ba1a1a;font-size:11px;margin-top:4px;display:none"></p>
-                    </div>
-
-                    <div>
                         <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">الأجر اليومي *</label>
                         <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 أجر العامل الواحد في اليوم</p>
                         <div style="display:flex;align-items:center;gap:8px">
@@ -63,20 +43,11 @@
                         <select name="payment_cycle" id="form-payment_cycle"
                             style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none">
                             <option value="">-- اختر دورة الدفع --</option>
-                            <option value="يومي">كل يوم</option>
-                            <option value="أسبوعي">كل أسبوع</option>
-                            <option value="نص شهري">كل نصف شهر (15 يوم)</option>
-                            <option value="شهري">كل شهر</option>
+                            <option value="daily">كل يوم</option>
+                            <option value="weekly">كل أسبوع</option>
+                            <option value="bimonthly">كل نصف شهر (15 يوم)</option>
                         </select>
                         <p class="form-error" id="error-payment_cycle" style="color:#ba1a1a;font-size:11px;margin-top:4px;display:none"></p>
-                    </div>
-
-                    <div>
-                        <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">يوم الدفع المفضل</label>
-                        <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 مثال: الجمعة أو الأحد (اختياري)</p>
-                        <input type="text" name="weekly_pay_day" id="form-weekly_pay_day"
-                            style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none"
-                            placeholder="الجمعة (مثال)">
                     </div>
                 </div>
 
@@ -96,14 +67,6 @@
                         <option value="1">✅ نعم، نستمر معهم</option>
                         <option value="0">⏸️ لا، توقفنا</option>
                     </select>
-                </div>
-
-                <div style="margin-bottom:28px">
-                    <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">ملاحظات إضافية</label>
-                    <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 أي معلومات مهمة عن الشركة (اختياري)</p>
-                    <textarea name="notes" id="form-notes" rows="3"
-                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;outline:none;resize:vertical"
-                        placeholder="مثال: يفضلون الدفع يومياً"></textarea>
                 </div>
 
                 <!-- Modal Footer -->

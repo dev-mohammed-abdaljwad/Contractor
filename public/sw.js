@@ -1,5 +1,5 @@
 /**
- * iDara Service Worker v2.0
+ * iDara Service Worker v2.0.1
  * 
  * Strategy:
  * ✅ HTML Pages → Network-first (Laravel middleware must always run for redirects)
@@ -8,7 +8,7 @@
  * ✅ Excluded URLs → Never cached: /login, /logout, /dashboard, /contractor/*, POST
  */
 
-const CACHE_VERSION = 'idara-v2.0.0';
+const CACHE_VERSION = 'idara-v2.0.1';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 
 // URLs that must NEVER be cached (auth-related pages)

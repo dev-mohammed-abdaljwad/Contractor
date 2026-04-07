@@ -720,12 +720,17 @@ function deactivateCompany(companyId) {
       })
       .then(data => {
         if (data.success) {
-          window.location.reload();
+          window.showToast(data.message || 'تم إيقاف الشركة بنجاح', 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
         } else {
-          showAlertModal('خطأ', data.message || 'فشل إيقاف الشركة', 'error');
+          window.showToast(data.message || 'فشل إيقاف الشركة', 'error');
         }
       })
-      .catch(error => showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error'));
+      .catch(error => {
+        window.showToast('حدث خطأ: ' + error.message, 'error');
+      });
     }
   );
 }
@@ -762,14 +767,10 @@ function openCompanyModal(isEdit, companyId) {
           // Set form values
           const formFields = {
             'form-name': company.name || '',
-            'form-contact_person': company.contact_person || '',
-            'form-phone': company.phone || '',
             'form-daily_wage': company.daily_wage || '',
             'form-payment_cycle': company.payment_cycle || '',
-            'form-weekly_pay_day': company.weekly_pay_day || '',
             'form-contract_start_date': company.contract_start_date || '',
-            'form-is_active': company.is_active ? '1' : '0',
-            'form-notes': company.notes || ''
+            'form-is_active': company.is_active ? '1' : '0'
           };
           
           Object.keys(formFields).forEach(fieldId => {
@@ -1818,6 +1819,13 @@ function initCompanyFormModal() {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Disable submit button to prevent double submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'جاري الحفظ...';
+    }
+    
     const formData = new FormData(form);
     const method = document.getElementById('form-method').value;
     const action = form.action;
@@ -1838,24 +1846,47 @@ function initCompanyFormModal() {
     })
     .then(data => {
       if (data.success) {
-        window.location.reload();
+        // Show toast notification
+        window.showToast(data.message || 'تم حفظ البيانات بنجاح', 'success');
+        
+        // Close modal
+        closeCompanyModal();
+        
+        // Reload after toast displays
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
+        // Re-enable submit button
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          const isEdit = document.getElementById('form-method').value === 'PUT';
+          submitBtn.textContent = isEdit ? 'حفظ التعديلات' : 'حفظ الشركة';
+        }
+        
         // Display validation errors
         if (data.errors) {
           Object.keys(data.errors).forEach(field => {
             const errorEl = document.getElementById(`error-${field}`);
             if (errorEl) {
-              errorEl.textContent = data.errors[field][0];
+              errorEl.textContent = '❌ ' + data.errors[field][0];
               errorEl.style.display = 'block';
             }
           });
         } else {
-          showAlertModal('خطأ', data.message || 'فشل حفظ الشركة', 'error');
+          window.showToast(data.message || 'فشل حفظ البيانات', 'error');
         }
       }
     })
     .catch(error => {
-      showAlertModal('خطأ', 'حدث خطأ: ' + error.message, 'error');
+      // Re-enable submit button
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        const isEdit = document.getElementById('form-method').value === 'PUT';
+        submitBtn.textContent = isEdit ? 'حفظ التعديلات' : 'حفظ الشركة';
+      }
+      
+      window.showToast('حدث خطأ: ' + error.message, 'error');
       console.error(error);
     });
   });

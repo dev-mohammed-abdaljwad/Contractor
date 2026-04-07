@@ -21,6 +21,13 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
     
+    <!-- Old Toast Scripts - Can be removed later -->
+    <!-- Removed: old toast.js system - using new toast-session.js -->
+    <script src="{{ asset('js/delete-manager.js') }}"></script>
+    
+    <!-- New Session Toast System -->
+    <script src="{{ asset('js/toast-session.js') }}"></script>
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
@@ -95,23 +102,8 @@
                 </div>
             </div>
 
-            <!-- Flash Messages -->
-            @if ($errors->any())
-                <div class="mx-8 mt-4 p-4 bg-red-100 text-red-700 rounded">
-                    <strong>خطأ:</strong>
-                    <ul class="list-disc list-inside mt-2">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if (session('success'))
-                <div class="mx-8 mt-4 p-4 bg-green-100 text-green-700 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
+            <!-- Flash Messages (Replaced with Toast System) -->
+            {{-- Old alert-style messages removed --}}
 
             <!-- Page Content -->
             <div class="p-8">
@@ -119,6 +111,9 @@
             </div>
         </main>
     </div>
+
+    <!-- Session Flash Toast Notifications -->
+    <x-toast-session />
 
     <!-- Service Worker Registration -->
     <script>

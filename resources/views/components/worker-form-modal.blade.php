@@ -387,13 +387,22 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
+                // Show success toast
+                window.showToast(data.message || 'تم حفظ العامل بنجاح', 'success');
+                
                 closeWorkerModal();
-                // Reload workers list
-                window.location.reload();
+                
+                // Reload workers list after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            if (error.message !== 'Validation failed') {
+                window.showToast('حدث خطأ في حفظ بيانات العامل', 'error');
+            }
         });
     });
 });

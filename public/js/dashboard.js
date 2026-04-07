@@ -264,77 +264,8 @@ function closeCompanyModal() {
     document.getElementById('company-form-modal').classList.remove('show');
 }
 
-// Close modal on background click
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('company-form-modal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeCompanyModal();
-            }
-        });
-
-        // Handle form submission
-        document.getElementById('company-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Clear previous errors
-            document.querySelectorAll('.form-error').forEach(el => el.style.display = 'none');
-            
-            const formData = new FormData(this);
-            const action = this.action;
-            const method = document.getElementById('form-method').value;
-            
-            // Add method to formData for PATCH
-            if (method === 'PATCH') {
-                formData.append('_method', 'PATCH');
-            }
-            
-            fetch(action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (response.status === 422) {
-                    // Validation errors
-                    return response.json().then(data => {
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const errorEl = document.getElementById('error-' + field);
-                                if (errorEl) {
-                                    errorEl.textContent = '❌ ' + data.errors[field][0];
-                                    errorEl.style.display = 'block';
-                                }
-                            });
-                        }
-                        throw new Error('Validation failed');
-                    });
-                }
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    closeCompanyModal();
-                    // Reload companies page
-                    window.location.href = '/contractor/companies';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                if (error.message !== 'Validation failed') {
-                    alert('حدث خطأ في حفظ البيانات');
-                }
-            });
-        });
-    }
-});
+// NOTE: Form submission handling moved to companies/index.blade.php (initCompanyFormModal)
+// This prevents duplicate submissions when both listeners would fire
 
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', function() {

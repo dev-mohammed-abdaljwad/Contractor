@@ -108,14 +108,19 @@ class CompanyController extends Controller
                 ->with('success', 'تم تحديث الشركة بنجاح');
     }
 
-    public function destroy(Company $company): RedirectResponse
+    public function destroy(Company $company)
     {
         $this->authorize('delete', $company);
 
         $this->companyService->deleteCompany($company);
 
-        return redirect()->route('contractor.companies.index')
-            ->with('success', 'تم حذف الشركة بنجاح');
+        return request()->expectsJson() || request()->header('Accept') === 'application/json'
+            ? response()->json([
+                'success' => true,
+                'message' => 'تم حذف الشركة بنجاح'
+            ])
+            : redirect()->route('contractor.companies.index')
+                ->with('success', 'تم حذف الشركة بنجاح');
     }
 
 }

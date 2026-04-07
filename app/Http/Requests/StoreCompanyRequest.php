@@ -15,8 +15,8 @@ class StoreCompanyRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'contact_person' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
             'daily_wage' => 'required|numeric|min:0',
             'payment_cycle' => 'required|in:daily,weekly,bimonthly',
             'weekly_pay_day' => 'nullable|string|max:20',

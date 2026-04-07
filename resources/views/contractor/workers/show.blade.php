@@ -795,10 +795,16 @@ function deactivateWorker(workerId) {
       return r.json();
     })
     .then(data => {
-      alert('تم إيقاف العامل بنجاح');
-      location.reload();
+      if (data.success) {
+        window.showToast(data.message || 'تم إيقاف العامل بنجاح', 'success');
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        window.showToast(data.message || 'فشل إيقاف العامل', 'error');
+      }
     })
-    .catch(e => alert('حدث خطأ: ' + e.message));
+    .catch(e => window.showToast('حدث خطأ: ' + e.message, 'error'));
   }
 }
 

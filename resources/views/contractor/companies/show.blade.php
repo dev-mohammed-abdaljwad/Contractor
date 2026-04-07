@@ -533,10 +533,16 @@ function deactivateCompany(companyId) {
     return r.json();
   })
   .then(data => {
-    alert('تم إيقاف الشركة بنجاح');
-    location.reload();
+    if (data.success) {
+      window.showToast(data.message || 'تم إيقاف الشركة بنجاح', 'success');
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    } else {
+      window.showToast(data.message || 'فشل إيقاف الشركة', 'error');
+    }
   })
-  .catch(e => alert('خطأ: ' + e.message));
+  .catch(e => window.showToast('خطأ: ' + e.message, 'error'));
 }
 
 // ============ EDIT COMPANY ============

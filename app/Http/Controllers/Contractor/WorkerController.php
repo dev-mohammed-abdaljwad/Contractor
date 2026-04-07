@@ -171,7 +171,7 @@ class WorkerController extends Controller
             : redirect()->route('contractor.workers.show', $id)->with('success', $message);
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy($id)
     {
         $worker = $this->workerRepository->findById($id);
         $this->authorize('delete', $worker);
@@ -179,8 +179,13 @@ class WorkerController extends Controller
         // Soft deactivate — intentional business rule
         $this->workerRepository->deactivate($id);
 
-        return redirect()->route('contractor.workers.index')
-            ->with('success', 'تم إيقاف العامل بنجاح');
+        return request()->expectsJson() || request()->header('Accept') === 'application/json'
+            ? response()->json([
+                'success' => true,
+                'message' => 'تم إيقاف العامل بنجاح'
+            ])
+            : redirect()->route('contractor.workers.index')
+                ->with('success', 'تم إيقاف العامل بنجاح');
     }
 }
 

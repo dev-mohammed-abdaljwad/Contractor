@@ -735,15 +735,18 @@
                 })
                 .then(data => {
                     if (data.success) {
+                        window.showToast(data.message || 'تم إيقاف العامل بنجاح', 'success');
                         // Reload to reflect changes
-                        window.location.reload();
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
                     } else {
-                        showAlertModal('خطأ', data.message || 'فشل إيقاف العامل', 'error');
+                        window.showToast(data.message || 'فشل إيقاف العامل', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlertModal('خطأ', 'حدث خطأ أثناء إيقاف العامل', 'error');
+                    window.showToast('حدث خطأ أثناء إيقاف العامل', 'error');
                 });
             }
         );
