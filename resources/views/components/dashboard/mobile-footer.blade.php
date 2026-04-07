@@ -20,5 +20,30 @@
             <span class="ms ms-fill">payments</span>
             <span class="mobile-footer-label">التحصيل</span>
         </a>
+        
+        <!-- LOGOUT BUTTON FOR MOBILE -->
+        <button 
+            type="button"
+            onclick="handleLogout()"
+            style="
+                flex: 1;
+                background: none;
+                border: none;
+                padding: 8px 4px;
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                color: #666;
+                font-size: 12px;
+                transition: color 0.2s;
+            "
+            onmouseover="this.style.color='#dc2626'"
+            onmouseout="this.style.color='#666'"
+        >
+            <span class="ms ms-fill">logout</span>
+            <span class="mobile-footer-label">الخروج</span>
+        </button>
     </nav>
 </footer>
