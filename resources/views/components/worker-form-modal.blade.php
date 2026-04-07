@@ -13,38 +13,12 @@
                 <input type="hidden" id="workerId" name="id">
 
                 <!-- Name -->
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
+                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:28px">
                     <label for="workerName" style="font-size:12px;font-weight:700;color:#1a1c19">الاسم الكامل *</label>
                     <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 أدخل الاسم الكامل للعامل بوضوح</p>
                     <input type="text" id="workerName" name="name" placeholder="مثال: أحمد محمد علي"
                         style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
                     <span id="nameError" style="font-size:11px;color:#ba1a1a;display:none">❌ الاسم مطلوب</span>
-                </div>
-
-                <!-- Phone -->
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
-                    <label for="workerPhone" style="font-size:12px;font-weight:700;color:#1a1c19">رقم الجوال *</label>
-                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 استخدم أي رقم جوال صحيح</p>
-                    <input type="tel" id="workerPhone" name="phone" placeholder="مثال: 0123456789" maxlength="20"
-                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
-                    <span id="phoneError" style="font-size:11px;color:#ba1a1a;display:none">❌ رقم الجوال مطلوب</span>
-                </div>
-
-                <!-- National ID -->
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">
-                    <label for="workerNationalId" style="font-size:12px;font-weight:700;color:#1a1c19">الرقم القومي (اختياري)</label>
-                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 الرقم القومي يساعد في التحقق من الهوية</p>
-                    <input type="text" id="workerNationalId" name="national_id" placeholder="مثال: 12345678901234" maxlength="20"
-                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
-                </div>
-
-                <!-- Join Date -->
-                <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:28px">
-                    <label for="workerJoinedDate" style="font-size:12px;font-weight:700;color:#1a1c19">تاريخ الالتحاق</label>
-                    <p style="font-size:11px;color:#707a6c;margin:0 0 6px 0">💡 يتم تعيينها اليوم تلقائياً إذا لم تغيرها</p>
-                    <input type="date" id="workerJoinedDate" name="joined_date"
-                        style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none;font-family:'Tajawal',sans-serif">
-                    <span id="joinedDateError" style="font-size:11px;color:#ba1a1a;display:none">❌ التاريخ غير صحيح</span>
                 </div>
 
                 <!-- Modal Footer -->
@@ -289,9 +263,6 @@ function openWorkerModal(isEdit = false, workerId = null) {
         .then(data => {
             document.getElementById('workerId').value = data.id;
             document.getElementById('workerName').value = data.name;
-            document.getElementById('workerPhone').value = data.phone;
-            document.getElementById('workerNationalId').value = data.national_id || '';
-            document.getElementById('workerJoinedDate').value = data.joined_date || new Date().toISOString().split('T')[0];
             
             title.textContent = 'تعديل: ' + data.name;
             submitBtn.textContent = 'حفظ التعديلات';
@@ -306,7 +277,6 @@ function openWorkerModal(isEdit = false, workerId = null) {
     } else {
         title.textContent = 'إضافة عامل جديد';
         submitBtn.textContent = 'حفظ العامل';
-        document.getElementById('workerJoinedDate').value = new Date().toISOString().split('T')[0];
         
         // Show modal
         modal.classList.add('show');
@@ -322,15 +292,11 @@ function closeWorkerModal() {
 
 function clearWorkerErrors() {
     document.getElementById('nameError').style.display = 'none';
-    document.getElementById('phoneError').style.display = 'none';
-    document.getElementById('joinedDateError').style.display = 'none';
 }
 
 function displayWorkerErrors(errors) {
     clearWorkerErrors();
     if (errors.name) document.getElementById('nameError').style.display = 'block';
-    if (errors.phone) document.getElementById('phoneError').style.display = 'block';
-    if (errors.joined_date) document.getElementById('joinedDateError').style.display = 'block';
 }
 
 // Form submission
@@ -357,9 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = {
             name: document.getElementById('workerName').value,
-            phone: document.getElementById('workerPhone').value,
-            national_id: document.getElementById('workerNationalId').value,
-            joined_date: document.getElementById('workerJoinedDate').value,
             _token: document.querySelector('input[name="_token"]').value
         };
 

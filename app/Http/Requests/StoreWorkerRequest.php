@@ -15,8 +15,7 @@ class StoreWorkerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'national_id' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:20',
             'joined_date' => 'nullable|date_format:Y-m-d',
         ];
     }

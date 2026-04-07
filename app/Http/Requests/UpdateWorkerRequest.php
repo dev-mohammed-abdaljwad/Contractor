@@ -16,8 +16,7 @@ class UpdateWorkerRequest extends FormRequest
         // Allow partial updates: only validate fields that are provided
         return [
             'name' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:20',
-            'national_id' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:20',
             'joined_date' => 'nullable|date_format:Y-m-d',
             'is_active' => 'nullable|boolean',
         ];
