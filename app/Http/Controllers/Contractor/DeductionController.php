@@ -2,85 +2,162 @@
 
 namespace App\Http\Controllers\Contractor;
 
+use App\Exceptions\DeductionException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreDeductionRequest;
-use App\Repositories\Interfaces\DeductionRepositoryInterface;
-use App\Repositories\Interfaces\WorkerRepositoryInterface;
-use App\Repositories\Interfaces\CompanyRepositoryInterface;
+use App\Http\Requests\Deduction\ReverseDeductionRequest;
+use App\Http\Requests\Deduction\StoreDeductionRequest;
+use App\Models\Deduction;
+use App\Models\Worker;
 use App\Services\DeductionService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class DeductionController extends Controller
 {
     public function __construct(
         private DeductionService $deductionService,
-        private DeductionRepositoryInterface $deductionRepository,
-        private WorkerRepositoryInterface $workerRepository,
-        private CompanyRepositoryInterface $companyRepository,
     ) {}
 
-    public function index()
+    /**
+     * Display deduction history for a worker.
+     */
+    public function index(Worker $worker, Request $request)
     {
-        $worker = request('worker_id');
-        $company = request('company_id');
-        $date = request('date');
+        $filters = [
+            'filter' => $request->query('filter', 'month'),
+            'from' => $request->query('from'),
+            'to' => $request->query('to'),
+            'exclude_reversals' => $request->boolean('exclude_reversals', false),
+        ];
 
-        $deductions = $this->deductionRepository->findById(Auth::id()) ?? collect();
-        
-        // This would need to be adjusted to query by contractor
-        // For now, get all deductions for the contractor
-        $deductions = \App\Models\Deduction::where('contractor_id', Auth::id());
+        $history = $this->deductionService->getWorkerDeductionHistory($worker->id, $filters);
 
-        if ($worker) {
-            $deductions = $deductions->where('worker_id', $worker);
-        }
-        if ($company) {
-            $deductions = $deductions->where('company_id', $company);
-        }
-        if ($date) {
-            $deductions = $deductions->where('deduction_date', $date);
-        }
-
-        $deductions = $deductions->latest()->paginate(15);
-
-        return view('contractor.deductions.index', compact('deductions', 'worker', 'company', 'date'));
+        return view('contractor.workers.deductions.index', [
+            'worker' => $worker,
+            'deductions' => $history['deductions'],
+            'monthly_total' => $history['monthly_total'],
+            'reversal_count' => $history['reversal_count'],
+        ]);
     }
 
-    public function create()
-    {
-        $workers = $this->workerRepository->getActiveWorkers(Auth::id());
-        $companies = $this->companyRepository->getActiveCompanies(Auth::id());
-        $today = Carbon::today()->toDateString();
-
-        return view('contractor.deductions.create', compact('workers', 'companies', 'today'));
-    }
-
+    /**
+     * Store a new deduction.
+     */
     public function store(StoreDeductionRequest $request)
     {
         try {
-            $this->deductionService->storeDeduction([
-                ...$request->validated(),
-                'contractor_id' => Auth::id(),
-            ]);
+            $deduction = $this->deductionService->recordDeduction(
+                $request->validated(),
+                auth()->id()
+            );
 
-            return redirect()->route('deductions.index')
-                ->with('success', 'تم إضافة الخصم بنجاح');
+            $message = 'تم تسجيل الخصم بنجاح بمبلغ ' . number_format($deduction->amount, 2) . ' ج';
+
+            // Return JSON for AJAX requests, redirect for form submissions
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'data' => $deduction
+                ]);
+            }
+
+            session()->flash('success', $message);
+            return back();
+        } catch (DeductionException $e) {
+            $message = $e->getMessage();
+            
+            // Return JSON for AJAX requests, redirect for form submissions
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message
+                ], 422);
+            }
+
+            session()->flash('error', $message);
+            return back()->withInput();
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            $message = 'حدث خطأ أثناء تسجيل الخصم';
+            
+            // Return JSON for AJAX requests, redirect for form submissions
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message
+                ], 500);
+            }
+
+            session()->flash('error', $message);
+            return back()->withInput();
         }
     }
 
-    public function destroy($id)
+    /**
+     * Reverse a deduction.
+     */
+    public function reverse(Deduction $deduction, ReverseDeductionRequest $request)
     {
-        $deduction = $this->deductionRepository->findById($id);
-        
-        if (!$deduction || $deduction->contractor_id !== Auth::id()) {
-            abort(403);
+        try {
+            $reversed = $this->deductionService->reverseDeduction(
+                $deduction->id,
+                $request->input('reversal_reason'),
+                auth()->id()
+            );
+
+            session()->flash('success', 'تم إلغاء الخصم بنجاح');
+            return back();
+        } catch (DeductionException $e) {
+            session()->flash('error', $e->getMessage());
+            return back();
+        } catch (\Exception $e) {
+            session()->flash('error', 'حدث خطأ أثناء إلغاء الخصم');
+            return back();
+        }
+    }
+
+    /**
+     * API endpoint to get worker's wage for a specific date (for preview).
+     */
+    public function getWageForDate($workerId, Request $request)
+    {
+        $date = $request->query('date');
+
+        if (!$date) {
+            return response()->json(['success' => false, 'message' => 'التاريخ مطلوب'], 400);
         }
 
-        $this->deductionService->deleteDeduction($id);
+        try {
+            // Verify worker exists and belongs to contractor
+            $worker = Worker::where('id', $workerId)
+                ->where('contractor_id', auth()->id())
+                ->firstOrFail();
 
-        return back()->with('success', 'تم حذف الخصم بنجاح');
+            // Find distribution for this worker on this date through pivot table
+            $distribution = \App\Models\DailyDistribution::whereHas('workers', 
+                fn($q) => $q->where('worker_id', $worker->id)
+            )
+            ->whereDate('distribution_date', $date)
+            ->with('company')
+            ->first();
+
+            if (!$distribution) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'العامل لم يتم توزيعه في هذا اليوم'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'wage' => (float) $distribution->company->daily_wage,
+                'company' => $distribution->company->name,
+                'distribution_id' => $distribution->id,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -27,9 +27,9 @@ class WorkerRepository implements WorkerRepositoryInterface
             ->with([
                 'distributions:id,distribution_date,company_id',
                 'distributions.company:id,name,daily_wage',
-                'advances:id,worker_id,amount,is_settled,advance_date,created_at,updated_at',
-                'deductions:id,worker_id,amount,type,reason,deduction_date,company_id',
-                'deductions.company:id,name',
+                'advances:id,worker_id,amount,is_fully_collected,date,created_at,updated_at',
+                'deductions:id,worker_id,amount,type,distribution_id,reason,is_reversed,created_at',
+                'deductions.distribution:id,company_id,distribution_date',
             ])
             ->orderBy('is_active', 'desc')
             ->orderBy('name', 'asc')
@@ -69,9 +69,9 @@ class WorkerRepository implements WorkerRepositoryInterface
         ->with([
             'distributions:id,distribution_date,company_id',
             'distributions.company:id,name,daily_wage',
-            'advances:id,worker_id,amount,is_settled,advance_date,created_at,updated_at',
-            'deductions:id,worker_id,amount,type,reason,deduction_date,company_id',
-            'deductions.company:id,name',
+            'advances:id,worker_id,amount,is_fully_collected,date,created_at,updated_at',
+            'deductions:id,worker_id,amount,type,distribution_id,reason,is_reversed,created_at',
+            'deductions.distribution:id,company_id,distribution_date',
         ])
         ->find($id);
     }

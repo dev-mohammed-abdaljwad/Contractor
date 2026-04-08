@@ -52,7 +52,7 @@ class CollectionService
             'net_amount' => (float) $netAmount,
             'distribution_details' => $distributionDetails,
             'deduction_details' => $deductions->map(fn($d) => [
-                'date' => $d->deduction_date,
+                'date' => $d->created_at,
                 'worker_name' => $d->worker->name,
                 'type' => $d->type,
                 'amount' => $d->amount,

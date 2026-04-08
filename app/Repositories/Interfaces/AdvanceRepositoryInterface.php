@@ -11,9 +11,26 @@ interface AdvanceRepositoryInterface
     
     public function findById(int $id): ?Advance;
     
-    public function update(int $id, array $data): Advance;
+    public function findByWorker(int $workerId): Collection;
     
-    public function getByWorker(int $workerId): Collection;
+    public function findPendingByWorker(int $workerId): Collection;
     
-    public function getUnsettledByContractor(int $contractorId): Collection;
+    public function update(int $id, array $data): bool;
+    
+    public function updateRecoveryMethod(int $id, array $data): bool;
+    
+    public function recordCollection(int $id, float $amount): bool;
+    
+    public function getMonthlyTotalForWorker(int $workerId): float;
+    
+    public function getPendingTotalForWorker(int $workerId): float;
+    
+    public function getCollectedTotalForWorker(int $workerId): float;
+    
+    public function getByContractor(int $contractorId, array $filters = []): Collection;
+    
+    public function getByPeriod($from, $to): Collection;
+    
+    public function getWorkersWithPendingAdvances(int $contractorId): Collection;
 }
+

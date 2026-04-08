@@ -21,7 +21,7 @@ class WageCalculationService
     {
         $distributions = $this->distributionRepository->getByWorkerAndPeriod($workerId, $from, $to);
         $deductions = $this->deductionRepository->getByWorkerAndPeriod($workerId, $from, $to);
-        $advances = $this->advanceRepository->getByWorker($workerId);
+        $advances = $this->advanceRepository->findByWorker($workerId);
 
         // Calculate totals
         $grossWages = $distributions->sum(fn($dist) => $dist->company->daily_wage);
@@ -46,7 +46,7 @@ class WageCalculationService
         }
 
         foreach ($deductions as $ded) {
-            $date = $ded->deduction_date->format('Y-m-d');
+            $date = $ded->created_at->format('Y-m-d');
             if (isset($breakdown[$date])) {
                 $breakdown[$date]['deductions'] += $ded->amount;
             }

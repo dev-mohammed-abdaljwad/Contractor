@@ -77,13 +77,13 @@ class WorkerService
             : 'لم يعمل بعد';
 
         // Pending advances — filter on collection (no query)
-        $pendingAdvances               = $advances->where('is_settled', false);
+        $pendingAdvances               = $advances->where('is_fully_collected', false);
         $worker->has_pending_advance   = $pendingAdvances->isNotEmpty();
         $worker->pending_advance_amount = $pendingAdvances->sum('amount');
 
         // Today's deductions — filter on collection (no query)
         $todayDeductions        = $deductions->filter(
-            fn($d) => Carbon::parse($d->deduction_date)->toDateString() === $todayStr
+            fn($d) => Carbon::parse($d->created_at)->toDateString() === $todayStr
         );
         $worker->has_deduction  = $todayDeductions->isNotEmpty();
         $worker->deduction_amount = $todayDeductions->sum('amount');
@@ -105,7 +105,7 @@ class WorkerService
             ->keyBy(fn($d) => Carbon::parse($d->distribution_date)->toDateString());
 
         $deductions = $worker->deductions
-            ->keyBy(fn($d) => Carbon::parse($d->deduction_date)->toDateString());
+            ->keyBy(fn($d) => Carbon::parse($d->created_at)->toDateString());
 
         $days        = [];
         $fullDays    = 0;
@@ -215,11 +215,11 @@ class WorkerService
 
         // Deductions timeline — no query
         $deductionsTimeline = $deductions
-            ->sortByDesc('deduction_date')
+            ->sortByDesc('created_at')
             ->map(fn($ded) => [
                 'title'           => $this->deductionTypeLabel($ded->type),
-                'date'            => Carbon::parse($ded->deduction_date)->format('d/m/Y'),
-                'company_name'    => $ded->company?->name ?? '-',
+                'date'            => Carbon::parse($ded->created_at)->format('d/m/Y'),
+                'company_name'    => $ded->distribution?->company?->name ?? '-',
                 'amount'          => (int) $ded->amount,
                 'reason'          => $ded->reason ?? '-',
                 'type'            => $ded->type,
@@ -228,20 +228,20 @@ class WorkerService
 
         // Advances — no query
         $pendingAdvances = $advances
-            ->where('is_settled', false)
+            ->where('is_fully_collected', false)
             ->sortByDesc('created_at')
             ->map(fn($adv) => [
                 'amount' => (int) $adv->amount,
-                'date'   => Carbon::parse($adv->advance_date ?? $adv->created_at)->format('d M Y'),
+                'date'   => Carbon::parse($adv->date ?? $adv->created_at)->format('d M Y'),
                 'recovery_method' => 'خصم من أول دفعة · لم يُحصَّل',
             ])->values();
 
         $collectedAdvances = $advances
-            ->where('is_settled', true)
+            ->where('is_fully_collected', true)
             ->sortByDesc('updated_at')
             ->map(fn($adv) => [
                 'amount'         => (int) $adv->amount,
-                'date'           => Carbon::parse($adv->advance_date ?? $adv->created_at)->format('d M Y'),
+                'date'           => Carbon::parse($adv->date ?? $adv->created_at)->format('d M Y'),
                 'collected_date' => Carbon::parse($adv->updated_at)->format('d M Y'),
             ])->values();
 

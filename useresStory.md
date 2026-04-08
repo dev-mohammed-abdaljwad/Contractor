@@ -511,7 +511,91 @@ So that I can keep a copy or send it to a company in case of a dispute.
 - File is generated and available for download within a few seconds
 
 ---
+Epic 8 — Admin Management
+US-30 · Manage Contractor Accounts
+Priority: 🔴 Must Have
+As an admin,
+I want to create, view, edit, and deactivate contractor accounts,
+So that I control who has access to the system.
+Acceptance Criteria:
 
+Create contractor with name, email, password, phone
+Deactivate contractor without deleting their data
+Reactivate a deactivated contractor
+View all contractors with their status
+
+
+US-31 · View Contractor Activity Overview
+Priority: 🔴 Must Have
+As an admin,
+I want to see a snapshot of each contractor's activity,
+So that I can monitor usage and detect problems.
+Acceptance Criteria:
+
+Total workers per contractor
+Total companies per contractor
+Last distribution date
+Total collections this month
+
+
+US-32 · Impersonate a Contractor
+Priority: 🟡 Should Have
+As an admin,
+I want to log in as any contractor to see their view,
+So that I can debug issues or help them with the system.
+Acceptance Criteria:
+
+Admin can switch to any contractor's session
+Banner always visible showing "you are viewing as [name]"
+One click to return to admin session
+All actions done while impersonating are logged
+
+
+US-33 · System-wide Statistics Dashboard
+Priority: 🔴 Must Have
+As an admin,
+I want a dashboard showing system-wide numbers,
+So that I understand the overall health of the platform.
+Acceptance Criteria:
+
+Total contractors (active / inactive)
+Total workers across all contractors
+Total distributions today
+Total collections this month
+New registrations this week
+
+
+US-34 · Manage Subscription Plans
+Priority: 🟡 Should Have
+As an admin,
+I want to assign subscription plans to contractors,
+So that I can monetize the platform and limit usage by plan.
+Acceptance Criteria:
+
+Plans: Free / Pro / Enterprise
+Each plan has: max workers, max companies, features list
+Admin can upgrade or downgrade any contractor's plan
+Contractor sees a warning when approaching their limit
+
+
+US-35 · View Audit Log
+Priority: 🟡 Should Have
+As an admin,
+I want to see a log of all critical actions in the system,
+So that I can trace any problem or dispute.
+Acceptance Criteria:
+
+Log captures: login, logout, distribution, deduction, reversal, collection, impersonation
+Each entry has: who, what, when, affected record
+Filterable by contractor, action type, date range
+Cannot be deleted or edited
+
+
+US-36 · Send Notification to Contractor
+Priority: 🔵 Could Have
+As an admin,
+I want to send a notification or announcement to one or all contractors,
+So that I can communicate updates or warnings.
 ## Summary Table
 
 | ID | Epic | Story | Priority |

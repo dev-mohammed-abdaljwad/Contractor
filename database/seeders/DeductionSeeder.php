@@ -35,8 +35,7 @@ class DeductionSeeder extends Seeder
                         Deduction::create([
                             'contractor_id' => $contractor->id,
                             'worker_id' => $worker->id,
-                            'company_id' => $dist->company_id,
-                            'deduction_date' => $dist->distribution_date,
+                            'distribution_id' => $dist->id,
                             'type' => $type,
                             'amount' => $amount,
                             'reason' => 'خصم تأديبي',

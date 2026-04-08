@@ -113,7 +113,7 @@ class DistributionService
 
         // Load all deductions for all workers in one query
         $deductionsByWorker = \App\Models\Deduction::whereIn('worker_id', $workerIds)
-            ->where('deduction_date', $date)
+            ->whereDate('created_at', $date)
             ->select(['worker_id', 'amount'])
             ->get()
             ->groupBy('worker_id')

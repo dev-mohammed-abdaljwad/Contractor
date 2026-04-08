@@ -69,7 +69,7 @@ class DistributionRepository implements DistributionRepositoryInterface
                 'company:id,name,daily_wage',
                 // Load deductions scoped to this date only
                 'workers.deductions' => fn($q) => $q
-                    ->where('deduction_date', $date)
+                    ->whereDate('created_at', $date)
                     ->select(['id', 'worker_id', 'amount', 'type']),
             ])
             ->get();

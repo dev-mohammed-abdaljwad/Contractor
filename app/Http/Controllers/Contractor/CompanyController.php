@@ -23,17 +23,36 @@ class CompanyController extends Controller
 
     public function index(): View
     {
+        $searchQuery = request()->query('search', '');
+        
         $data = $this->companyService->getEnhancedCompaniesForContractor(Auth::id());
+        
+        // Filter companies based on search query
+        if ($searchQuery) {
+            $searchLower = strtolower($searchQuery);
+            $data['activeCompanies'] = $data['activeCompanies']->filter(function ($company) use ($searchLower) {
+                return stripos($company->name, $searchLower) !== false || 
+                       stripos($company->contact_person, $searchLower) !== false ||
+                       stripos($company->phone, $searchLower) !== false;
+            })->values();
+            
+            $data['inactiveCompanies'] = $data['inactiveCompanies']->filter(function ($company) use ($searchLower) {
+                return stripos($company->name, $searchLower) !== false || 
+                       stripos($company->contact_person, $searchLower) !== false ||
+                       stripos($company->phone, $searchLower) !== false;
+            })->values();
+        }
 
         return view('contractor.companies.index', [
             'activeCompanies' => $data['activeCompanies'],
             'inactiveCompanies' => $data['inactiveCompanies'],
-            'active_count' => $data['stats']['active_count'],
+            'active_count' => count($data['activeCompanies']),
             'today_count' => $data['stats']['today_count'],
             'total_due' => $data['stats']['total_due'],
             'overdue_count' => $data['stats']['overdue_count'],
             'paymentCycles' => $data['paymentCycles'],
             'overdueCompanies' => $data['overdueCompanies'],
+            'searchQuery' => $searchQuery,
         ]);
     }
 

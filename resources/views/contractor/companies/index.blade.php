@@ -26,6 +26,33 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 .search-icon { color: rgba(255,255,255,0.7); font-size: 14px; }
 .search-fake { color: rgba(255,255,255,0.6); font-size: 13px; flex: 1; }
 
+/* Search input styling */
+.search-wrap input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: rgba(255,255,255,0.8) !important;
+  font-size: 13px !important;
+  flex: 1 !important;
+  font-family: inherit !important;
+}
+
+.search-wrap input::placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+.search-wrap input::-webkit-input-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+.search-wrap input:-moz-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+.search-wrap input::-moz-placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}
+
 .stats-strip {
   display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
   gap: 0; background: #fff;
@@ -511,10 +538,15 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
       <div class="page-title">الشركات</div>
       <div class="add-btn" onclick="openCompanyModal(false)">+ إضافة شركة</div>
     </div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <div class="search-fake">ابحث باسم الشركة أو المسؤول...</div>
-    </div>
+    <form method="GET" action="{{ route('contractor.companies.index') }}" id="searchForm">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="search" placeholder="ابحث باسم الشركة أو المسؤول..." 
+               value="{{ $searchQuery ?? '' }}" 
+               id="searchInput"
+               style="background: transparent; border: none; outline: none; color: rgba(255,255,255,0.8); font-size: 13px; flex: 1; font-family: inherit;">
+      </div>
+    </form>
   </div>
 
   <!-- Stats strip -->
@@ -1898,6 +1930,25 @@ if (document.readyState === 'loading') {
 } else {
   initCompanyFormModal();
 }
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('searchInput');
+  const searchForm = document.getElementById('searchForm');
+  
+  if (searchInput) {
+    // Debounce search to avoid too many requests
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        if (searchForm) {
+          searchForm.submit();
+        }
+      }, 500);
+    });
+  }
+});
 </script>
 @endsection
 

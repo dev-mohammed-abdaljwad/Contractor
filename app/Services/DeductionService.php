@@ -2,63 +2,115 @@
 
 namespace App\Services;
 
-use App\Exceptions\InsufficientWageException;
+use App\Exceptions\DeductionException;
 use App\Models\Deduction;
 use App\Repositories\Interfaces\DeductionRepositoryInterface;
-use App\Repositories\Interfaces\DistributionRepositoryInterface;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class DeductionService
 {
     public function __construct(
         private DeductionRepositoryInterface $deductionRepository,
-        private DistributionRepositoryInterface $distributionRepository,
     ) {}
 
     /**
-     * Calculate deduction amount based on type
-     * @param int $workerId
-     * @param string $date (format: YYYY-MM-DD)
-     * @param string $type 'quarter', 'half', 'full', 'custom'
-     * @param float|null $customAmount
-     * @throws InsufficientWageException
+     * Record a deduction for a worker.
+     *
+     * @param  array  $data
+     * @param  int  $contractorId
+     * @return Deduction
+     * @throws DeductionException
      */
-    public function calculateAmount(int $workerId, string $date, string $type, ?float $customAmount = null): float
+    public function recordDeduction(array $data, int $contractorId): Deduction
     {
-        // Get worker's wage snapshot for that date
-        $distribution = $this->distributionRepository->getByWorkerAndDate($workerId, $date);
-        
-        if (!$distribution) {
-            throw new InsufficientWageException('No distribution found for worker on this date');
-        }
+        return DB::transaction(function () use ($data, $contractorId) {
+            $workerId = $data['worker_id'];
+            $date = Carbon::parse($data['date']);
+            $type = $data['type'];
 
-        $snapshot = $distribution->company->daily_wage;
+            // Verify worker has distribution on that date
+            $distribution = $this->deductionRepository->workerHasDistributionOnDate($workerId, $date);
 
-        return match($type) {
-            'quarter' => $snapshot * 0.25,
-            'half' => $snapshot * 0.5,
-            'full' => $snapshot,
-            'custom' => $customAmount ?? 0,
-            default => 0,
-        };
+            if (!$distribution) {
+                throw DeductionException::workerNotDistributed();
+            }
+
+            // Calculate amount from daily_wage × multiplier
+            $typeMultipliers = [
+                'quarter' => 0.25,
+                'half' => 0.5,
+                'full' => 1.0,
+            ];
+
+            $multiplier = $typeMultipliers[$type] ?? 0;
+            $amount = $distribution->company->daily_wage * $multiplier;
+
+            // Create deduction
+            return $this->deductionRepository->create([
+                'worker_id' => $workerId,
+                'distribution_id' => $distribution->id,
+                'contractor_id' => $contractorId,
+                'type' => $type,
+                'amount' => $amount,
+                'reason' => $data['reason'] ?? null,
+            ]);
+        });
     }
 
-    public function storeDeduction(array $data): Deduction
+    /**
+     * Reverse a deduction.
+     *
+     * @param  int  $deductionId
+     * @param  string|null  $reason
+     * @param  int  $reversedBy
+     * @return Deduction
+     * @throws DeductionException
+     */
+    public function reverseDeduction(int $deductionId, ?string $reason, int $reversedBy): Deduction
     {
-        // Validate and calculate amount
-        $amount = $this->calculateAmount(
-            $data['worker_id'],
-            $data['deduction_date'],
-            $data['type'],
-            $data['amount'] ?? null
+        return DB::transaction(function () use ($deductionId, $reason, $reversedBy) {
+            $deduction = $this->deductionRepository->findById($deductionId);
+
+            if (!$deduction) {
+                throw DeductionException::notFound();
+            }
+
+            if ($deduction->is_reversed) {
+                throw DeductionException::alreadyReversed();
+            }
+
+            return $this->deductionRepository->reverse($deduction, [
+                'reversed_by' => $reversedBy,
+                'reversal_reason' => $reason,
+            ]);
+        });
+    }
+
+    /**
+     * Get worker deduction history with filters and totals.
+     *
+     * @param  int  $workerId
+     * @param  array  $filters
+     * @return array
+     */
+    public function getWorkerDeductionHistory(int $workerId, array $filters = []): array
+    {
+        $deductions = $this->deductionRepository->findByWorker($workerId, $filters);
+
+        $monthlyTotal = $this->deductionRepository->monthlyTotalForWorker(
+            $workerId,
+            now()->month,
+            now()->year
         );
 
-        $data['amount'] = $amount;
+        $reversalCount = $deductions->where('is_reversed', true)->count();
 
-        return $this->deductionRepository->create($data);
-    }
-
-    public function deleteDeduction(int $id): void
-    {
-        $this->deductionRepository->delete($id);
+        return [
+            'deductions' => $deductions,
+            'monthly_total' => $monthlyTotal,
+            'reversal_count' => $reversalCount,
+        ];
     }
 }

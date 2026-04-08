@@ -16,7 +16,7 @@ class StoreAdvanceRequest extends FormRequest
         return [
             'worker_id' => 'required|integer|exists:workers,id',
             'amount' => 'required|numeric|min:1',
-            'advance_date' => 'required|date_format:Y-m-d',
+            'date' => 'required|date_format:Y-m-d',
             'notes' => 'nullable|string|max:500',
         ];
     }
@@ -29,8 +29,8 @@ class StoreAdvanceRequest extends FormRequest
             'amount.required' => 'المبلغ مطلوب',
             'amount.numeric' => 'المبلغ يجب أن يكون رقماً',
             'amount.min' => 'المبلغ يجب أن يكون أكبر من صفر',
-            'advance_date.required' => 'تاريخ المتقدم مطلوب',
-            'advance_date.date_format' => 'تاريخ غير صحيح',
+            'date.required' => 'تاريخ المتقدم مطلوب',
+            'date.date_format' => 'تاريخ غير صحيح',
             'notes.max' => 'الملاحظات لا يمكن أن تتجاوز 500 حرف',
         ];
     }

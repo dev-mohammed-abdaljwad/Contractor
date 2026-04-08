@@ -104,12 +104,27 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
 
     // Deductions Management
     Route::prefix('deductions')->group(function () {
+        // API endpoint for wage preview - MUST come before generic routes
+        Route::get('/worker/{workerId}/wage-preview', [DeductionController::class, 'getWageForDate'])->name('contractor.deductions.wage-preview');
+        
+        // Generic routes after specific ones
+        Route::get('/worker/{worker}', [DeductionController::class, 'index'])->name('contractor.deductions.index');
         Route::post('/', [DeductionController::class, 'store'])->name('contractor.deductions.store');
+        Route::patch('/{deduction}/reverse', [DeductionController::class, 'reverse'])->name('contractor.deductions.reverse');
     });
 
     // Advances Management
     Route::prefix('advances')->group(function () {
-        Route::post('/', [AdvanceController::class, 'store'])->name('contractor.advances.store');
+        // API endpoints for dashboard
+        Route::get('/summary', [AdvanceController::class, 'getSummary'])->name('contractor.advances.summary');
+        Route::get('/list', [AdvanceController::class, 'getContractorAdvances'])->name('contractor.advances.list');
+        
+        // Worker advances
+        Route::get('/worker/{worker}', [AdvanceController::class, 'index'])->name('contractor.advances.index');
+        Route::post('/worker/{worker}', [AdvanceController::class, 'store'])->name('contractor.advances.store');
+        Route::get('/{advance}', [AdvanceController::class, 'show'])->name('contractor.advances.show');
+        Route::patch('/{advance}/recovery-method', [AdvanceController::class, 'updateRecoveryMethod'])->name('contractor.advances.update-recovery-method');
+        Route::post('/{advance}/record-collection', [AdvanceController::class, 'recordCollection'])->name('contractor.advances.record-collection');
     });
 });
 

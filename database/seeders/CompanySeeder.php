@@ -9,49 +9,63 @@ use Carbon\Carbon;
 
 class CompanySeeder extends Seeder
 {
+    private $companyNames = [
+        'شركة الزراعة المتقدمة',
+        'مزرعة الأرز الذهبي',
+        'مشروع الخضروات الطازجة',
+        'شركة الفواكه المختارة',
+        'مزرعة الدواجن العملاقة',
+        'مشروع الألبان النقي',
+        'شركة الحبوب والأعلاف',
+        'مزرعة النحل والعسل',
+        'مشروع الزهور الملونة',
+        'شركة المحاصيل الموسمية',
+        'مزرعة الماشية الحديثة',
+        'مشروع الدفيئات الزراعية',
+        'شركة الثروة السمكية',
+        'مزرعة العنب الفاخر',
+        'مشروع الحدائق الحضرية',
+        'شركة المحاصيل العضوية',
+        'مزرعة الدراجن المحسنة',
+        'مشروع الأسمدة الطبيعية',
+        'شركة المعدات الزراعية',
+        'مزرعة الكفاءة والإنتاجية',
+    ];
+
     public function run(): void
     {
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            Company::create([
-                'contractor_id' => $contractor->id,
-                'name' => "شركة الزراعة {$contractor->id}",
-                'contact_person' => 'أحمد الشركة',
-                'phone' => '+201005555555',
-                'daily_wage' => 350.00,
-                'payment_cycle' => 'weekly',
-                'weekly_pay_day' => 'Friday',
-                'contract_start_date' => Carbon::today()->subMonths(3),
-                'notes' => 'عقد مع شركة زراعية',
-                'is_active' => true,
-            ]);
-
-            Company::create([
-                'contractor_id' => $contractor->id,
-                'name' => "مزرعة الأرز {$contractor->id}",
-                'contact_person' => 'محمود المزرعة',
-                'phone' => '+201006666666',
-                'daily_wage' => 400.00,
-                'payment_cycle' => 'bimonthly',
-                'weekly_pay_day' => null,
-                'contract_start_date' => Carbon::today()->subMonths(2),
-                'notes' => 'مزرعة أرز كبيرة',
-                'is_active' => true,
-            ]);
-
-            Company::create([
-                'contractor_id' => $contractor->id,
-                'name' => "مشروع الخضروات {$contractor->id}",
-                'contact_person' => 'فاطمة المشروع',
-                'phone' => '+201007777777',
-                'daily_wage' => 300.00,
-                'payment_cycle' => 'daily',
-                'weekly_pay_day' => null,
-                'contract_start_date' => Carbon::today()->subMonths(1),
-                'notes' => 'مشروع خضروات صغير',
-                'is_active' => true,
-            ]);
+            foreach (range(0, 19) as $index) {
+                Company::create([
+                    'contractor_id' => $contractor->id,
+                    'name' => $this->companyNames[$index],
+                    'contact_person' => $this->generateArabicName(),
+                    'phone' => '+20100' . str_pad($contractor->id * 1000 + $index, 7, '0', STR_PAD_LEFT),
+                    'daily_wage' => rand(250, 500),
+                    'payment_cycle' => collect(['daily', 'weekly', 'bimonthly'])->random(),
+                    'weekly_pay_day' => ['Monday', 'Wednesday', 'Friday'][array_rand(['Monday', 'Wednesday', 'Friday'])],
+                    'contract_start_date' => Carbon::today()->subMonths(rand(1, 12)),
+                    'notes' => 'عقد عمل مع شركة متعاونة',
+                    'is_active' => true,
+                ]);
+            }
         }
+    }
+
+    private function generateArabicName(): string
+    {
+        $firstNames = [
+            'أحمد', 'علي', 'محمد', 'سعيد', 'خالد', 'عمر', 'إبراهيم',
+            'حسن', 'حسين', 'ياسر', 'رشيد', 'نبيل', 'جمال', 'كمال',
+        ];
+
+        $lastNames = [
+            'الشركة', 'للزراعة', 'للإنتاج', 'للتوزيع', 'للخدمات',
+            'المحترف', 'الخبير', 'الميزان', 'النور', 'الروضة',
+        ];
+
+        return $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
     }
 }

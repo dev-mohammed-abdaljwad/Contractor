@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
 @section('title', 'المتقدمات')
 
@@ -28,16 +28,16 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">{{ $adv->worker->name }}</td>
                         <td class="px-6 py-4 font-semibold text-green-600">{{ number_format($adv->amount, 2) }}</td>
-                        <td class="px-6 py-4">{{ $adv->advance_date->format('Y-m-d') }}</td>
+                        <td class="px-6 py-4">{{ $adv->date->format('Y-m-d') }}</td>
                         <td class="px-6 py-4">
-                            @if($adv->is_settled)
+                            @if(!$adv->is_fully_collected)
                                 <span class="px-3 py-1 bg-green-100 text-green-800 rounded text-xs">تم التسوية</span>
                             @else
                                 <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">معلق</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 space-x-2">
-                            @if(!$adv->is_settled)
+                            @if(!$adv->is_fully_collected)
                                 <form method="POST" action="{{ route('advances.settle', $adv->id) }}" class="inline">
                                     @csrf
                                     @method('PATCH')
@@ -73,7 +73,7 @@
                     @endforeach
                 </select>
                 <input type="number" name="amount" step="0.01" placeholder="المبلغ" class="w-full px-4 py-2 border border-gray-300 rounded" required>
-                <input type="date" name="advance_date" class="w-full px-4 py-2 border border-gray-300 rounded" required>
+                <input type="date" name="date" class="w-full px-4 py-2 border border-gray-300 rounded" required>
                 <textarea name="notes" placeholder="ملاحظات" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded"></textarea>
             </div>
             <div class="mt-6 flex gap-2 justify-end">
