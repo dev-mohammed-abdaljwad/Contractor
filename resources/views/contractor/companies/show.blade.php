@@ -435,22 +435,39 @@
       <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">المبلغ (جنيه)</label>
-        <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0" step="0.01">
-      </div>
-      <div class="form-group">
-        <label class="form-label">طريقة الدفع</label>
-        <select class="form-input" id="paymentMethod">
-          <option value="cash">كاش</option>
-          <option value="bank_transfer">تحويل بنكي</option>
-          <option value="cheque">شيك</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">ملاحظات</label>
-        <textarea class="form-textarea" id="paymentNotes" placeholder="اضف ملاحظات..."></textarea>
-      </div>
+      <form id="paymentForm">
+        <div class="form-group">
+          <label class="form-label">التاريخ</label>
+          <input type="date" class="form-input" id="paymentDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">المبلغ (جنيه)</label>
+          <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">طريقة الدفع</label>
+          <select class="form-input" id="paymentMethod">
+            <option value="">اختر طريقة الدفع</option>
+            <option value="cash">كاش</option>
+            <option value="bank_transfer">تحويل بنكي</option>
+            <option value="cheque">شيك</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نوع الدفعة</label>
+          <select class="form-input" id="paymentType">
+            <option value="">اختر نوع الدفعة</option>
+            <option value="advance">دفعة مقدمة</option>
+            <option value="salary">راتب</option>
+            <option value="bonus">حافز</option>
+            <option value="settlement">تسوية</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ملاحظات</label>
+          <textarea class="form-textarea" id="paymentNotes" placeholder="اضف ملاحظات..."></textarea>
+        </div>
+      </form>
     </div>
     <div class="modal-footer">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
@@ -583,11 +600,42 @@ function saveCompanyEdit(companyId) {
 
 // ============ PAYMENT ============
 function savePayment(companyId) {
+  const date = document.getElementById('paymentDate').value;
   const amount = document.getElementById('paymentAmount').value;
+  const method = document.getElementById('paymentMethod').value;
+  const type = document.getElementById('paymentType').value;
+  const notes = document.getElementById('paymentNotes').value;
+
+  // Client-side validation
+  if (!date) {
+    alert('الرجاء اختيار التاريخ');
+    return;
+  }
   if (!amount) {
     alert('الرجاء إدخال المبلغ');
     return;
   }
+  if (parseFloat(amount) <= 0) {
+    alert('المبلغ يجب أن يكون أكبر من صفر');
+    return;
+  }
+  if (!method) {
+    alert('الرجاء اختيار طريقة الدفع');
+    return;
+  }
+  if (!type) {
+    alert('الرجاء اختيار نوع الدفعة');
+    return;
+  }
+
+  const payload = {
+    company_id: companyId,
+    amount: parseFloat(amount),
+    date: date,
+    payment_method: method,
+    payment_type: type,
+    notes: notes || null
+  };
 
   fetch(`/contractor/companies/${companyId}/payments`, {
     method: 'POST',
@@ -596,26 +644,24 @@ function savePayment(companyId) {
       'Accept': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
     },
-    body: JSON.stringify({
-      amount: parseFloat(amount),
-      method: document.getElementById('paymentMethod').value,
-      notes: document.getElementById('paymentNotes').value
-    })
+    body: JSON.stringify(payload)
   })
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-    return r.json();
-  })
-  .then(data => {
-    if (data.success) {
+  .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+  .then(({ ok, status, data }) => {
+    if (ok && data.success) {
       alert('تم تسجيل الدفعة بنجاح');
       closeModal('paymentModal');
-      location.reload();
+      document.getElementById('paymentForm').reset();
+      setTimeout(() => location.reload(), 1500);
     } else {
-      alert('خطأ: ' + (data.message || 'حدث خطأ'));
+      console.error('Payment failed:', data);
+      alert('يرجى التحقق من البيانات المدخلة');
     }
   })
-  .catch(e => alert('خطأ: ' + e));
+  .catch(e => {
+    console.error('Error:', e);
+    alert('حدث خطأ أثناء تسجيل الدفعة');
+  });
 }
 
 // ============ DISTRIBUTION ============

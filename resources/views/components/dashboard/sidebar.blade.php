@@ -28,6 +28,17 @@
                 <div class="user-role">مقاول  </div>
             </div>
         </div>
+
+        <!-- SETTINGS LINK -->
+        @if(auth()->user()->isContractor())
+            <a href="{{ route('settings.index') }}" class="nav-link" style="text-decoration:none;color:inherit;margin-top:8px;">
+                <span class="ms ms-fill">settings</span> الإعدادات
+            </a>
+        @elseif(auth()->user()->isAdmin())
+            <a href="{{ route('admin.settings.show') }}" class="nav-link" style="text-decoration:none;color:inherit;margin-top:8px;">
+                <span class="ms ms-fill">settings</span> الإعدادات
+            </a>
+        @endif
         
         <!-- LOGOUT BUTTON -->
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="margin-top: 12px;">

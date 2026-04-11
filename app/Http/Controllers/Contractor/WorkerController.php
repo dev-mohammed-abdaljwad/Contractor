@@ -209,5 +209,37 @@ class WorkerController extends Controller
             : redirect()->route('contractor.workers.index')
                 ->with('success', 'تم إيقاف العامل بنجاح');
     }
+
+    /**
+     * Record a payment for a worker.
+     */
+    public function recordPayment($id): JsonResponse
+    {
+        $worker = $this->workerRepository->findById($id);
+        $this->authorize('update', $worker);
+
+        $validated = request()->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'date' => 'required|date',
+            'payment_method' => 'required|in:cash,transfer,check,other',
+            'payment_type' => 'required|in:salary,advance_repayment,bonus,other',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $payment = $worker->payments()->create([
+            'contractor_id' => Auth::id(),
+            'amount' => $validated['amount'],
+            'date' => $validated['date'],
+            'payment_method' => $validated['payment_method'],
+            'payment_type' => $validated['payment_type'],
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تسجيل الدفع بنجاح',
+            'payment' => $payment,
+        ]);
+    }
 }
 

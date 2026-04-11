@@ -20,6 +20,10 @@
             <span class="ms ms-fill">payments</span>
             <span class="mobile-footer-label">التحصيل</span>
         </a>
+        <a href="{{ route('settings.index') }}" class="mobile-footer-link">
+            <span class="ms ms-fill">settings</span>
+            <span class="mobile-footer-label">الإعدادات</span>
+        </a>
         
         <!-- LOGOUT BUTTON FOR MOBILE -->
         <button 

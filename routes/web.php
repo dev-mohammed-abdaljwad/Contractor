@@ -8,7 +8,9 @@ use App\Http\Controllers\Contractor\CollectionController;
 use App\Http\Controllers\Contractor\DistributionController;
 use App\Http\Controllers\Contractor\DeductionController;
 use App\Http\Controllers\Contractor\AdvanceController;
+use App\Http\Controllers\Contractor\SettingsController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\AdminController;
 
 // Public Routes
@@ -62,6 +64,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::get('/create', [WorkerController::class, 'create'])->name('contractor.workers.create');
         Route::post('/', [WorkerController::class, 'store'])->name('contractor.workers.store');
         Route::get('/{id}/edit', [WorkerController::class, 'edit'])->name('contractor.workers.edit');
+        Route::post('/{id}/payment', [WorkerController::class, 'recordPayment'])->name('contractor.workers.record-payment');
         Route::get('/{id}', [WorkerController::class, 'show'])->name('contractor.workers.show');
         Route::put('/{id}', [WorkerController::class, 'update'])->name('contractor.workers.update');
         Route::delete('/{id}', [WorkerController::class, 'destroy'])->name('contractor.workers.destroy');
@@ -76,6 +79,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::get('/{company}/edit', [CompanyController::class, 'edit'])->name('contractor.companies.edit');
         Route::put('/{company}', [CompanyController::class, 'update'])->name('contractor.companies.update');
         Route::delete('/{company}', [CompanyController::class, 'destroy'])->name('contractor.companies.destroy');
+        Route::post('/{company}/payments', [CompanyController::class, 'recordPayment'])->name('contractor.companies.record-payment');
     });
 
     // Collections Management
@@ -126,6 +130,16 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::patch('/{advance}/recovery-method', [AdvanceController::class, 'updateRecoveryMethod'])->name('contractor.advances.update-recovery-method');
         Route::post('/{advance}/record-collection', [AdvanceController::class, 'recordCollection'])->name('contractor.advances.record-collection');
     });
+
+    // Settings Management
+    Route::prefix('settings')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('settings.index');
+        Route::patch('/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
+        Route::patch('/password', [SettingsController::class, 'changePassword'])->name('settings.password');
+        Route::patch('/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications');
+        Route::patch('/system', [SettingsController::class, 'updateSystemPreferences'])->name('settings.system');
+        Route::delete('/sessions', [SettingsController::class, 'terminateSessions'])->name('settings.sessions');
+    });
 });
 
 // Admin Routes (Protected)
@@ -136,4 +150,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Contractor Management
     Route::get('/contractors', [AdminController::class, 'index'])->name('admin.contractors.index');
     Route::get('/contractors/{user}', [AdminController::class, 'showContractor'])->name('admin.contractors.show');
+
+    // Settings Management
+    Route::prefix('settings')->group(function () {
+        Route::get('/', [AdminSettingController::class, 'show'])->name('admin.settings.show');
+        Route::put('/profile', [AdminSettingController::class, 'updateProfile'])->name('admin.settings.update-profile');
+        Route::put('/password', [AdminSettingController::class, 'updatePassword'])->name('admin.settings.update-password');
+        Route::put('/preferences', [AdminSettingController::class, 'updatePreferences'])->name('admin.settings.update-preferences');
+    });
 });

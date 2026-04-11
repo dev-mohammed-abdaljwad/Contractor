@@ -66,4 +66,9 @@ class Company extends Model
     {
         return $this->hasMany(Collection::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(CompanyPayment::class);
+    }
 }

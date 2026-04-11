@@ -142,6 +142,25 @@ class CompanyController extends Controller
                 ->with('success', 'تم حذف الشركة بنجاح');
     }
 
+    public function recordPayment(Company $company)
+    {
+        $this->authorize('update', $company);
+
+        $company->payments()->create([
+            'contractor_id' => Auth::id(),
+            'amount' => request()->input('amount'),
+            'date' => request()->input('date'),
+            'payment_method' => request()->input('payment_method'),
+            'payment_type' => request()->input('payment_type'),
+            'notes' => request()->input('notes'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تسجيل الدفعة بنجاح',
+        ]);
+    }
+
 }
 
 

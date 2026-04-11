@@ -836,6 +836,7 @@ function handleSafeError(error, context = 'عملية') {
   </div>
   <div class="actions">
     <button class="act-btn" onclick="openModal('editModal')"><span class="act-icon">✎</span>تعديل</button>
+    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">💰</span>تسجيل الدفع</button>
     <button class="act-btn" onclick="openModal('deductionModal')"><span class="act-icon">−</span>خصم</button>
     <button class="act-btn" onclick="openModal('advanceModal')"><span class="act-icon">↑</span>سلفة</button>
   </div>
@@ -1054,7 +1055,7 @@ function handleSafeError(error, context = 'عملية') {
         <span>↑</span>
         <span>تسجيل سلفة</span>
       </button>
-      <button class="action-btn" title="تسجيل دفع">
+      <button class="action-btn" onclick="openModal('paymentModal')" title="تسجيل دفع">
         <span>✓</span>
         <span>تسجيل دفع</span>
       </button>
@@ -1195,6 +1196,56 @@ function handleSafeError(error, context = 'عملية') {
     <div class="modal-footer">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal('advanceModal')">إلغاء</button>
       <button class="modal-btn modal-btn-primary" onclick="saveAdvance({{ $worker->id }})">تسجيل السلفة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">تسجيل الدفع</div>
+      <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="paymentForm">
+        <div class="form-group">
+          <label class="form-label">التاريخ *</label>
+          <input type="date" class="form-input" id="paymentDate" value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">المبلغ (جنيه) *</label>
+          <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0.01" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">طريقة الدفع *</label>
+          <select class="form-input" id="paymentMethod" required>
+            <option value="">-- اختر طريقة الدفع --</option>
+            <option value="cash">نقداً</option>
+            <option value="transfer">تحويل بنكي</option>
+            <option value="check">شيك</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نوع الدفع *</label>
+          <select class="form-input" id="paymentType" required>
+            <option value="">-- اختر نوع الدفع --</option>
+            <option value="salary">دفع أجر</option>
+            <option value="advance_repayment">سداد سلفة</option>
+            <option value="bonus">مكافأة</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ملاحظات</label>
+          <textarea class="form-textarea" id="paymentNotes" placeholder="أضف ملاحظات عن الدفع..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+      <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $worker->id }})">تسجيل الدفع</button>
     </div>
   </div>
 </div>
@@ -1413,6 +1464,68 @@ function saveAdvance(workerId) {
     }
   })
   .catch(e => handleSafeError(e, 'تسجيل السلفة'));
+}
+
+function savePayment(workerId) {
+  const date = document.getElementById('paymentDate').value;
+  const amount = document.getElementById('paymentAmount').value;
+  const method = document.getElementById('paymentMethod').value;
+  const type = document.getElementById('paymentType').value;
+  const notes = document.getElementById('paymentNotes').value;
+
+  // Client-side validation
+  if (!date) {
+    showErrorToast('الرجاء اختيار التاريخ');
+    return;
+  }
+  if (!amount) {
+    showErrorToast('الرجاء إدخال المبلغ');
+    return;
+  }
+  if (parseFloat(amount) <= 0) {
+    showErrorToast('المبلغ يجب أن يكون أكبر من صفر');
+    return;
+  }
+  if (!method) {
+    showErrorToast('الرجاء اختيار طريقة الدفع');
+    return;
+  }
+  if (!type) {
+    showErrorToast('الرجاء اختيار نوع الدفع');
+    return;
+  }
+
+  const payload = {
+    worker_id: workerId,
+    amount: parseFloat(amount),
+    date: date,
+    payment_method: method,
+    payment_type: type,
+    notes: notes || null
+  };
+
+  fetch(`/contractor/workers/${workerId}/payment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
+  .then(({ ok, status, data }) => {
+    if (ok && data.success) {
+      showSuccessToast('تم تسجيل الدفع بنجاح');
+      closeModal('paymentModal');
+      document.getElementById('paymentForm').reset();
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      console.error('Payment failed:', data);
+      showErrorToast('يرجى التحقق من البيانات المدخلة');
+    }
+  })
+  .catch(e => handleSafeError(e, 'تسجيل الدفع'));
 }
 
 function switchTab(el, tabId) {

@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Disable cache for all responses
         $middleware->append(\App\Http\Middleware\DisableCache::class);
         
+        // Set user language based on preferences
+        $middleware->append(\App\Http\Middleware\SetUserLanguage::class);
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'contractor' => \App\Http\Middleware\ContractorMiddleware::class,

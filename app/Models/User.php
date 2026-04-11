@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'phone', 'role', 'password'])]
+#[Fillable(['name', 'phone', 'phone_secondary', 'email', 'avatar', 'role', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -59,6 +59,19 @@ class User extends Authenticatable
     public function collections()
     {
         return $this->hasMany(Collection::class, 'contractor_id');
+    }
+
+    public function preferences()
+    {
+        return $this->hasOne(UserPreference::class)->withDefault();
+    }
+
+    /**
+     * Get user's full name (alias for name attribute).
+     */
+    public function getFullNameAttribute(): string
+    {
+        return $this->name;
     }
 
     // Scopes

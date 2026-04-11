@@ -18,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Repositories\Interfaces\DeductionRepositoryInterface::class, \App\Repositories\DeductionRepository::class);
         $this->app->bind(\App\Repositories\Interfaces\AdvanceRepositoryInterface::class, \App\Repositories\AdvanceRepository::class);
         $this->app->bind(\App\Repositories\Interfaces\CollectionRepositoryInterface::class, \App\Repositories\CollectionRepository::class);
+        $this->app->bind(\App\Repositories\Interfaces\SettingsRepositoryInterface::class, \App\Repositories\SettingsRepository::class);
 
         // Service Bindings
         $this->app->singleton(\App\Services\CompanyService::class, function ($app) {

@@ -16,20 +16,38 @@ class AdvanceSeeder extends Seeder
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            // Get 3-5 random workers for this contractor
+            // احصل على 15-20 عامل عشوائي لإنشاء سلف
             $workers = Worker::where('contractor_id', $contractor->id)
                 ->inRandomOrder()
-                ->limit(rand(3, 5))
+                ->limit(rand(15, 20))
                 ->get();
 
             foreach ($workers as $worker) {
-                // Create 1-3 advances per worker
-                for ($i = 0; $i < rand(1, 3); $i++) {
-                    $date = Carbon::now()->subDays(rand(0, 30));
-                    $amount = rand(200, 1000);
+                // إنشاء 2-4 سلفات متنوعة لكل عامل
+                for ($i = 0; $i < rand(2, 4); $i++) {
+                    $daysAgo = rand(0, 60); // past 2 months
+                    $date = Carbon::now()->subDays($daysAgo);
+                    $amount = rand(300, 2000); // varied amounts
                     $recoveryMethod = collect(['immediately', 'installments', 'manually'])->random();
-                    $isFullyCollected = rand(0, 1) === 1;
-                    $amountCollected = $isFullyCollected ? $amount : rand(0, (int)($amount * 0.5));
+                    
+                    // Create different scenarios: fully collected, partially collected, pending
+                    $scenario = rand(1, 10);
+                    if ($scenario <= 4) {
+                        // 40% fully collected
+                        $amountCollected = $amount;
+                        $isFullyCollected = true;
+                        $fullCollectionDate = $date->copy()->addDays(rand(1, 20));
+                    } elseif ($scenario <= 7) {
+                        // 30% partially collected
+                        $amountCollected = rand((int)($amount * 0.3), (int)($amount * 0.7));
+                        $isFullyCollected = false;
+                        $fullCollectionDate = null;
+                    } else {
+                        // 30% not collected yet (pending)
+                        $amountCollected = 0;
+                        $isFullyCollected = false;
+                        $fullCollectionDate = null;
+                    }
                     
                     $advance = Advance::create([
                         'worker_id' => $worker->id,
@@ -42,19 +60,21 @@ class AdvanceSeeder extends Seeder
                             'ظروف صحية طارئة',
                             'مساعدة عائلية',
                             'احتياجات شخصية',
+                            'حالة طوارئ',
+                            'مشاكل مالية مؤقتة',
                             'بدون سبب محدد',
                             null
                         ])->random(),
                         'amount_collected' => $amountCollected,
                         'amount_pending' => $amount - $amountCollected,
                         'is_fully_collected' => $isFullyCollected,
-                        'fully_collected_at' => $isFullyCollected ? Carbon::now()->subDays(rand(1, 15)) : null,
+                        'fully_collected_at' => $fullCollectionDate,
                     ]);
 
-                    // If recovery method is installments, create schedule
+                    // إذا كانت طريقة التحصيل بالأقساط، أنشئ جدول السداد
                     if ($recoveryMethod === 'installments') {
-                        $installmentCount = rand(2, 4);
-                        $period = rand(0, 1) === 0 ? 'weekly' : 'biweekly';
+                        $installmentCount = rand(2, 6);
+                        $period = collect(['weekly', 'biweekly'])->random();
                         $installmentAmount = round($advance->amount / $installmentCount, 2);
                         
                         $advance->update([
@@ -72,16 +92,18 @@ class AdvanceSeeder extends Seeder
                                 $dueDate->addWeeks($j * 2);
                             }
                             
-                            $isPaid = $isFullyCollected || ($j < floor($advance->amount_collected / $installmentAmount));
+                            // تحديد ما إذا كان القسط مدفوع بناءً على المجموع المحصل
+                            $isPaid = $amountCollected >= ($j + 1) * $installmentAmount;
+                            $amountPaid = $isPaid ? $installmentAmount : ($amountCollected > $j * $installmentAmount ? $amountCollected - $j * $installmentAmount : 0);
                             
                             InstallmentSchedule::create([
                                 'advance_id' => $advance->id,
                                 'installment_number' => $j + 1,
                                 'amount' => $installmentAmount,
                                 'due_date' => $dueDate,
-                                'amount_paid' => $isPaid ? $installmentAmount : 0,
+                                'amount_paid' => $amountPaid,
                                 'is_paid' => $isPaid,
-                                'paid_at' => $isPaid ? Carbon::now()->subDays(rand(0, 20)) : null,
+                                'paid_at' => $isPaid ? Carbon::now()->subDays(rand(0, max(1, $daysAgo - 5))) : null,
                             ]);
                         }
                     }

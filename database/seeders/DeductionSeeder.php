@@ -15,30 +15,44 @@ class DeductionSeeder extends Seeder
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            // Get some distributions with workers
+            // احصل على بعض التوزيعات مع العمال
             $distributions = DailyDistribution::where('contractor_id', $contractor->id)
                 ->with('workers', 'company')
-                ->limit(10)
+                ->limit(30) // زيادة عدد التوزيعات
                 ->get();
 
             foreach ($distributions as $dist) {
-                // For each worker in the distribution, randomly create deductions
+                // لكل عامل في التوزيع، أنشئ خصومات عشوائية متنوعة
                 foreach ($dist->workers as $worker) {
-                    if (rand(0, 1)) {
-                        $type = ['quarter', 'half'][rand(0, 1)];
+                    // 50% احتمالية إنشاء خصم
+                    if (rand(0, 100) <= 50) {
+                        $type = collect(['quarter', 'half', 'full'])->random();
                         $dailyWage = $dist->company->daily_wage;
+                        
                         $amount = match($type) {
                             'quarter' => $dailyWage * 0.25,
                             'half' => $dailyWage * 0.5,
+                            'full' => $dailyWage,
                         };
+                        
+                        $reason = collect([
+                            'خصم تأديبي - عدم الالتزام بالوقت',
+                            'خصم تأديبي - سوء السلوك',
+                            'خصم تأديبي - إهمال في العمل',
+                            'خصم لرداءة الأداء',
+                            'خصم اتفاقي',
+                            'خصم تأديبي عام',
+                            'خصم مخالفة',
+                            'خصم للأضرار',
+                        ])->random();
 
                         Deduction::create([
                             'contractor_id' => $contractor->id,
                             'worker_id' => $worker->id,
                             'distribution_id' => $dist->id,
                             'type' => $type,
-                            'amount' => $amount,
-                            'reason' => 'خصم تأديبي',
+                            'amount' => round($amount, 2),
+                            'reason' => $reason,
                         ]);
                     }
                 }
