@@ -1425,6 +1425,9 @@ function savePayment(workerId) {
   .then(({ ok, status, data }) => {
     if (ok && data.success) {
       showSuccessToast('تم تسجيل الدفع بنجاح');
+      if (data.warning) {
+        setTimeout(() => showErrorToast(data.warning), 400);
+      }
       closeModal('paymentModal');
       document.getElementById('paymentForm').reset();
       setTimeout(() => location.reload(), 1500);

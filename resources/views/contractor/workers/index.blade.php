@@ -43,9 +43,34 @@
 .sv-blue { color: #2563EB; } .sv-red { color: #DC2626; }
 
 .filter-row {
-  display: flex; gap: 7px; padding: 12px 16px;
+  display: flex; gap: 8px; padding: 12px 16px;
   background: #fff; border-bottom: 1px solid #f0f0f0;
-  overflow-x: auto;
+  overflow-x: auto; align-items: center; align-items: center; justify-content: space-between;
+}
+.filter-chips {
+  display: flex; gap: 7px; overflow-x: auto; flex: 1;
+}
+.filter-search {
+  display: flex; align-items: center; gap: 8px; width: 220px; flex-shrink: 0;
+  background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px;
+  padding: 6px 10px; margin: 0 6px;
+}
+.filter-search-icon { color: #999; font-size: 13px; }
+.filter-search-input {
+  background: transparent; border: none; flex: 1; font-size: 12px;
+  font-family: inherit; outline: none; color: #666;
+}
+.filter-search-input::placeholder { color: #bbb; }
+.filter-btn {
+  background: #1D9E75; color: #fff; border: none;
+  padding: 6px 14px; border-radius: 20px; font-size: 12px;
+  font-weight: 600; cursor: pointer; display: flex; align-items: center;
+  gap: 5px; white-space: nowrap; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.filter-btn:hover { background: #158d65; }
+.filter-actions {
+  display: flex; gap: 8px; align-items: center; flex-shrink: 0;
 }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -163,13 +188,13 @@
   .strip-val { font-size: 16px; }
   .strip-lbl { font-size: 9px; }
   .page-title { font-size: 16px; }
-  .add-btn { font-size: 11px; padding: 6px 12px; }
-  .topbar { padding: 12px 16px 16px; margin: 0; }
-  .topbar-row { gap: 8px; margin-bottom: 12px; }
-  .search-wrap { padding: 8px 12px; }
-  .search-icon { font-size: 13px; }
-  .search-input { font-size: 12px; }
-  .filter-row { gap: 6px; padding: 10px 0; }
+  .topbar { padding: 12px 16px 12px; margin: 0; }
+  .topbar-row { gap: 8px; }
+  .filter-row { gap: 6px; padding: 10px 8px; flex-wrap: wrap; }
+  .filter-chips { gap: 6px; }
+  .filter-search { width: 180px; padding: 5px 8px; }
+  .filter-search-input { font-size: 11px; }
+  .filter-btn { padding: 5px 11px; font-size: 11px; }
   .chip { padding: 5px 11px; font-size: 11px; }
   .chip-count { font-size: 9px; padding: 1px 5px; }
   .sort-bar { padding: 7px 0; }
@@ -196,17 +221,18 @@
 }
 
 @media(max-width: 480px) {
-  .topbar { padding: 10px 12px 12px; margin: 0; }
-  .topbar-row { flex-wrap: wrap; margin-bottom: 10px; }
-  .page-title { font-size: 14px; flex: 1; }
-  .add-btn { font-size: 10px; padding: 5px 10px; }
-  .search-wrap { width: 100%; padding: 7px 10px; margin-top: 8px; }
-  .search-input { font-size: 11px; }
+  .topbar { padding: 10px 12px 8px; margin: 0; }
+  .page-title { font-size: 14px; }
   .stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; padding: 8px 0; }
   .strip-val { font-size: 14px; }
   .strip-lbl { font-size: 8px; }
-  .filter-row { gap: 5px; padding: 8px 0; overflow-x: auto; }
-  .chip { padding: 4px 9px; font-size: 10px; }
+  .filter-row { gap: 4px; padding: 8px 6px; flex-wrap: wrap; }
+  .filter-chips { gap: 4px; }
+  .filter-search { width: 100%; padding: 5px 8px; margin: 0; }
+  .filter-search-input { font-size: 11px; }
+  .filter-actions { width: 100%; }
+  .filter-btn { padding: 5px 10px; font-size: 10px; width: 100%; justify-content: center; }
+  .chip { padding: 4px 8px; font-size: 10px; }
   .chip-count { font-size: 8px; padding: 0px 4px; }
   .sort-bar { padding: 6px 0; flex-direction: column; align-items: flex-start; gap: 6px; }
   .sort-label { font-size: 9px; }
@@ -243,11 +269,6 @@
 <div class="topbar">
   <div class="topbar-row">
     <div class="page-title">العمال</div>
-    <button class="add-btn" onclick="openWorkerModal(false)">+ إضافة عامل</button>
-  </div>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="workerSearch" class="search-input" placeholder="ابحث بالاسم أو رقم العامل..." value="{{ $search ?? '' }}">
   </div>
 </div>
 
@@ -261,11 +282,20 @@
 
 <!-- Filters -->
 <div class="filter-row">
-  <a href="{{ route('contractor.workers.index', ['filter' => 'all', 'search' => $search ?? '']) }}" class="chip {{ request('filter', 'all') === 'all' ? 'chip-all' : 'chip-neutral' }}">الكل <span class="chip-count">{{ $total_workers ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'assigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'assigned' ? 'chip-all' : 'chip-neutral' }}">موزع اليوم <span class="chip-count">{{ $assigned_today ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'unassigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'unassigned' ? 'chip-all' : 'chip-neutral' }}">غير موزع <span class="chip-count">{{ $unassigned ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'advance', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'advance' ? 'chip-amber' : 'chip-neutral' }}">عنده سلفة <span class="chip-count">{{ $has_advances ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'inactive', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'inactive' ? 'chip-gray' : 'chip-neutral' }}">غير نشط <span class="chip-count">{{ $inactive_count ?? 0 }}</span></a>
+  <div class="filter-chips">
+    <a href="{{ route('contractor.workers.index', ['filter' => 'all', 'search' => $search ?? '']) }}" class="chip {{ request('filter', 'all') === 'all' ? 'chip-all' : 'chip-neutral' }}">الكل <span class="chip-count">{{ $total_workers ?? 0 }}</span></a>
+    <a href="{{ route('contractor.workers.index', ['filter' => 'assigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'assigned' ? 'chip-all' : 'chip-neutral' }}">موزع اليوم <span class="chip-count">{{ $assigned_today ?? 0 }}</span></a>
+    <a href="{{ route('contractor.workers.index', ['filter' => 'unassigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'unassigned' ? 'chip-all' : 'chip-neutral' }}">غير موزع <span class="chip-count">{{ $unassigned ?? 0 }}</span></a>
+    <a href="{{ route('contractor.workers.index', ['filter' => 'advance', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'advance' ? 'chip-amber' : 'chip-neutral' }}">عنده سلفة <span class="chip-count">{{ $has_advances ?? 0 }}</span></a>
+    <a href="{{ route('contractor.workers.index', ['filter' => 'inactive', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'inactive' ? 'chip-gray' : 'chip-neutral' }}">غير نشط <span class="chip-count">{{ $inactive_count ?? 0 }}</span></a>
+  </div>
+  <div class="filter-search">
+    <span class="filter-search-icon">🔍</span>
+    <input type="text" id="workerSearch" class="filter-search-input" placeholder="بحث..." value="{{ $search ?? '' }}">
+  </div>
+  <div class="filter-actions">
+    <button class="filter-btn" onclick="openWorkerModal(false)">+ إضافة عامل</button>
+  </div>
 </div>
 
 <!-- Sort -->

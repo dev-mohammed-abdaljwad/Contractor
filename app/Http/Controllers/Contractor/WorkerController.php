@@ -7,6 +7,7 @@ use App\Http\Requests\StoreWorkerRequest;
 use App\Http\Requests\UpdateWorkerRequest;
 use App\Models\Advance;
 use App\Repositories\Interfaces\WorkerRepositoryInterface;
+use App\Services\AdvanceService;
 use App\Services\WageCalculationService;
 use App\Services\WorkerService;
 use App\Services\AdvanceCollectionService;
@@ -14,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -25,6 +27,7 @@ class WorkerController extends Controller
         private WageCalculationService    $wageCalculationService,
         private WorkerService             $workerService,
         private AdvanceCollectionService  $advanceCollectionService,
+        private AdvanceService            $advanceService,
     ) {}
 
     public function index(): View
@@ -238,49 +241,55 @@ class WorkerController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        // Create payment record
-        $payment = $worker->payments()->create([
-            'contractor_id' => Auth::id(),
-            'amount' => $validated['amount'],
-            'date' => $validated['date'],
-            'payment_method' => $validated['payment_method'] ?? null,
-            'payment_type' => $validated['payment_type'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $from = Carbon::today()->subDays(30)->toDateString();
+        $to = Carbon::today()->toDateString();
+        $ledger = $this->wageCalculationService->getWorkerLedger($id, $from, $to);
+        $remainingBalanceBeforePayment = (float) ($ledger['remaining_balance'] ?? 0);
+        $overpaidAmount = max(0, (float) $validated['amount'] - $remainingBalanceBeforePayment);
 
-        // If payment type is salary, automatically collect pending advances
-        if (($validated['payment_type'] ?? null) === 'salary') {
+        $payment = DB::transaction(function () use ($worker, $id, $validated, $overpaidAmount) {
+            $payment = $worker->payments()->create([
+                'contractor_id' => Auth::id(),
+                'amount' => $validated['amount'],
+                'date' => $validated['date'],
+                'payment_method' => $validated['payment_method'] ?? null,
+                'payment_type' => $validated['payment_type'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            // Still collect pending advances from this payment amount
             $this->advanceCollectionService->collectAdvancesFromPayment(
                 $id,
-                $validated['amount'],
+                (float) $validated['amount'],
                 $validated['date']
             );
-        }
 
-        // If payment type is advance repayment, update the advance's paid_at date
-        if (($validated['payment_type'] ?? null) === 'advance_repayment') {
-            // Find the oldest unpaid advance and mark it as paid
-            $advance = Advance::where('worker_id', $id)
-                ->where('is_fully_collected', false)
-                ->whereNull('fully_collected_at')
-                ->orderBy('date')
-                ->first();
-
-            if ($advance) {
-                $advance->update([
-                    'fully_collected_at' => $validated['date'],
-                    'is_fully_collected' => true,
-                    'amount_collected' => $advance->amount,
-                    'amount_pending' => 0,
-                ]);
+            // Any amount above the current due becomes a new advance
+            if ($overpaidAmount > 0) {
+                $this->advanceService->recordAdvance([
+                    'worker_id' => $id,
+                    'amount' => $overpaidAmount,
+                    'date' => $validated['date'],
+                    'reason' => 'زيادة عن المستحق أثناء القبض',
+                    'recovery_method' => 'immediately',
+                ], Auth::id());
             }
-        }
 
-        return response()->json([
+            return $payment;
+        });
+
+        $response = [
             'success' => true,
             'message' => 'تم تسجيل الدفع بنجاح',
             'payment' => $payment,
-        ]);
+        ];
+
+        if ($overpaidAmount > 0) {
+            $response['warning'] = 'تم دفع مبلغ أكبر من المستحق، وتم تحويل الزيادة إلى سلفة بقيمة ' . number_format($overpaidAmount, 2) . ' ج';
+            $response['overpaid_amount'] = $overpaidAmount;
+        }
+
+        return response()->json($response);
     }
 }
 
