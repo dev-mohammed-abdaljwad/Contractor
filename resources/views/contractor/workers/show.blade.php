@@ -541,6 +541,7 @@ function handleSafeError(error, context = 'عملية') {
 .adv-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
 .adv-pending { background: #FEF3C7; color: #92400E; }
 .adv-done { background: #ECFDF5; color: #065F46; }
+.formula-plus { color: #7C3AED; }
 
 .action-buttons-group { display: flex; gap: 8px; margin-top: 12px; }
 .action-btn { flex: 1; padding: 10px; background: #1D9E75; color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
@@ -1082,11 +1083,36 @@ function handleSafeError(error, context = 'عملية') {
     <div class="formula-card">
       <div style="font-size:12px;color:#065F46;font-weight:600;margin-bottom:10px;">صافي الأجر</div>
       <div class="formula-row"><span class="formula-label">الأجر الإجمالي</span><span class="formula-val" style="color:#059669;">{{ number_format($ledger['gross'] ?? 0, 0) }} ج</span></div>
+      
+      @if(($currentWeekOvertime['total_hours'] ?? 0) > 0)
+      <div class="formula-row">
+        <span class="formula-label formula-plus">
+          + ساعات سهر ({{ number_format($currentWeekOvertime['total_hours'], 1) }} ساعة @ {{ number_format(($currentWeekOvertime['total_amount'] ?? 0) / max(1, $currentWeekOvertime['total_hours']), 0) }} ج/ساعة)
+        </span>
+        <span class="formula-val formula-plus" style="color:#7C3AED;">{{ number_format($currentWeekOvertime['total_amount'] ?? 0, 0) }} ج</span>
+      </div>
+      @endif
+      
       <div class="formula-row"><span class="formula-label formula-minus">− خصومات</span><span class="formula-val formula-minus">{{ number_format($ledger['deductions'] ?? 0, 0) }} ج</span></div>
       <div class="formula-row"><span class="formula-label formula-minus">− سلف محصلة</span><span class="formula-val formula-minus">{{ number_format($ledger['advances_collected'] ?? 0, 0) }} ج</span></div>
-      <div class="formula-row total"><span>المستحق الكلي</span><span>{{ number_format($ledger['net_payable'] ?? 0, 0) }} ج</span></div>
+      <div class="formula-row total">
+        <span>المستحق الكلي</span>
+        <span>{{ number_format(
+          ($ledger['gross'] ?? 0) + 
+          ($currentWeekOvertime['total_amount'] ?? 0) - 
+          ($ledger['deductions'] ?? 0) - 
+          ($ledger['advances_collected'] ?? 0), 0) }} ج</span>
+      </div>
       <div class="formula-row"><span class="formula-label formula-minus">− مدفوع</span><span class="formula-val formula-minus">{{ number_format($ledger['total_payments'] ?? 0, 0) }} ج</span></div>
-      <div class="formula-row total" style="background:#FEF3C7;"><span>الرصيد المتبقي</span><span style="color:#D97706;font-weight:700;">{{ number_format($ledger['remaining_balance'] ?? 0, 0) }} ج</span></div>
+      <div class="formula-row total" style="background:#FEF3C7;">
+        <span>الرصيد المتبقي</span>
+        <span style="color:#D97706;font-weight:700;">{{ number_format(
+          ($ledger['gross'] ?? 0) + 
+          ($currentWeekOvertime['total_amount'] ?? 0) - 
+          ($ledger['deductions'] ?? 0) - 
+          ($ledger['advances_collected'] ?? 0) - 
+          ($ledger['total_payments'] ?? 0), 0) }} ج</span>
+      </div>
     </div>
 
     <div class="action-buttons-group">
