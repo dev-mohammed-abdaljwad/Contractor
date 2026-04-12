@@ -23,7 +23,9 @@ class OvertimeArchiveService
             $weekEnd = $weekStart->copy()->addDays(6)->endOfDay();
 
             // Get all distributions with overtime for this week
-            $distributions = DailyDistribution::where('worker_id', $worker->id)
+            $distributions = DailyDistribution::whereHas('workers', function ($query) use ($worker) {
+                $query->where('worker_id', $worker->id);
+            })
                 ->whereBetween('distribution_date', [$weekStart->toDateString(), $weekEnd->toDateString()])
                 ->where('overtime_hours', '>', 0)
                 ->get();
@@ -106,7 +108,9 @@ class OvertimeArchiveService
         $weekStart = Carbon::now()->startOfWeek(Carbon::SUNDAY);
         $weekEnd = $weekStart->copy()->addDays(6)->endOfDay();
 
-        $distributions = DailyDistribution::where('worker_id', $worker->id)
+        $distributions = DailyDistribution::whereHas('workers', function ($query) use ($worker) {
+            $query->where('worker_id', $worker->id);
+        })
             ->whereBetween('distribution_date', [$weekStart->toDateString(), $weekEnd->toDateString()])
             ->where('overtime_hours', '>', 0)
             ->get();
