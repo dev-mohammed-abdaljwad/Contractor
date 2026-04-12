@@ -261,17 +261,17 @@
 
 <!-- Filters -->
 <div class="filter-row">
-  <a href="{{ route('contractor.workers.index', ['filter' => 'all']) }}" class="chip {{ request('filter', 'all') === 'all' ? 'chip-all' : 'chip-neutral' }}">الكل <span class="chip-count">{{ $total_workers ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'assigned']) }}" class="chip {{ request('filter') === 'assigned' ? 'chip-all' : 'chip-neutral' }}">موزع اليوم <span class="chip-count">{{ $assigned_today ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'unassigned']) }}" class="chip {{ request('filter') === 'unassigned' ? 'chip-all' : 'chip-neutral' }}">غير موزع <span class="chip-count">{{ $unassigned ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'advance']) }}" class="chip {{ request('filter') === 'advance' ? 'chip-amber' : 'chip-neutral' }}">عنده سلفة <span class="chip-count">{{ $has_advances ?? 0 }}</span></a>
-  <a href="{{ route('contractor.workers.index', ['filter' => 'inactive']) }}" class="chip {{ request('filter') === 'inactive' ? 'chip-gray' : 'chip-neutral' }}">غير نشط <span class="chip-count">{{ $inactive_count ?? 0 }}</span></a>
+  <a href="{{ route('contractor.workers.index', ['filter' => 'all', 'search' => $search ?? '']) }}" class="chip {{ request('filter', 'all') === 'all' ? 'chip-all' : 'chip-neutral' }}">الكل <span class="chip-count">{{ $total_workers ?? 0 }}</span></a>
+  <a href="{{ route('contractor.workers.index', ['filter' => 'assigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'assigned' ? 'chip-all' : 'chip-neutral' }}">موزع اليوم <span class="chip-count">{{ $assigned_today ?? 0 }}</span></a>
+  <a href="{{ route('contractor.workers.index', ['filter' => 'unassigned', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'unassigned' ? 'chip-all' : 'chip-neutral' }}">غير موزع <span class="chip-count">{{ $unassigned ?? 0 }}</span></a>
+  <a href="{{ route('contractor.workers.index', ['filter' => 'advance', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'advance' ? 'chip-amber' : 'chip-neutral' }}">عنده سلفة <span class="chip-count">{{ $has_advances ?? 0 }}</span></a>
+  <a href="{{ route('contractor.workers.index', ['filter' => 'inactive', 'search' => $search ?? '']) }}" class="chip {{ request('filter') === 'inactive' ? 'chip-gray' : 'chip-neutral' }}">غير نشط <span class="chip-count">{{ $inactive_count ?? 0 }}</span></a>
 </div>
 
 <!-- Sort -->
 <div class="sort-bar">
   <span class="sort-label">{{ $workers->count() ?? 0 }} عامل</span>
-  <select class="sort-select" onchange="window.location.href='{{ route('contractor.workers.index') }}?sort=' + this.value">
+  <select class="sort-select" onchange="updateSort(this.value)">
     <option value="assigned">ترتيب: موزع أولاً</option>
     <option value="name">ترتيب: الاسم</option>
     <option value="attendance">ترتيب: نسبة الحضور</option>
@@ -1021,6 +1021,16 @@ function handleSearch(value) {
     }
     window.location.href = url.toString();
   }, 300); // 300ms debounce
+}
+
+function updateSort(sortValue) {
+  const url = new URL(window.location.href);
+  if (sortValue) {
+    url.searchParams.set('sort', sortValue);
+  } else {
+    url.searchParams.delete('sort');
+  }
+  window.location.href = url.toString();
 }
 
 document.getElementById('workerSearch')?.addEventListener('input', function(e) {

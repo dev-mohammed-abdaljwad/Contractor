@@ -31,6 +31,7 @@ class WorkerController extends Controller
     {
         $search  = request('search');
         $filter  = request('filter', 'all');
+        $sort    = request('sort', 'assigned');
         $today   = Carbon::today();
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd   = $today->copy();
@@ -58,15 +59,23 @@ class WorkerController extends Controller
         }
 
         // Status filter
-        $activeWorkers = match($filter) {
-            'assigned'   => $activeWorkers->filter(fn($w) => $w->assigned_today)->values(),
-            'unassigned' => $activeWorkers->filter(fn($w) => !$w->assigned_today)->values(),
-            'has_advance'=> $activeWorkers->filter(fn($w) => $w->has_pending_advance)->values(),
-            default      => $activeWorkers,
-        };
+        if ($filter === 'inactive') {
+            $workers = $inactiveWorkers;
+        } else {
+            $activeWorkers = match($filter) {
+                'assigned'   => $activeWorkers->filter(fn($w) => $w->assigned_today)->values(),
+                'unassigned' => $activeWorkers->filter(fn($w) => !$w->assigned_today)->values(),
+                'advance'    => $activeWorkers->filter(fn($w) => $w->has_pending_advance)->values(),
+                default      => $activeWorkers,
+            };
 
-        // Sort: assigned first
-        $workers = $activeWorkers->sortBy(fn($w) => $w->assigned_today ? 0 : 1)->values();
+            // Sort
+            $workers = match($sort) {
+                'name' => $activeWorkers->sortBy(fn($w) => $w->name)->values(),
+                'attendance' => $activeWorkers->sortByDesc(fn($w) => $w->attendance_rate ?? 0)->values(),
+                default => $activeWorkers->sortBy(fn($w) => $w->assigned_today ? 0 : 1)->values(),
+            };
+        }
 
         return view('contractor.workers.index', [
             'workers'        => $workers,
