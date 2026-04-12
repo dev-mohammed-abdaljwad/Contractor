@@ -170,11 +170,13 @@ class CompanyService
             ->sortByDesc('distribution_date')
             ->values();
 
-        $pendingAmount = 0;
-
         $paymentsHistory = $payments
             ->sortByDesc('created_at')
             ->values();
+
+        // Calculate pending amount: monthly total - total payments
+        $totalPayments = $payments->sum('amount');
+        $pendingAmount = max(0, $monthlyTotal - $totalPayments);
 
         return [
             'total_workers'        => $distributions->flatMap(fn($d) => $d->workers->pluck('id'))->unique()->count(),
