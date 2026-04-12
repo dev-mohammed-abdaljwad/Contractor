@@ -19,7 +19,7 @@ class OvertimeArchiveService
     {
         return DB::transaction(function () use ($worker, $payment) {
             // Get the week dates from payment or calculate from current week
-            $weekStart = $payment->payment_date->startOfWeek(Carbon::SUNDAY);
+            $weekStart = $payment->date->startOfWeek(Carbon::SUNDAY);
             $weekEnd = $weekStart->copy()->addDays(6)->endOfDay();
 
             // Get all distributions with overtime for this week
