@@ -4,9 +4,9 @@
         <p>نظام إدارة العمالة الزراعية</p>
     </div>
     <nav style="padding:12px 0;flex:1">
-        <div class="nav-link active" href="{{ route('contractor.dashboard') }}" style="text-decoration:none;color:inherit">
-            <span class="ms ms-fill">dashboard</span> لوحة المتابعة
-        </div>
+        <a href="{{ route('contractor.dashboard') }}" class="nav-link active" style="text-decoration:none;color:inherit">
+            <span class="ms ms-fill">dashboard</span>  المتابعة
+        </a>
         <a href="{{ route('contractor.companies.index') }}" class="nav-link" style="text-decoration:none;color:inherit">
             <span class="ms ms-fill">business</span> إدارة الشركات
         </a>
