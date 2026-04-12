@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\DailyDistribution;
 use App\Repositories\Interfaces\DistributionRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class DistributionRepository implements DistributionRepositoryInterface
@@ -99,8 +100,11 @@ class DistributionRepository implements DistributionRepositoryInterface
 
     public function getByCompanyAndPeriod(int $companyId, string $from, string $to): Collection
     {
+        $fromDate = Carbon::parse($from)->format('Y-m-d');
+        $toDate = Carbon::parse($to)->format('Y-m-d');
+        
         return DailyDistribution::where('company_id', $companyId)
-            ->whereBetween('distribution_date', [$from, $to])
+            ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'contractor_id', 'distribution_date', 'total_amount'])
             ->with(['workers:id,name'])
             ->get();
@@ -108,8 +112,11 @@ class DistributionRepository implements DistributionRepositoryInterface
 
     public function getByWorkerAndPeriod(int $workerId, string $from, string $to): Collection
     {
+        $fromDate = Carbon::parse($from)->format('Y-m-d');
+        $toDate = Carbon::parse($to)->format('Y-m-d');
+        
         return DailyDistribution::whereHas('workers', fn($q) => $q->where('worker_id', $workerId))
-            ->whereBetween('distribution_date', [$from, $to])
+            ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'distribution_date', 'total_amount'])
             ->with(['company:id,name,daily_wage'])
             ->get();

@@ -29,15 +29,15 @@ class WorkerSeeder extends Seeder
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            // إنشاء 50 عامل نشط و 30 عامل غير نشط لكل مقاول
-            // Create 50 active workers and 30 inactive
-            foreach (range(1, 80) as $i) {
-                $isActive = $i <= 50; // First 50 are active
+            // إنشاء 10 عمال نشطين فقط و 10 عمال غير نشطين
+            // Create 10 active workers and 10 inactive
+            foreach (range(1, 20) as $i) {
+                $isActive = $i <= 10; // First 10 are active
                 
                 Worker::create([
                     'contractor_id' => $contractor->id,
                     'name' => $this->generateArabicName(),
-                    'phone' => '+2010' . str_pad($contractor->id * 10000 + $i, 8, '0', STR_PAD_LEFT),
+                    'phone' => '010' . str_pad($i, 8, '0', STR_PAD_LEFT),
                     'national_id' => str_pad($contractor->id * 100000 + $i, 14, '0', STR_PAD_LEFT),
                     'joined_date' => Carbon::today()->subDays(rand(1, 365)),
                     'is_active' => $isActive,

@@ -25,20 +25,19 @@ class AdvanceSeeder extends Seeder
             $workersWithAdvances = $workers->random($count);
 
             foreach ($workersWithAdvances as $worker) {
-                // إنشاء 1-4 سلفات لكل عامل على مدى 5 أشهر
-                $advanceCount = rand(1, 4);
+                // Create 1 advance per worker for 10 days only
+                $advanceCount = 1;
                 
                 for ($i = 0; $i < $advanceCount; $i++) {
-                    // توزيع السلف على 5 أشهر
-                    $daysAgo = rand(0, 150);
+                    $daysAgo = rand(0, 10);
                     $advanceDate = Carbon::today()->subDays($daysAgo);
                     
                     // تنويع مبالغ السلف
                     $amount = collect([300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 2500])->random();
                     $recoveryMethod = collect(['immediately', 'installments', 'manually'])->random();
                     
-                    // السلف الأقدم عادة تكون محصلة
-                    $timeFactor = (150 - $daysAgo) / 150;
+                    // Most recent advances usually are collected
+                    $timeFactor = (10 - $daysAgo) / 10;
                     $scenario = rand(1, 100);
                     
                     if ($scenario <= (40 + $timeFactor * 30)) {

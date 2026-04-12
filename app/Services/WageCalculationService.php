@@ -31,8 +31,8 @@ class WageCalculationService
         // Calculate totals
         $grossWages = $distributions->sum(fn($dist) => $dist->company->daily_wage);
         $totalDeductions = $deductions->sum('amount');
-        // Use amount_collected instead of amount to show only what was actually collected
-        $totalAdvances = $advances->sum('amount_collected');
+        // Show total pending advances (not just collected) - these are deducted at payment time
+        $totalAdvances = $advances->sum('amount') - $advances->sum('amount_collected');
         $totalPayments = $payments->sum('amount');
         $netPayable = $grossWages - $totalDeductions - $totalAdvances;
         $remaining = $netPayable - $totalPayments;

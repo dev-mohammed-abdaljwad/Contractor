@@ -9,6 +9,7 @@ use App\Models\Advance;
 use App\Repositories\Interfaces\WorkerRepositoryInterface;
 use App\Services\WageCalculationService;
 use App\Services\WorkerService;
+use App\Services\AdvanceCollectionService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +24,7 @@ class WorkerController extends Controller
         private WorkerRepositoryInterface $workerRepository,
         private WageCalculationService    $wageCalculationService,
         private WorkerService             $workerService,
+        private AdvanceCollectionService  $advanceCollectionService,
     ) {}
 
     public function index(): View
@@ -236,6 +238,15 @@ class WorkerController extends Controller
             'payment_type' => $validated['payment_type'],
             'notes' => $validated['notes'] ?? null,
         ]);
+
+        // If payment type is salary, automatically collect pending advances
+        if ($validated['payment_type'] === 'salary') {
+            $this->advanceCollectionService->collectAdvancesFromPayment(
+                $id,
+                $validated['amount'],
+                $validated['date']
+            );
+        }
 
         // If payment type is advance repayment, update the advance's paid_at date
         if ($validated['payment_type'] === 'advance_repayment') {

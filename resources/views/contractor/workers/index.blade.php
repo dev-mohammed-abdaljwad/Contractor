@@ -247,7 +247,7 @@
   </div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" placeholder="ابحث بالاسم أو رقم العامل...">
+    <input type="text" id="workerSearch" class="search-input" placeholder="ابحث بالاسم أو رقم العامل..." value="{{ $search ?? '' }}">
   </div>
 </div>
 
@@ -1007,6 +1007,25 @@ function confirmWorkerAction() {
   }
   closeWorkerConfirmModal();
 }
+
+// ============ SEARCH & FILTER ============
+let searchTimeout;
+function handleSearch(value) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    const url = new URL(window.location.href);
+    if (value.trim()) {
+      url.searchParams.set('search', value);
+    } else {
+      url.searchParams.delete('search');
+    }
+    window.location.href = url.toString();
+  }, 300); // 300ms debounce
+}
+
+document.getElementById('workerSearch')?.addEventListener('input', function(e) {
+  handleSearch(e.target.value);
+});
 
 // Close modals on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {

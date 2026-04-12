@@ -209,17 +209,6 @@
                 @error('date') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">طريقة الاسترجاع *</label>
-                <select id="recoveryMethod" name="recovery_method" required class="input input-bordered w-full" onchange="toggleInstallmentFields()">
-                    <option value="">-- اختر الطريقة --</option>
-                    <option value="immediately">فري (خصم فوري من الراتب التالي)</option>
-                    <option value="installments">أقساط</option>
-                    <option value="manually">يدوي (تقرر متى تحتسبها)</option>
-                </select>
-                @error('recovery_method') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-            </div>
-
             <!-- Installment Fields (hidden by default) -->
             <div id="installmentFields" style="display: none;" class="space-y-4 pt-4 border-t border-gray-300">
                 <div>

@@ -25,8 +25,8 @@ class DistributionSeeder extends Seeder
                 continue;
             }
 
-            // أنشئ توزيعات لآخر 5 أشهر (150 يوم) لكل عامل
-            $startDate = Carbon::today()->subMonths(5);
+            // أنشئ توزيعات لآخر 10 أيام فقط
+            $startDate = Carbon::today()->subDays(10);
             $endDate = Carbon::today();
             
             // إنشاء سجل حضور منتظم: 4 أيام من 5 (80% حضور)

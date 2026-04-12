@@ -997,43 +997,44 @@ function handleSafeError(error, context = 'عملية') {
   <!-- TAB 3: Advances/السلف -->
   <div class="tab-content" id="tab3">
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <span style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;">الكل</span>
-        <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer">معلق</span>
-        <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer">محصل</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="advanceFilters">
+        <span class="advance-filter active" data-filter="all" style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;">الكل</span>
+        <span class="advance-filter" data-filter="pending" style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all 0.2s;">معلق</span>
+        <span class="advance-filter" data-filter="collected" style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all 0.2s;">محصل</span>
       </div>
       <button onclick="openModal('advanceModal')" style="font-size:12px;color:#1D9E75;background:none;border:1px solid #d0d0c8;text-decoration:none;font-weight:600;padding:6px 12px;border-radius:8px;transition:all 0.2s;cursor:pointer">
         + سلفة جديدة
       </button>
     </div>
 
-    <div class="sec-title">السلف المعلقة</div>
-    @forelse($pendingAdvances ?? [] as $advance)
-      <div class="adv-item">
-        <div class="adv-amt-box">{{ number_format($advance['amount'] ?? 0, 0) }}</div>
-        <div class="adv-body">
-          <div class="adv-title">سلفة — {{ $advance['date'] ?? '-' }}</div>
-          <div class="adv-sub">{{ $advance['recovery_method'] ?? 'طريقة محددة' }}</div>
+    <div id="advancesContainer">
+      <div class="sec-title">السلف المعلقة</div>
+      @forelse($pendingAdvances ?? [] as $advance)
+        <div class="adv-item advance-item" data-status="pending">
+          <div class="adv-amt-box">{{ number_format($advance['amount'] ?? 0, 0) }}</div>
+          <div class="adv-body">
+            <div class="adv-title">سلفة — {{ $advance['date'] ?? '-' }}</div>
+          </div>
+          <span class="adv-badge adv-pending">معلق</span>
         </div>
-        <span class="adv-badge adv-pending">معلق</span>
-      </div>
-    @empty
-      <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد سلف معلقة</div>
-    @endforelse
+      @empty
+        <div class="advance-item" data-status="pending" style="color: #aaa; text-align: center; padding: 20px;">لا توجد سلف معلقة</div>
+      @endforelse
 
-    <div class="sec-title" style="margin-top:16px;">سلف محصلة سابقاً</div>
-    @forelse($collectedAdvances ?? [] as $advance)
-      <div class="adv-item">
-        <div class="adv-amt-box" style="background:#ECFDF5;color:#065F46;">{{ number_format($advance['amount'] ?? 0, 0) }}</div>
-        <div class="adv-body">
-          <div class="adv-title">سلفة — {{ $advance['date'] ?? '-' }}</div>
-          <div class="adv-sub">تم خصمها بتاريخ {{ $advance['collected_date'] ?? '-' }}</div>
+      <div class="sec-title" style="margin-top:16px;">سلف محصلة سابقاً</div>
+      @forelse($collectedAdvances ?? [] as $advance)
+        <div class="adv-item advance-item" data-status="collected">
+          <div class="adv-amt-box" style="background:#ECFDF5;color:#065F46;">{{ number_format($advance['amount'] ?? 0, 0) }}</div>
+          <div class="adv-body">
+            <div class="adv-title">سلفة — {{ $advance['date'] ?? '-' }}</div>
+            <div class="adv-sub">تم خصمها بتاريخ {{ $advance['collected_date'] ?? '-' }}</div>
+          </div>
+          <span class="adv-badge adv-done">تم</span>
         </div>
-        <span class="adv-badge adv-done">تم</span>
-      </div>
-    @empty
-      <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد سلف محصلة</div>
-    @endforelse
+      @empty
+        <div class="advance-item" data-status="collected" style="color: #aaa; text-align: center; padding: 20px;">لا توجد سلف محصلة</div>
+      @endforelse
+    </div>
   </div>
 
   <!-- TAB 4: Account -->
@@ -1166,32 +1167,11 @@ function handleSafeError(error, context = 'عملية') {
           <input type="number" class="form-input" id="advanceAmount" placeholder="0.00" min="0.01" step="0.01" required>
         </div>
         <div class="form-group">
-          <label class="form-label">طريقة الاسترجاع *</label>
-          <select class="form-input" id="advanceRecovery" required>
-            <option value="">-- اختر الطريقة --</option>
-            <option value="immediately">خصم فوري</option>
-            <option value="manually">خصم يدوي</option>
-            <option value="installments">أقساط</option>
-          </select>
-        </div>
-        <div class="form-group" id="installmentFieldsGroup" style="display:none;">
-          <label class="form-label">فترة القسط *</label>
-          <select class="form-input" id="advanceInstallmentPeriod">
-            <option value="">-- اختر الفترة --</option>
-            <option value="weekly">أسبوعي</option>
-            <option value="biweekly">كل أسبوعين</option>
-          </select>
-        </div>
-        <div class="form-group" id="installmentCountGroup" style="display:none;">
-          <label class="form-label">عدد الأقساط *</label>
-          <input type="number" class="form-input" id="advanceInstallmentCount" placeholder="عدد الأقساط" min="2" step="1">
-        </div>
-        <div class="form-group">
           <label class="form-label">السبب</label>
           <textarea class="form-textarea" id="advanceNotes" placeholder="أضف سبب السلفة..."></textarea>
         </div>
         <div class="form-alert">
-          ⚠️ سيتم خصم هذا المبلغ من راتب العامل وفقاً لطريقة الاسترجاع المختارة
+          ⚠️ سيتم خصم هذا المبلغ فوراً من راتب العامل
         </div>
       </form>
     </div>
@@ -1383,28 +1363,9 @@ function saveDeduction(workerId) {
 }
 
 // ============ ADVANCE ============
-document.getElementById('advanceRecovery')?.addEventListener('change', function() {
-  const installmentFields = document.getElementById('installmentFieldsGroup');
-  const installmentCountField = document.getElementById('installmentCountGroup');
-  if (this.value === 'installments') {
-    installmentFields.style.display = 'block';
-    installmentCountField.style.display = 'block';
-    document.getElementById('advanceInstallmentPeriod').required = true;
-    document.getElementById('advanceInstallmentCount').required = true;
-  } else {
-    installmentFields.style.display = 'none';
-    installmentCountField.style.display = 'none';
-    document.getElementById('advanceInstallmentPeriod').required = false;
-    document.getElementById('advanceInstallmentCount').required = false;
-  }
-});
-
 function saveAdvance(workerId) {
   const amount = document.getElementById('advanceAmount').value;
-  const recovery = document.getElementById('advanceRecovery').value;
   const reason = document.getElementById('advanceNotes').value;
-  const period = document.getElementById('advanceInstallmentPeriod').value;
-  const count = document.getElementById('advanceInstallmentCount').value;
 
   // Client-side validation
   if (!amount) {
@@ -1415,33 +1376,13 @@ function saveAdvance(workerId) {
     showErrorToast('المبلغ يجب أن يكون أكبر من صفر');
     return;
   }
-  if (!recovery) {
-    showErrorToast('الرجاء اختيار طريقة الاسترجاع');
-    return;
-  }
-  if (recovery === 'installments') {
-    if (!period) {
-      showErrorToast('الرجاء اختيار فترة القسط');
-      return;
-    }
-    if (!count || count < 2) {
-      showErrorToast('الرجاء إدخال عدد أقساط صحيح (يجب أن لا يقل عن 2)');
-      return;
-    }
-  }
 
   const payload = {
     worker_id: workerId,
     amount: parseFloat(amount),
     date: new Date().toISOString().split('T')[0],
-    recovery_method: recovery,
     reason: reason || null
   };
-
-  if (recovery === 'installments') {
-    payload.installment_period = period;
-    payload.installment_count = parseInt(count);
-  }
 
   fetch(`/contractor/advances/worker/${workerId}`, {
     method: 'POST',
@@ -1597,5 +1538,41 @@ function reactivateWorker(workerId) {
     .catch(e => handleSafeError(e, 'تفعيل العامل'));
   }
 }
+
+// ============ ADVANCE FILTERS ============
+function initAdvanceFilters() {
+  const filterButtons = document.querySelectorAll('.advance-filter');
+  
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const filter = this.dataset.filter;
+      
+      // Update active button styling
+      filterButtons.forEach(btn => {
+        btn.style.background = '#f5f5f5';
+        btn.style.color = '#888';
+        btn.style.fontWeight = '400';
+      });
+      this.style.background = '#ECFDF5';
+      this.style.color = '#065F46';
+      this.style.fontWeight = '600';
+      
+      // Filter advance items
+      const advanceItems = document.querySelectorAll('.advance-item');
+      advanceItems.forEach(item => {
+        const status = item.dataset.status;
+        if (filter === 'all') {
+          item.style.display = '';
+        } else if (filter === status) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initAdvanceFilters);
 </script>
 @endsection

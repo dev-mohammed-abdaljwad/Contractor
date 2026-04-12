@@ -37,12 +37,12 @@ class CompanySeeder extends Seeder
         $contractors = User::where('role', 'contractor')->get();
 
         foreach ($contractors as $contractor) {
-            foreach (range(0, 19) as $index) {
+            foreach (range(0, 4) as $index) {
                 Company::create([
                     'contractor_id' => $contractor->id,
                     'name' => $this->companyNames[$index],
                     'contact_person' => $this->generateArabicName(),
-                    'phone' => '+20100' . str_pad($contractor->id * 1000 + $index, 7, '0', STR_PAD_LEFT),
+                    'phone' => '010' . str_pad($index, 8, '0', STR_PAD_LEFT),
                     'daily_wage' => rand(250, 500),
                     'payment_cycle' => collect(['daily', 'weekly', 'bimonthly'])->random(),
                     'weekly_pay_day' => ['Monday', 'Wednesday', 'Friday'][array_rand(['Monday', 'Wednesday', 'Friday'])],

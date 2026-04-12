@@ -25,14 +25,17 @@ class AdvanceService
             $data['amount_pending'] = $data['amount'];
             $data['amount_collected'] = 0;
             
+            // Set default recovery method if not provided
+            $data['recovery_method'] = $data['recovery_method'] ?? 'immediately';
+            
             $advance = $this->repository->create($data);
             
             // Generate installment schedule if recovery method is installments
             if ($data['recovery_method'] === 'installments') {
                 $this->generateInstallmentSchedule(
                     $advance,
-                    $data['installment_period'],
-                    $data['installment_count']
+                    $data['installment_period'] ?? 'weekly',
+                    $data['installment_count'] ?? 2
                 );
             }
             

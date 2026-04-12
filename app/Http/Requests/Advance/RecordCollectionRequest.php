@@ -14,7 +14,7 @@ class UpdateRecoveryMethodRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recovery_method' => ['required', 'in:immediately,installments,manually'],
+            'recovery_method' => ['nullable', 'in:immediately,installments,manually'],
             'installment_period' => ['nullable', 'in:weekly,biweekly', 'required_if:recovery_method,installments'],
             'installment_count' => ['nullable', 'integer', 'min:2', 'required_if:recovery_method,installments'],
         ];

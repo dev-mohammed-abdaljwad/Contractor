@@ -96,9 +96,12 @@ class DeductionRepository implements DeductionRepositoryInterface
      */
     public function getByWorkerAndPeriod(int $workerId, string $from, string $to): Collection
     {
+        $fromDate = Carbon::parse($from)->startOfDay();
+        $toDate = Carbon::parse($to)->endOfDay();
+        
         return Deduction::forWorker($workerId)
             ->active()
-            ->whereBetween('created_at', [$from, $to])
+            ->whereBetween('created_at', [$fromDate, $toDate])
             ->select(['id', 'worker_id', 'distribution_id', 'type', 'amount', 'created_at'])
             ->with(['worker:id,name', 'distribution:id,company_id,distribution_date'])
             ->get();
@@ -109,11 +112,14 @@ class DeductionRepository implements DeductionRepositoryInterface
      */
     public function getByCompanyAndPeriod(int $companyId, string $from, string $to): Collection
     {
+        $fromDate = Carbon::parse($from)->startOfDay();
+        $toDate = Carbon::parse($to)->endOfDay();
+        
         return Deduction::active()
             ->whereHas('worker.distributions', function ($q) use ($companyId) {
                 $q->where('company_id', $companyId);
             })
-            ->whereBetween('created_at', [$from, $to])
+            ->whereBetween('created_at', [$fromDate, $toDate])
             ->select(['id', 'worker_id', 'type', 'amount', 'created_at', 'reason'])
             ->with('worker:id,name')
             ->get();
