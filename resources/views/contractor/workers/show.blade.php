@@ -951,10 +951,10 @@ function handleSafeError(error, context = 'عملية') {
   <!-- TAB 3: Deductions -->
   <div class="tab-content" id="tab2">
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <span style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;">الكل</span>
-        <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer">هذا الأسبوع</span>
-        <span style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer">هذا الشهر</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="deductionFilters">
+        <span class="deduction-filter active" data-filter="all" style="background:#ECFDF5;color:#065F46;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;">الكل</span>
+        <span class="deduction-filter" data-filter="week" style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all 0.2s;">هذا الأسبوع</span>
+        <span class="deduction-filter" data-filter="month" style="background:#f5f5f5;color:#888;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all 0.2s;">هذا الشهر</span>
       </div>
       <button onclick="openModal('deductionModal')" style="font-size:12px;color:#1D9E75;background:none;border:1px solid #d0d0c8;text-decoration:none;font-weight:600;padding:6px 12px;border-radius:8px;transition:all 0.2s;cursor:pointer">
         + خصم جديد
@@ -962,7 +962,7 @@ function handleSafeError(error, context = 'عملية') {
     </div>
 
     @forelse($deductionsTimeline ?? [] as $deduction)
-      <div class="tl-item">
+      <div class="tl-item deduction-item" data-date="{{ $deduction['date_iso'] ?? '' }}">
         <div class="tl-left"><div class="tl-dot {{ (($deduction['type'] ?? '') === 'reversal') ? 'dot-green' : 'dot-amber' }}"></div><div class="tl-line"></div></div>
         <div class="tl-body">
           <div class="tl-title">{{ $deduction['title'] ?? 'خصم' }}</div>
@@ -1541,6 +1541,60 @@ function initAdvanceFilters() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', initAdvanceFilters);
+function initDeductionFilters() {
+  const filterButtons = document.querySelectorAll('.deduction-filter');
+  if (!filterButtons.length) return;
+
+  const applyFilter = (filter) => {
+    const deductionItems = document.querySelectorAll('.deduction-item');
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setHours(0, 0, 0, 0);
+    weekStart.setDate(today.getDate() - 6);
+
+    deductionItems.forEach(item => {
+      const dateStr = item.dataset.date;
+      if (!dateStr) {
+        item.style.display = filter === 'all' ? '' : 'none';
+        return;
+      }
+
+      const itemDate = new Date(dateStr + 'T00:00:00');
+      let visible = true;
+
+      if (filter === 'week') {
+        visible = itemDate >= weekStart;
+      } else if (filter === 'month') {
+        visible = itemDate.getFullYear() === today.getFullYear()
+          && itemDate.getMonth() === today.getMonth();
+      }
+
+      item.style.display = visible ? '' : 'none';
+    });
+  };
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const filter = this.dataset.filter;
+
+      filterButtons.forEach(btn => {
+        btn.style.background = '#f5f5f5';
+        btn.style.color = '#888';
+        btn.style.fontWeight = '400';
+      });
+
+      this.style.background = '#ECFDF5';
+      this.style.color = '#065F46';
+      this.style.fontWeight = '600';
+
+      applyFilter(filter);
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAdvanceFilters();
+  initDeductionFilters();
+});
 </script>
 @endsection

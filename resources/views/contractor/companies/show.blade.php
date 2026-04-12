@@ -402,16 +402,7 @@
       <div class="form-group">
         <label class="form-label">الجوال</label>
         <input type="tel" class="form-input" id="phone" value="{{ $company->phone }}">
-      </div>
-      <div class="form-group">
-        <label class="form-label">الأجر اليومي (ج)</label>
-        <input type="number" class="form-input" id="dailyWage" value="{{ $company->daily_wage }}" min="0" step="0.01">
-      </div>
-      <div class="form-group">
-        <label class="form-label">دورة الدفع</label>
-        <select class="form-input" id="paymentCycle">
-          <option value="daily" {{ $company->payment_cycle === 'daily' ? 'selected' : '' }}>يومي</option>
-          <option value="weekly" {{ $company->payment_cycle === 'weekly' ? 'selected' : '' }}>أسبوعي</option>
+        <div class="form-group">
           <option value="bimonthly" {{ $company->payment_cycle === 'bimonthly' ? 'selected' : '' }}>نصف شهري</option>
           <option value="monthly" {{ $company->payment_cycle === 'monthly' ? 'selected' : '' }}>شهري</option>
         </select>
@@ -464,15 +455,7 @@
             <option value="settlement">تسوية</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">ملاحظات</label>
-          <textarea class="form-textarea" id="paymentNotes" placeholder="اضف ملاحظات..."></textarea>
-        </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
-      <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $company->id }})">تسجيل الدفعة</button>
+          <div class="form-group">
     </div>
   </div>
 </div>
@@ -611,8 +594,6 @@ function saveCompanyEdit(companyId) {
 function savePayment(companyId) {
   const date = document.getElementById('paymentDate').value;
   const amount = document.getElementById('paymentAmount').value;
-  const method = document.getElementById('paymentMethod').value;
-  const type = document.getElementById('paymentType').value;
   const notes = document.getElementById('paymentNotes').value;
 
   // Client-side validation
@@ -628,21 +609,11 @@ function savePayment(companyId) {
     alert('المبلغ يجب أن يكون أكبر من صفر');
     return;
   }
-  if (!method) {
-    alert('الرجاء اختيار طريقة الدفع');
-    return;
-  }
-  if (!type) {
-    alert('الرجاء اختيار نوع الدفعة');
-    return;
-  }
 
   const payload = {
     company_id: companyId,
     amount: parseFloat(amount),
     date: date,
-    payment_method: method,
-    payment_type: type,
     notes: notes || null
   };
 

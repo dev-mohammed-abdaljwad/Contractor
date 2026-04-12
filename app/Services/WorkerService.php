@@ -219,6 +219,7 @@ class WorkerService
             ->map(fn($ded) => [
                 'title'           => $this->deductionTypeLabel($ded->type),
                 'date'            => Carbon::parse($ded->created_at)->format('d/m/Y'),
+                'date_iso'        => Carbon::parse($ded->created_at)->toDateString(),
                 'company_name'    => $ded->distribution?->company?->name ?? '-',
                 'amount'          => (int) $ded->amount,
                 'reason'          => $ded->reason ?? '-',

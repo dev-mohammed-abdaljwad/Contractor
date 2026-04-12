@@ -71,15 +71,41 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 .sv-red { color: #DC2626; }
 
 .filter-row {
-  display: flex; gap: 7px; padding: 12px 16px;
+  display: flex; gap: 8px; padding: 12px 16px;
   background: #fff; border-bottom: 1px solid #f0f0f0;
-  overflow-x: auto;
+  overflow-x: auto; align-items: center;
+}
+.filter-chips {
+  display: flex; gap: 7px; overflow-x: auto; flex: 1;
+}
+.filter-search {
+  display: flex; align-items: center; gap: 8px; width: 220px; flex-shrink: 0;
+  background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px;
+  padding: 6px 10px; margin: 0 6px;
+}
+.filter-search-icon { color: #999; font-size: 13px; }
+.filter-search-input {
+  background: transparent; border: none; flex: 1; font-size: 12px;
+  font-family: inherit; outline: none; color: #666;
+}
+.filter-search-input::placeholder { color: #bbb; }
+.filter-btn {
+  background: #185FA5; color: #fff; border: none;
+  padding: 6px 14px; border-radius: 20px; font-size: 12px;
+  font-weight: 600; cursor: pointer; display: flex; align-items: center;
+  gap: 5px; white-space: nowrap; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.filter-btn:hover { background: #1449a1; }
+.filter-actions {
+  display: flex; gap: 8px; align-items: center; flex-shrink: 0;
 }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 13px; border-radius: 20px; font-size: 12px;
   white-space: nowrap; cursor: pointer; font-weight: 500;
   border: 1.5px solid transparent; flex-shrink: 0;
+  text-decoration: none; color: inherit;
 }
 .chip-all { background: #EFF6FF; color: #1D4ED8; border-color: #93C5FD; }
 .chip-daily { background: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
@@ -237,23 +263,21 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 
 /* Responsive: Tablet (481px - 768px) */
 @media(max-width: 768px) {
-  .topbar { padding: 12px 16px 16px; }
+  .topbar { padding: 12px 16px 12px; margin: 0; }
   .page-title { font-size: 16px; }
-  .add-btn { font-size: 11px; padding: 6px 12px; }
-  .search-fake { font-size: 12px; }
-  
   .stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .strip-stat { padding: 10px 4px; }
   .strip-val { font-size: 16px; }
   .strip-lbl { font-size: 9px; }
-  
-  .filter-row { gap: 5px; padding: 10px 12px; }
+  .filter-row { gap: 6px; padding: 10px 8px; flex-wrap: wrap; }
+  .filter-chips { gap: 6px; }
+  .filter-search { width: 180px; padding: 5px 8px; }
+  .filter-search-input { font-size: 11px; }
+  .filter-btn { padding: 5px 11px; font-size: 11px; }
   .chip { padding: 5px 11px; font-size: 11px; }
   .chip-count { font-size: 9px; }
-  
   .sort-bar { padding: 6px 12px; }
   .sort-label, .sort-select { font-size: 10px; }
-  
   .co-card { margin-bottom: 10px; }
   .co-card-top { gap: 10px; padding: 11px 12px 6px; }
   .co-av { width: 40px; height: 40px; font-size: 16px; }
@@ -263,261 +287,78 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
   .co-meta > div { font-size: 10px; }
   .co-amount { font-size: 14px; }
   .co-amount-lbl { font-size: 9px; margin-top: 1px; }
-  
   .co-stats { gap: 5px; padding: 0 12px 6px; }
   .mini-stat { padding: 6px 7px; }
   .mini-val { font-size: 12px; }
   .mini-lbl { font-size: 9px; margin-top: 0px; }
-  
   .urgency-row { padding: 0 12px 10px; }
   .urgency-lbl, .urgency-days { font-size: 9px; }
   .urgency-bar { height: 4px; }
-  
   .co-card-actions { padding: 0 12px 8px; gap: 5px; }
   .btn-view, .btn-deactivate { padding: 6px 8px; font-size: 10px; }
-  
   .inactive-header { padding: 10px 2px 4px; }
   .inactive-label, .inactive-count { font-size: 11px; }
-  
   .total-bar { padding: 10px 12px; }
   .total-bar-label { font-size: 11px; }
   .total-bar-val { font-size: 15px; }
   .total-bar-sub { font-size: 9px; }
-  
   .list-body { padding: 10px 10px 90px; }
 }
 
 /* Responsive: Mobile (< 480px) */
 @media(max-width: 480px) {
   body { background: #f9f9f7; }
-  
-  .topbar { padding: 12px 14px 14px; margin: 0; }
-  .topbar-row { 
-    margin-bottom: 12px; 
-    display: flex; 
-    gap: 8px; 
-    align-items: center;
-  }
+  .topbar { padding: 12px 14px 8px; margin: 0; }
   .page-title { font-size: 16px; font-weight: 800; }
-  .add-btn { 
-    font-size: 11px; 
-    padding: 7px 12px; 
-    margin-left: auto;
-    border-radius: 18px;
-    flex-shrink: 0;
-  }
-  .search-wrap { 
-    padding: 10px 12px; 
-    margin-top: 0; 
-    border-radius: 10px;
-  }
-  .search-fake { font-size: 12px; }
-  
-  .stats-strip { 
-    grid-template-columns: repeat(2, minmax(0,1fr)); 
-    gap: 0.5px; 
-    background: #fff;
-  }
-  .strip-stat { 
-    padding: 12px 8px; 
-    border: 0.5px solid #f0f0f0;
-    text-align: center;
-  }
+  .stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0.5px; background: #fff; }
+  .strip-stat { padding: 12px 8px; border: 0.5px solid #f0f0f0; text-align: center; }
   .strip-val { font-size: 16px; font-weight: 700; }
   .strip-lbl { font-size: 10px; }
-  
-  .filter-row { 
-    gap: 6px; 
-    padding: 10px 12px; 
-    overflow-x: auto;
-    background: #fff;
-  }
-  .chip { 
-    padding: 6px 12px; 
-    font-size: 11px;
-    border-radius: 20px;
-  }
+  .filter-row { gap: 4px; padding: 8px 6px; flex-wrap: wrap; }
+  .filter-chips { gap: 4px; }
+  .filter-search { width: 100%; padding: 5px 8px; margin: 0; }
+  .filter-search-input { font-size: 11px; }
+  .filter-actions { width: 100%; }
+  .filter-btn { padding: 5px 10px; font-size: 10px; width: 100%; justify-content: center; }
+  .chip { padding: 6px 12px; font-size: 11px; border-radius: 20px; }
   .chip-count { font-size: 9px; padding: 2px 6px; }
-  
-  .sort-bar { 
-    padding: 8px 14px; 
-    background: #fff;
-    gap: 10px;
-  }
+  .sort-bar { padding: 8px 14px; background: #fff; gap: 10px; }
   .sort-label { font-size: 11px; }
   .sort-select { font-size: 11px; }
-  
-  .co-card { 
-    margin-bottom: 10px; 
-    border-radius: 12px;
-    background: #fff;
-  }
-  .co-card-top { 
-    gap: 10px; 
-    padding: 12px 12px 8px; 
-    display: flex;
-    align-items: flex-start;
-  }
-  .co-av { 
-    width: 40px; 
-    height: 40px; 
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .co-name { 
-    font-size: 13px; 
-    font-weight: 700;
-    margin-bottom: 4px; 
-  }
-  .co-meta { 
-    font-size: 9px; 
-    gap: 5px; 
-    flex-wrap: wrap;
-  }
-  .cycle-tag, .status-tag { 
-    font-size: 9px; 
-    padding: 2px 7px; 
-    border-radius: 12px;
-  }
+  .co-card { margin-bottom: 10px; border-radius: 12px; background: #fff; }
+  .co-card-top { gap: 10px; padding: 12px 12px 8px; display: flex; align-items: flex-start; }
+  .co-av { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
+  .co-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .co-meta { font-size: 9px; gap: 5px; flex-wrap: wrap; }
+  .cycle-tag, .status-tag { font-size: 9px; padding: 2px 7px; border-radius: 12px; }
   .co-meta > div { font-size: 10px; color: #999; }
-  .co-right { 
-    text-align: left; 
-    flex-shrink: 0;
-    min-width: 60px;
-  }
-  .co-amount { 
-    font-size: 14px; 
-    font-weight: 700;
-  }
-  .co-amount-lbl { 
-    font-size: 9px; 
-    color: #999;
-    margin-top: 2px; 
-  }
-  
-  .co-stats { 
-    gap: 6px; 
-    padding: 0 12px 8px; 
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    margin: 0;
-  }
-  .mini-stat { 
-    padding: 8px 6px; 
-    background: #f8f9fa;
-    border-radius: 8px;
-    text-align: center;
-  }
-  .mini-val { 
-    font-size: 12px; 
-    font-weight: 700;
-  }
-  .mini-lbl { 
-    font-size: 9px; 
-    color: #999;
-    margin-top: 2px; 
-  }
-  
-  .urgency-row { 
-    padding: 0 12px 10px; 
-  }
+  .co-right { text-align: left; flex-shrink: 0; min-width: 60px; }
+  .co-amount { font-size: 14px; font-weight: 700; }
+  .co-amount-lbl { font-size: 9px; color: #999; margin-top: 2px; }
+  .co-stats { gap: 6px; padding: 0 12px 8px; grid-template-columns: repeat(3, minmax(0,1fr)); margin: 0; }
+  .mini-stat { padding: 8px 6px; background: #f8f9fa; border-radius: 8px; text-align: center; }
+  .mini-val { font-size: 12px; font-weight: 700; }
+  .mini-lbl { font-size: 9px; color: #999; margin-top: 2px; }
+  .urgency-row { padding: 0 12px 10px; }
   .urgency-label-row { gap: 8px; }
-  .urgency-lbl { 
-    font-size: 10px; 
-    color: #999;
-  }
-  .urgency-days { 
-    font-size: 10px; 
-    font-weight: 600;
-  }
-  .urgency-bar { 
-    height: 5px; 
-    border-radius: 3px;
-  }
-  
-  .co-card-actions { 
-    padding: 0 12px 10px; 
-    gap: 6px; 
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .btn-view, .btn-deactivate, .btn-add-workers {
-    flex: 1;
-    min-width: 70px;
-    padding: 8px 10px;
-    font-size: 11px;
-    height: auto;
-    min-height: 36px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s;
-  }
-  .btn-add-workers {
-    background: #ECFDF5; 
-    color: #065F46; 
-    border: 1px solid #A7F3D0;
-  }
-  .btn-view {
-    background: #EFF6FF; 
-    color: #1D4ED8; 
-    border: 1px solid #BFDBFE;
-  }
-  .btn-deactivate {
-    background: #FEF2F2; 
-    color: #991B1B; 
-    border: 1px solid #FCA5A5;
-  }
-  
-  .inactive-header { 
-    padding: 12px 14px 8px; 
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .inactive-label { 
-    font-size: 12px; 
-    font-weight: 600; 
-  }
-  .inactive-count { 
-    font-size: 11px; 
-    background: #F3F4F6; 
-    padding: 3px 8px; 
-    border-radius: 12px;
-  }
-  .inactive-toggle { 
-    font-size: 11px; 
-    margin-left: auto;
-  }
-  
-  .total-bar { 
-    padding: 12px 14px; 
-    flex-direction: row;
-    gap: 8px;
-    background: #fff;
-  }
-  .total-bar-label { 
-    font-size: 11px; 
-    color: #999;
-  }
-  .total-bar-val { 
-    font-size: 16px; 
-    font-weight: 700;
-  }
-  .total-bar-sub { 
-    font-size: 9px; 
-    color: #999;
-  }
-  
-  .list-body { 
-    padding: 10px 12px 100px; 
-  }
-
-  /* Improve touch targets for mobile */
-  button {
-    min-height: 44px;
-    padding: 10px 12px;
-  }
-
-  /* Better spacing on very small screens */
+  .urgency-lbl { font-size: 10px; color: #999; }
+  .urgency-days { font-size: 10px; font-weight: 600; }
+  .urgency-bar { height: 5px; border-radius: 3px; }
+  .co-card-actions { padding: 0 12px 10px; gap: 6px; display: flex; flex-wrap: wrap; }
+  .btn-view, .btn-deactivate, .btn-add-workers { flex: 1; min-width: 70px; padding: 8px 10px; font-size: 11px; height: auto; min-height: 36px; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
+  .btn-add-workers { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+  .btn-view { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+  .btn-deactivate { background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .inactive-header { padding: 12px 14px 8px; display: flex; align-items: center; gap: 8px; }
+  .inactive-label { font-size: 12px; font-weight: 600; }
+  .inactive-count { font-size: 11px; background: #F3F4F6; padding: 3px 8px; border-radius: 12px; }
+  .inactive-toggle { font-size: 11px; margin-left: auto; }
+  .total-bar { padding: 12px 14px; flex-direction: row; gap: 8px; background: #fff; }
+  .total-bar-label { font-size: 11px; color: #999; }
+  .total-bar-val { font-size: 16px; font-weight: 700; }
+  .total-bar-sub { font-size: 9px; color: #999; }
+  .list-body { padding: 10px 12px 100px; }
+  button { min-height: 44px; padding: 10px 12px; }
   @media(max-width: 360px) {
     .topbar { padding: 10px 12px 12px; }
     .page-title { font-size: 15px; }
@@ -536,17 +377,7 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
   <div class="topbar">
     <div class="topbar-row">
       <div class="page-title">الشركات</div>
-      <div class="add-btn" onclick="openCompanyModal(false)">+ إضافة شركة</div>
     </div>
-    <form method="GET" action="{{ route('contractor.companies.index') }}" id="searchForm">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" name="search" placeholder="ابحث باسم الشركة أو المسؤول..." 
-               value="{{ $searchQuery ?? '' }}" 
-               id="searchInput"
-               style="background: transparent; border: none; outline: none; color: rgba(255,255,255,0.8); font-size: 13px; flex: 1; font-family: inherit;">
-      </div>
-    </form>
   </div>
 
   <!-- Stats strip -->
@@ -559,22 +390,39 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 
   <!-- Filters -->
   <div class="filter-row">
-    <div class="chip chip-all">الكل <span class="chip-count">{{ $active_count }}</span></div>
-    @if($activeCompanies->where('payment_cycle', 'يومي')->count() > 0)
-      <div class="chip chip-daily">يومي <span class="chip-count">{{ $activeCompanies->where('payment_cycle', 'يومي')->count() }}</span></div>
-    @endif
-    @if($activeCompanies->where('payment_cycle', 'أسبوعي')->count() > 0)
-      <div class="chip chip-weekly">أسبوعي <span class="chip-count">{{ $activeCompanies->where('payment_cycle', 'أسبوعي')->count() }}</span></div>
-    @endif
-    @if($activeCompanies->where('payment_cycle', 'نص شهري')->count() > 0)
-      <div class="chip chip-bi">نص شهري <span class="chip-count">{{ $activeCompanies->where('payment_cycle', 'نص شهري')->count() }}</span></div>
-    @endif
-    @if($overdue_count > 0)
-      <div class="chip chip-overdue">متأخرة <span class="chip-count">{{ $overdue_count }}</span></div>
-    @endif
-    @if($inactiveCompanies->count() > 0)
-      <div class="chip chip-inactive">غير نشطة <span class="chip-count">{{ $inactiveCompanies->count() }}</span></div>
-    @endif
+    <div class="filter-chips">
+      @php
+        $companiesToCount = isset($originalActiveCompanies) ? $originalActiveCompanies : $activeCompanies;
+      @endphp
+      <a href="{{ route('contractor.companies.index', ['search' => $searchQuery ?? '']) }}" class="chip {{ !request('cycle') && !request('status') ? 'chip-all' : 'chip-neutral' }}">الكل <span class="chip-count">{{ $companiesToCount->count() }}</span></a>
+      @if($companiesToCount->where('payment_cycle', 'يومي')->count() > 0)
+        <a href="{{ route('contractor.companies.index', ['cycle' => 'يومي', 'search' => $searchQuery ?? '']) }}" class="chip {{ request('cycle') === 'يومي' ? 'chip-daily' : 'chip-neutral' }}">يومي <span class="chip-count">{{ $companiesToCount->where('payment_cycle', 'يومي')->count() }}</span></a>
+      @endif
+      @if($companiesToCount->where('payment_cycle', 'أسبوعي')->count() > 0)
+        <a href="{{ route('contractor.companies.index', ['cycle' => 'أسبوعي', 'search' => $searchQuery ?? '']) }}" class="chip {{ request('cycle') === 'أسبوعي' ? 'chip-weekly' : 'chip-neutral' }}">أسبوعي <span class="chip-count">{{ $companiesToCount->where('payment_cycle', 'أسبوعي')->count() }}</span></a>
+      @endif
+      @if($companiesToCount->where('payment_cycle', 'نص شهري')->count() > 0)
+        <a href="{{ route('contractor.companies.index', ['cycle' => 'نص شهري', 'search' => $searchQuery ?? '']) }}" class="chip {{ request('cycle') === 'نص شهري' ? 'chip-bi' : 'chip-neutral' }}">نص شهري <span class="chip-count">{{ $companiesToCount->where('payment_cycle', 'نص شهري')->count() }}</span></a>
+      @endif
+      @if($companiesToCount->where('payment_status', 'overdue')->count() > 0)
+        <a href="{{ route('contractor.companies.index', ['status' => 'overdue', 'search' => $searchQuery ?? '']) }}" class="chip {{ request('status') === 'overdue' ? 'chip-overdue' : 'chip-neutral' }}">متأخرة <span class="chip-count">{{ $companiesToCount->where('payment_status', 'overdue')->count() }}</span></a>
+      @endif
+      @if($inactiveCompanies->count() > 0)
+        <a href="{{ route('contractor.companies.index', ['status' => 'inactive', 'search' => $searchQuery ?? '']) }}" class="chip {{ request('status') === 'inactive' ? 'chip-inactive' : 'chip-neutral' }}">غير نشطة <span class="chip-count">{{ $inactiveCompanies->count() }}</span></a>
+      @endif
+    </div>
+    <form method="GET" action="{{ route('contractor.companies.index') }}" id="searchForm" class="filter-search">
+      <span class="filter-search-icon">🔍</span>
+      <input type="text" name="search" placeholder="بحث..." 
+             value="{{ $searchQuery ?? '' }}" 
+             id="searchInput"
+             class="filter-search-input">
+      <input type="hidden" name="cycle" value="{{ request('cycle', '') }}">
+      <input type="hidden" name="status" value="{{ request('status', '') }}">
+    </form>
+    <div class="filter-actions">
+      <button class="filter-btn" onclick="openCompanyModal(false)">+ إضافة شركة</button>
+    </div>
   </div>
 
   <!-- Sort -->

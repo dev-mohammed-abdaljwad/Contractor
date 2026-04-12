@@ -24,28 +24,50 @@ class CompanyController extends Controller
     public function index(): View
     {
         $searchQuery = request()->query('search', '');
+        $cycle = request()->query('cycle', '');
+        $status = request()->query('status', '');
         
         $data = $this->companyService->getEnhancedCompaniesForContractor(Auth::id());
+        
+        // Keep original collections for filter counts (before any filtering)
+        $originalActive = $data['activeCompanies'];
         
         // Filter companies based on search query
         if ($searchQuery) {
             $searchLower = strtolower($searchQuery);
             $data['activeCompanies'] = $data['activeCompanies']->filter(function ($company) use ($searchLower) {
-                return stripos($company->name, $searchLower) !== false || 
-                       stripos($company->contact_person, $searchLower) !== false ||
-                       stripos($company->phone, $searchLower) !== false;
+                return stripos($company->name ?? '', $searchLower) !== false || 
+                       stripos($company->contact_person ?? '', $searchLower) !== false ||
+                       stripos($company->phone ?? '', $searchLower) !== false;
             })->values();
             
             $data['inactiveCompanies'] = $data['inactiveCompanies']->filter(function ($company) use ($searchLower) {
-                return stripos($company->name, $searchLower) !== false || 
-                       stripos($company->contact_person, $searchLower) !== false ||
-                       stripos($company->phone, $searchLower) !== false;
+                return stripos($company->name ?? '', $searchLower) !== false || 
+                       stripos($company->contact_person ?? '', $searchLower) !== false ||
+                       stripos($company->phone ?? '', $searchLower) !== false;
             })->values();
+        }
+
+        // Filter by payment cycle
+        if ($cycle) {
+            $data['activeCompanies'] = $data['activeCompanies']->filter(function ($company) use ($cycle) {
+                return ($company->payment_cycle ?? '') === $cycle;
+            })->values();
+        }
+
+        // Filter by status
+        if ($status === 'overdue') {
+            $data['activeCompanies'] = $data['activeCompanies']->filter(function ($company) {
+                return ($company->payment_status ?? '') === 'overdue';
+            })->values();
+        } elseif ($status === 'inactive') {
+            $data['activeCompanies'] = $data['inactiveCompanies'];
         }
 
         return view('contractor.companies.index', [
             'activeCompanies' => $data['activeCompanies'],
             'inactiveCompanies' => $data['inactiveCompanies'],
+            'originalActiveCompanies' => $originalActive,
             'active_count' => count($data['activeCompanies']),
             'today_count' => $data['stats']['today_count'],
             'total_due' => $data['stats']['total_due'],
@@ -150,8 +172,6 @@ class CompanyController extends Controller
             'contractor_id' => Auth::id(),
             'amount' => request()->input('amount'),
             'date' => request()->input('date'),
-            'payment_method' => request()->input('payment_method'),
-            'payment_type' => request()->input('payment_type'),
             'notes' => request()->input('notes'),
         ]);
 
