@@ -46,24 +46,6 @@
     </div>
   </div>
   @endif
-
-  <!-- Pending Collections -->
-  @if(isset($pendingCollections) && $pendingCollections->count() > 0)
-  <div class="section-card">
-    <h2 class="section-title">تحصيلات معلقة</h2>
-    <div class="collections-list">
-      @foreach($pendingCollections as $collection)
-      <div class="collection-item">
-        <div class="coll-company">
-          <strong>{{ $collection->company->name }}</strong>
-          <span class="coll-period">{{ $collection->period_start->format('M d') }} - {{ $collection->period_end->format('M d') }}</span>
-        </div>
-        <div class="coll-amount">{{ number_format($collection->net_amount) }} ج</div>
-      </div>
-      @endforeach
-    </div>
-  </div>
-  @endif
 </div>
 
 <style>

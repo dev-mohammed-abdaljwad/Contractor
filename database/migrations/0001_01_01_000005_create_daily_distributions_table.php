@@ -19,6 +19,10 @@ return new class extends Migration
             
             // Unique constraint: one distribution per company per day
             $table->unique(['distribution_date', 'company_id', 'deleted_at'], 'dist_date_co_deleted');
+
+            // Performance indexes
+            $table->index(['contractor_id', 'distribution_date']);
+            $table->index(['company_id', 'distribution_date']);
         });
 
         // Pivot table for distribution_worker relationship
@@ -30,6 +34,10 @@ return new class extends Migration
             
             // Prevent duplicate assignments
             $table->unique(['distribution_id', 'worker_id']);
+
+            // Performance indexes
+            $table->index('worker_id');
+            $table->index('distribution_id');
         });
     }
 

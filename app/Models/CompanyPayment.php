@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CompanyPayment extends Model
 {
+    protected $table = 'company_payments';
+    
     protected $fillable = [
         'company_id',
         'contractor_id',

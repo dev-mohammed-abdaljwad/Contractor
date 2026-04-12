@@ -22,8 +22,11 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
+            // Performance indexes
             $table->index(['worker_id', 'contractor_id']);
             $table->index(['date']);
+            $table->index(['contractor_id', 'created_at']);
+            $table->index('worker_id');
         });
     }
 

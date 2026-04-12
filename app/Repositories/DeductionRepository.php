@@ -105,6 +105,21 @@ class DeductionRepository implements DeductionRepositoryInterface
     }
 
     /**
+     * Get deductions for a company within a date period with eager loaded relations.
+     */
+    public function getByCompanyAndPeriod(int $companyId, string $from, string $to): Collection
+    {
+        return Deduction::active()
+            ->whereHas('worker.distributions', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            })
+            ->whereBetween('created_at', [$from, $to])
+            ->select(['id', 'worker_id', 'type', 'amount', 'created_at', 'reason'])
+            ->with('worker:id,name')
+            ->get();
+    }
+
+    /**
      * Apply custom date range filter to query.
      */
     private function applyDateRange($query, array $filters)

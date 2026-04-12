@@ -17,6 +17,11 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
+
+            // Performance indexes
+            $table->index(['contractor_id', 'is_active']);
+            $table->index(['contractor_id', 'created_at']);
+            $table->index('phone');
         });
     }
 

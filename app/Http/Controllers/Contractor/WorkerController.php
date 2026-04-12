@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Contractor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWorkerRequest;
 use App\Http\Requests\UpdateWorkerRequest;
+use App\Models\Advance;
 use App\Repositories\Interfaces\WorkerRepositoryInterface;
 use App\Services\WageCalculationService;
 use App\Services\WorkerService;
@@ -226,6 +227,7 @@ class WorkerController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
+        // Create payment record
         $payment = $worker->payments()->create([
             'contractor_id' => Auth::id(),
             'amount' => $validated['amount'],
@@ -234,6 +236,25 @@ class WorkerController extends Controller
             'payment_type' => $validated['payment_type'],
             'notes' => $validated['notes'] ?? null,
         ]);
+
+        // If payment type is advance repayment, update the advance's paid_at date
+        if ($validated['payment_type'] === 'advance_repayment') {
+            // Find the oldest unpaid advance and mark it as paid
+            $advance = Advance::where('worker_id', $id)
+                ->where('is_fully_collected', false)
+                ->whereNull('fully_collected_at')
+                ->orderBy('date')
+                ->first();
+
+            if ($advance) {
+                $advance->update([
+                    'fully_collected_at' => $validated['date'],
+                    'is_fully_collected' => true,
+                    'amount_collected' => $advance->amount,
+                    'amount_pending' => 0,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,

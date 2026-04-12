@@ -47,8 +47,8 @@ class DeductionService
             $multiplier = $typeMultipliers[$type] ?? 0;
             $amount = $distribution->company->daily_wage * $multiplier;
 
-            // Create deduction
-            return $this->deductionRepository->create([
+            // Create deduction with created_at set to the deduction date
+            $deduction = new Deduction([
                 'worker_id' => $workerId,
                 'distribution_id' => $distribution->id,
                 'contractor_id' => $contractorId,
@@ -56,6 +56,10 @@ class DeductionService
                 'amount' => $amount,
                 'reason' => $data['reason'] ?? null,
             ]);
+            $deduction->created_at = $date; // Set created_at to match the deduction date
+            $deduction->updated_at = $date;
+            $deduction->save();
+            return $deduction;
         });
     }
 

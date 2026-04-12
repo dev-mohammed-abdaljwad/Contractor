@@ -205,8 +205,9 @@
   </div>
   <div class="actions">
     <button class="act-btn" onclick="openModal('editModal')"><span class="act-icon">✎</span>تعديل</button>
-    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">↓</span>تسجيل دفعة</button>
-    <button class="act-btn" onclick="openModal('distributionModal')"><span class="act-icon">+</span>توزيع عمال</button>
+    <button class="act-btn" onclick="goToCollection()"><span class="act-icon">💰</span>تحصيل</button>
+    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">↓</span>دفعة</button>
+    <button class="act-btn" onclick="openModal('distributionModal')"><span class="act-icon">+</span>توزيع</button>
   </div>
 </div>
 
@@ -347,26 +348,26 @@
     @if($paymentsHistory->count() > 0)
       <div style="display:grid;gap:10px;margin-bottom:16px;">
         @foreach($paymentsHistory as $payment)
-          <div style="padding:14px;background:{{ $payment->is_paid ? '#ECFDF5' : '#FEF3C7' }};border-radius:10px;border-right:3px solid {{ $payment->is_paid ? '#1D9E75' : '#D97706' }};">
+          <div style="padding:14px;background:#ECFDF5;border-radius:10px;border-right:3px solid #1D9E75;">
             <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
               <div>
                 <div style="font-size:13px;font-weight:600;color:#222;">
-                  {{ $payment->period_start->format('d/m') }} - {{ $payment->period_end->format('d/m/Y') }}
+                  {{ $payment->date->format('d/m/Y') }}
                 </div>
                 <div style="font-size:11px;color:#999;margin-top:2px;">
-                  {{ $payment->is_paid ? 'تم التحصيل' : 'بانتظار الدفع' }}
+                  {{ $payment->payment_type === 'salary' ? 'الراتب' : ($payment->payment_type === 'advance_repayment' ? 'سداد مقدم' : ($payment->payment_type === 'bonus' ? 'حافز' : 'أخرى')) }}
+                  · {{ $payment->payment_method === 'cash' ? 'كاش' : ($payment->payment_method === 'transfer' ? 'تحويل' : ($payment->payment_method === 'check' ? 'شيك' : 'أخرى')) }}
                 </div>
               </div>
               <div style="text-align:left;">
-                <div style="font-size:14px;font-weight:700;color:{{ $payment->is_paid ? '#1D9E75' : '#D97706' }};">
-                  {{ number_format($payment->net_amount, 0) }} ج
+                <div style="font-size:14px;font-weight:700;color:#1D9E75;">
+                  {{ number_format($payment->amount, 0) }} ج
                 </div>
-                <div style="font-size:11px;color:#999;margin-top:2px;">صاف</div>
               </div>
             </div>
-            @if($payment->is_paid)
+            @if($payment->notes)
               <div style="font-size:11px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid rgba(29,158,117,0.1);">
-                تم بتاريخ: {{ $payment->payment_date->format('d/m/Y') }}
+                {{ $payment->notes }}
               </div>
             @endif
           </div>
@@ -528,6 +529,14 @@ function switchTab(el, tabId) {
   document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
   const tabContent = document.getElementById(tabId);
   if (tabContent) tabContent.classList.add('active');
+}
+
+// Go to collection tab
+function goToCollection() {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  if (tabBtns.length >= 4) {
+    switchTab(tabBtns[3], 'tab3');
+  }
 }
 
 // ============ DEACTIVATE ============

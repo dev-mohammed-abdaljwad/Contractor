@@ -37,7 +37,7 @@ class SettingController extends Controller
         $user = auth()->user();
         
         $user->update([
-            'password' => Hash::make($request->new_password),
+            'password' => $request->new_password,
         ]);
 
         return redirect()->route('admin.settings.show')

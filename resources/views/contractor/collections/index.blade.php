@@ -52,7 +52,7 @@
 <div id="collection-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
         <h3 class="text-lg font-semibold mb-4">فاتورة جديدة</h3>
-        <form method="POST" action="{{ route('collections.generate') }}">
+        <form method="POST" action="{{ route('contractor.collections.generate') }}">
             @csrf
             <div class="space-y-4">
                 <select name="company_id" class="w-full px-4 py-2 border border-gray-300 rounded" required>

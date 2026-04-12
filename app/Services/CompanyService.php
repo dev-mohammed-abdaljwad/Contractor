@@ -141,7 +141,7 @@ class CompanyService
         $company->loadMissing([
             'distributions:id,company_id,distribution_date',
             'distributions.workers:id,name,phone',
-            'collections:id,company_id,net_amount,is_paid,payment_date,period_end,created_at',
+            'payments:id,company_id,amount,date,payment_method,payment_type,created_at',
         ]);
 
         $today         = Carbon::today();
@@ -149,7 +149,7 @@ class CompanyService
         $thirtyDaysAgo = Carbon::today()->subDays(30);
 
         $distributions = $company->distributions;
-        $collections   = $company->collections;
+        $payments      = $company->payments;
 
         // ✅ All filtering on pre-loaded data — zero queries
         $workersToday = $distributions
@@ -170,11 +170,9 @@ class CompanyService
             ->sortByDesc('distribution_date')
             ->values();
 
-        $pendingAmount = $collections
-            ->where('is_paid', false)
-            ->sum('net_amount');
+        $pendingAmount = 0;
 
-        $paymentsHistory = $collections
+        $paymentsHistory = $payments
             ->sortByDesc('created_at')
             ->values();
 

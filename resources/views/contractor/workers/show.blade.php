@@ -1043,7 +1043,9 @@ function handleSafeError(error, context = 'عملية') {
       <div class="formula-row"><span class="formula-label">الأجر الإجمالي</span><span class="formula-val" style="color:#059669;">{{ number_format($ledger['gross'] ?? 0, 0) }} ج</span></div>
       <div class="formula-row"><span class="formula-label formula-minus">− خصومات</span><span class="formula-val formula-minus">{{ number_format($ledger['deductions'] ?? 0, 0) }} ج</span></div>
       <div class="formula-row"><span class="formula-label formula-minus">− سلف محصلة</span><span class="formula-val formula-minus">{{ number_format($ledger['advances_collected'] ?? 0, 0) }} ج</span></div>
-      <div class="formula-row total"><span>صافي المستحق</span><span>{{ number_format(($ledger['gross'] ?? 0) - ($ledger['deductions'] ?? 0) - ($ledger['advances_collected'] ?? 0), 0) }} ج</span></div>
+      <div class="formula-row total"><span>المستحق الكلي</span><span>{{ number_format($ledger['net_payable'] ?? 0, 0) }} ج</span></div>
+      <div class="formula-row"><span class="formula-label formula-minus">− مدفوع</span><span class="formula-val formula-minus">{{ number_format($ledger['total_payments'] ?? 0, 0) }} ج</span></div>
+      <div class="formula-row total" style="background:#FEF3C7;"><span>الرصيد المتبقي</span><span style="color:#D97706;font-weight:700;">{{ number_format($ledger['remaining_balance'] ?? 0, 0) }} ج</span></div>
     </div>
 
     <div class="action-buttons-group">

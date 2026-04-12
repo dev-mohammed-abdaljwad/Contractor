@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Models\User;
 use App\Models\UserPreference;
 use App\Repositories\Interfaces\SettingsRepositoryInterface;
-use Illuminate\Support\Facades\Hash;
 
 class SettingsRepository implements SettingsRepositoryInterface
 {
@@ -23,7 +22,7 @@ class SettingsRepository implements SettingsRepositoryInterface
      */
     public function updatePassword(User $user, string $newPassword): bool
     {
-        return $user->update(['password' => Hash::make($newPassword)]);
+        return $user->update(['password' => $newPassword]);
     }
 
     /**

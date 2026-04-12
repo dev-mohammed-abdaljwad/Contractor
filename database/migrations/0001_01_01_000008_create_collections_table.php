@@ -23,6 +23,12 @@ return new class extends Migration
             $table->boolean('is_paid')->default(false);
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            // Performance indexes
+            $table->index(['contractor_id', 'created_at']);
+            $table->index(['company_id', 'is_paid']);
+            $table->index(['contractor_id', 'is_paid']);
+            $table->index(['period_start', 'period_end']);
         });
     }
 

@@ -59,6 +59,8 @@ class DeductionSeeder extends Seeder
                                 'type' => $type,
                                 'amount' => round($amount, 2),
                                 'reason' => $reason,
+                                'created_at' => $dist->distribution_date, // Set to distribution date
+                                'updated_at' => $dist->distribution_date,
                             ]);
                         }
                     }

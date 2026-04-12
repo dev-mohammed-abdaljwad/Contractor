@@ -31,9 +31,18 @@ class AdminController extends Controller
             abort(403);
         }
 
-        $companies = $user->companies()->withCount('distributions')->get();
-        $workers = $user->workers()->get();
-        $collections = $user->collections()->latest()->limit(10)->get();
+        $companies = $user->companies()
+            ->withCount(['distributions', 'collections', 'payments'])
+            ->with('contractor')
+            ->get();
+        $workers = $user->workers()
+            ->withCount('distributions')
+            ->get();
+        $collections = $user->collections()
+            ->with('company')
+            ->latest()
+            ->limit(10)
+            ->get();
 
         return view('admin.contractors.show', compact('user', 'companies', 'workers', 'collections'));
     }

@@ -16,9 +16,6 @@
         <a href="{{ route('contractor.distributions.index') }}" class="nav-link" style="text-decoration:none;color:inherit">
             <span class="ms ms-fill">swap_horiz</span> التوزيع اليومي
         </a>
-        <a href="{{ route('contractor.collections.index') }}" class="nav-link" style="text-decoration:none;color:inherit">
-            <span class="ms ms-fill">payments</span> التحصيل
-        </a>
     </nav>
     <div class="sidebar-bottom">
         <div class="sidebar-user">

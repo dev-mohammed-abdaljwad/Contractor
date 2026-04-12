@@ -21,7 +21,8 @@ class AdvanceSeeder extends Seeder
                 ->get();
                 
             // 50-70% من الموظفين سيكون لديهم سلف
-            $workersWithAdvances = $workers->random((int)(count($workers) * rand(50, 70) / 100));
+            $count = max(1, (int)(count($workers) * rand(50, 70) / 100));
+            $workersWithAdvances = $workers->random($count);
 
             foreach ($workersWithAdvances as $worker) {
                 // إنشاء 1-4 سلفات لكل عامل على مدى 5 أشهر
@@ -44,7 +45,10 @@ class AdvanceSeeder extends Seeder
                         // محصلة بالكامل
                         $amountCollected = $amount;
                         $isFullyCollected = true;
-                        $fullCollectionDate = $advanceDate->copy()->addDays(rand(3, 30));
+                        // تأكد من أن fully_collected_at لا يتجاوز اليوم الحالي
+                        $daysUntilToday = max(1, (int)$advanceDate->diffInDays(Carbon::today()));
+                        $daysToAdd = rand(1, min(20, $daysUntilToday));
+                        $fullCollectionDate = $advanceDate->copy()->addDays($daysToAdd)->startOfDay();
                     } elseif ($scenario <= (70 + $timeFactor * 15)) {
                         // محصلة جزئياً
                         $amountCollected = (int)($amount * rand(30, 75) / 100);

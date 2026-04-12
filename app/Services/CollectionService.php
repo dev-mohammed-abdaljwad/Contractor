@@ -21,7 +21,7 @@ class CollectionService
     public function generateStatement(int $companyId, string $from, string $to): array
     {
         $distributions = $this->distributionRepository->getByCompanyAndPeriod($companyId, $from, $to)
-            ->with('workers');
+            ->load('company', 'workers');
         $deductions = $this->deductionRepository->getByCompanyAndPeriod($companyId, $from, $to);
 
         // Calculate total workers across all distributions (each distribution can have multiple workers)

@@ -23,11 +23,19 @@ class WageCalculationService
         $deductions = $this->deductionRepository->getByWorkerAndPeriod($workerId, $from, $to);
         $advances = $this->advanceRepository->findByWorker($workerId);
 
+        // Get payments from database
+        $payments = \DB::table('payments')
+            ->where('worker_id', $workerId)
+            ->get();
+
         // Calculate totals
         $grossWages = $distributions->sum(fn($dist) => $dist->company->daily_wage);
         $totalDeductions = $deductions->sum('amount');
-        $totalAdvances = $advances->sum('amount');
+        // Use amount_collected instead of amount to show only what was actually collected
+        $totalAdvances = $advances->sum('amount_collected');
+        $totalPayments = $payments->sum('amount');
         $netPayable = $grossWages - $totalDeductions - $totalAdvances;
+        $remaining = $netPayable - $totalPayments;
 
         // Build daily breakdown
         $breakdown = [];
@@ -53,10 +61,12 @@ class WageCalculationService
         }
 
         return [
-            'gross_wages' => $grossWages,
-            'total_deductions' => $totalDeductions,
-            'total_advances' => $totalAdvances,
+            'gross' => $grossWages,
+            'deductions' => $totalDeductions,
+            'advances_collected' => $totalAdvances,
+            'total_payments' => $totalPayments,
             'net_payable' => max(0, $netPayable),
+            'remaining_balance' => max(0, $remaining),
             'breakdown' => array_values($breakdown),
         ];
     }
