@@ -21,37 +21,70 @@ class DistributionSeeder extends Seeder
                 ->where('is_active', true)
                 ->get();
 
-            if ($workers->isEmpty()) {
+            if ($workers->isEmpty() || $companies->isEmpty()) {
                 continue;
             }
 
-            // أنشئ توزيعات لآخر 60 يوم لتوفير بيانات اختبار أفضل
-            for ($day = 60; $day >= 1; $day--) {
-                $date = Carbon::today()->subDays($day)->toDateString();
-
-                foreach ($companies as $company) {
-                    // عشوائياً عين 3-5 عمال لكل شركة في كل يوم
-                    $numWorkers = rand(3, min(5, $workers->count()));
-                    $assignedWorkers = $workers->random($numWorkers);
+            // أنشئ توزيعات لآخر 5 أشهر (150 يوم) لكل عامل
+            $startDate = Carbon::today()->subMonths(5);
+            $endDate = Carbon::today();
+            
+            // إنشاء سجل حضور منتظم: 4 أيام من 5 (80% حضور)
+            $workersDistributions = [];
+            foreach ($workers as $worker) {
+                $workersDistributions[$worker->id] = [];
+                
+                $currentDate = $startDate->copy();
+                while ($currentDate <= $endDate) {
+                    $dayOfWeek = $currentDate->dayOfWeek; // 0=الأحد, 5=الجمعة, 6=السبت
                     
-                    // تحقق ما إذا كان التوزيع موجوداً بالفعل لهذه الشركة في هذا التاريخ
-                    $existingDistribution = DailyDistribution::where('company_id', $company->id)
-                        ->where('distribution_date', $date)
-                        ->first();
+                    // تخطي نهاية الأسبوع
+                    if (!in_array($dayOfWeek, [5, 6])) {
+                        // 80% احتمالية الحضور
+                        if (rand(1, 100) <= 80) {
+                            $workersDistributions[$worker->id][] = $currentDate->toDateString();
+                        }
+                    }
+                    $currentDate->addDay();
+                }
+            }
 
-                    if (!$existingDistribution) {
-                        // أنشئ توزيع جديد
-                        $distribution = DailyDistribution::create([
-                            'contractor_id' => $contractor->id,
-                            'distribution_date' => $date,
-                            'company_id' => $company->id,
-                            'total_amount' => $assignedWorkers->count() * $company->daily_wage,
-                        ]);
+            // أنشئ التوزيعات بناءً على الحضور
+            $currentDate = $startDate->copy();
+            while ($currentDate <= $endDate) {
+                $date = $currentDate->toDateString();
+                
+                foreach ($companies as $company) {
+                    // احصل على العمال المتاحين
+                    $workersForDay = [];
+                    foreach ($workers as $worker) {
+                        if (in_array($date, $workersDistributions[$worker->id])) {
+                            $workersForDay[] = $worker;
+                        }
+                    }
+                    
+                    if (count($workersForDay) > 0) {
+                        $numWorkers = max(1, (int)(count($workersForDay) * rand(60, 100) / 100));
+                        $assignedWorkers = collect($workersForDay)->random($numWorkers);
+                        
+                        $existingDistribution = DailyDistribution::where('company_id', $company->id)
+                            ->where('distribution_date', $date)
+                            ->first();
 
-                        // أرفق العمال بالتوزيع
-                        $distribution->workers()->attach($assignedWorkers->pluck('id')->toArray());
+                        if (!$existingDistribution) {
+                            $distribution = DailyDistribution::create([
+                                'contractor_id' => $contractor->id,
+                                'distribution_date' => $date,
+                                'company_id' => $company->id,
+                                'total_amount' => $assignedWorkers->count() * $company->daily_wage,
+                            ]);
+
+                            $distribution->workers()->attach($assignedWorkers->pluck('id')->toArray());
+                        }
                     }
                 }
+                
+                $currentDate->addDay();
             }
         }
     }
