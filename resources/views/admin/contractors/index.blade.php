@@ -97,15 +97,15 @@
       <!-- Status change form -->
       <form id="statusForm" style="display:none;" onsubmit="submitStatus(event)">
         <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px;">
-          <div class="status-card sel-active" onclick="selectStatus(this,'active')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
+          <div class="status-card sel-active" data-status="active" onclick="selectStatus(this,'active')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
             <div style="font-size: 24px; margin-bottom: 8px;">✅</div>
             <div style="color: #065f46; font-size: 13px;">نشط</div>
           </div>
-          <div class="status-card" onclick="selectStatus(this,'inactive')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
+          <div class="status-card" data-status="inactive" onclick="selectStatus(this,'inactive')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
             <div style="font-size: 24px; margin-bottom: 8px;">⏸️</div>
             <div style="color: #991b1b; font-size: 13px;">متوقف</div>
           </div>
-          <div class="status-card" onclick="selectStatus(this,'other')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
+          <div class="status-card" data-status="other" onclick="selectStatus(this,'other')" style="padding: 14px; border: 2px solid #e8e8e0; border-radius: 10px; cursor: pointer; text-align: center; font-weight: 700; transition: all 0.2s;">
             <div style="font-size: 24px; margin-bottom: 8px;">❓</div>
             <div style="color: #92400e; font-size: 13px;">آخر</div>
           </div>
@@ -538,8 +538,12 @@ function openModal(type, id, name, status) {
     
     // Reset status cards selection
     document.querySelectorAll('#statusForm .status-card').forEach(c => c.classList.remove('sel-active', 'sel-inactive', 'sel-other'));
-    // Select the current status
-    document.querySelector(`#statusForm .status-card[onclick*="'${status}'"]`).classList.add(`sel-${status}`);
+    
+    // Select the current status using data attribute
+    const statusElement = document.querySelector(`#statusForm .status-card[data-status="${status}"]`);
+    if (statusElement) {
+      statusElement.classList.add(`sel-${status}`);
+    }
     
     document.getElementById('modal').classList.add('open');
   }
