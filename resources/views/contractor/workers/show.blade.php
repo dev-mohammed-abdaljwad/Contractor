@@ -541,7 +541,6 @@ function handleSafeError(error, context = 'عملية') {
 .adv-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
 .adv-pending { background: #FEF3C7; color: #92400E; }
 .adv-done { background: #ECFDF5; color: #065F46; }
-.formula-plus { color: #7C3AED; }
 
 .action-buttons-group { display: flex; gap: 8px; margin-top: 12px; }
 .action-btn { flex: 1; padding: 10px; background: #1D9E75; color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }

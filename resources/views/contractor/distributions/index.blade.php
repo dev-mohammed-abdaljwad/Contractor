@@ -116,9 +116,7 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 <div class="topbar">
   <div class="topbar-row">
     <div class="page-title">التحليلات اليومية</div>
-    <a href="{{ route('contractor.companies.index') }}" class="create-btn">
-      <span>←</span> العودة للشركات
-    </a>
+  
   </div>
 </div>
 

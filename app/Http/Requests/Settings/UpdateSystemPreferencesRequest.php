@@ -23,8 +23,9 @@ class UpdateSystemPreferencesRequest extends FormRequest
             'language' => 'required|in:ar,en',
             'currency' => 'required|in:EGP,USD,SAR',
             'date_format' => 'required|in:DD/MM/YYYY,MM/DD/YYYY,YYYY-MM-DD',
-            'week_start' => 'required|in:sunday,monday,saturday',
+            'week_start' => 'required|in:Sunday,Monday,Saturday',
             'dark_mode' => 'boolean',
+            'overtime_hourly_rate' => 'required|numeric|min:5|max:1000',
         ];
     }
 
@@ -43,6 +44,10 @@ class UpdateSystemPreferencesRequest extends FormRequest
             'week_start.required' => 'بداية الأسبوع مطلوبة',
             'week_start.in' => 'بداية الأسبوع المختارة غير صحيحة',
             'dark_mode.boolean' => 'الوضع الليلي يجب أن يكون صحيح أو خاطئ',
+            'overtime_hourly_rate.required' => 'سعر ساعة السهر مطلوب',
+            'overtime_hourly_rate.numeric' => 'سعر ساعة السهر يجب أن يكون رقماً',
+            'overtime_hourly_rate.min' => 'سعر ساعة السهر لا يقل عن 5 ج',
+            'overtime_hourly_rate.max' => 'سعر ساعة السهر لا يزيد عن 1000 ج',
         ];
     }
 }

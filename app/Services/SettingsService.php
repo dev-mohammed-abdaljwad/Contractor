@@ -72,6 +72,7 @@ class SettingsService
                 'date_format' => $data['date_format'] ?? null,
                 'week_start' => $data['week_start'] ?? null,
                 'dark_mode' => $data['dark_mode'] ?? false,
+                'overtime_hourly_rate' => $data['overtime_hourly_rate'] ?? null,
             ];
 
             // Remove null values
