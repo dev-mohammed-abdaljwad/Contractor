@@ -836,6 +836,7 @@ function handleSafeError(error, context = 'عملية') {
   </div>
   <div class="actions">
     <button class="act-btn" onclick="openModal('editModal')"><span class="act-icon">✎</span>تعديل</button>
+    <a href="{{ route('contractor.overtime.weekly', $worker->id) }}" class="act-btn" style="text-decoration:none;color:inherit;"><span class="act-icon">⏰</span>سهر</a>
     <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">💰</span>تسجيل الدفع</button>
     <button class="act-btn" onclick="openModal('deductionModal')"><span class="act-icon">−</span>خصم</button>
     <button class="act-btn" onclick="openModal('advanceModal')"><span class="act-icon">↑</span>سلفة</button>
@@ -915,6 +916,41 @@ function handleSafeError(error, context = 'عملية') {
     @empty
       <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد نشاط</div>
     @endforelse
+
+    <!-- Overtime Section -->
+    <div class="sec-title" style="margin-top:20px;">ساعات السهر</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+      <div class="stat-mini" style="background: #f0f9ff; border-left: 3px solid #7C3AED; padding: 12px; border-radius: 6px;">
+        <div style="font-size: 24px; font-weight: 700; color: #7C3AED;">
+          {{ ($currentWeekOvertime['total_hours'] ?? 0) > 0 ? number_format($currentWeekOvertime['total_hours'], 1) : '0' }}
+        </div>
+        <div style="font-size: 12px; color: #666; margin-top: 4px;">ساعات هذا الأسبوع</div>
+      </div>
+      <div class="stat-mini" style="background: #f9f0ff; border-left: 3px solid #7C3AED; padding: 12px; border-radius: 6px;">
+        <div style="font-size: 18px; font-weight: 700; color: #7C3AED;">
+          {{ ($currentWeekOvertime['total_amount'] ?? 0) > 0 ? number_format($currentWeekOvertime['total_amount'], 2) : '0' }} ج
+        </div>
+        <div style="font-size: 12px; color: #666; margin-top: 4px;">إجمالي الأجر</div>
+      </div>
+    </div>
+
+    <!-- Overtime Archive -->
+    @if($overtimeArchives->count() > 0)
+    <div class="sec-title" style="margin-top:16px; font-size: 14px;">أرشيف السهر (للرجوع في حالة الاختلاف)</div>
+    @foreach($overtimeArchives->take(5) as $archive)
+      <div style="background: #fafafa; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-right: 3px solid #999;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-weight: 600; color: #333;">{{ $archive->week_start->format('d/m') }} - {{ $archive->week_end->format('d/m/Y') }}</span>
+          <span style="background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #666;">
+            {{ number_format($archive->total_overtime_hours, 1) }} ساعة
+          </span>
+        </div>
+        <div style="font-size: 12px; color: #999;">
+          المبلغ: {{ number_format($archive->total_overtime_amount, 2) }} ج
+        </div>
+      </div>
+    @endforeach
+    @endif
   </div>
 
   <!-- TAB 2: Attendance -->

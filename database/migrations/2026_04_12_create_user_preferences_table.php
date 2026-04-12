@@ -21,6 +21,7 @@ return new class extends Migration
             // System settings
             $table->enum('language', ['ar', 'en'])->default('ar');
             $table->enum('currency', ['EGP', 'USD', 'SAR'])->default('EGP');
+            $table->decimal('overtime_hourly_rate', 8, 2)->default(20);
             $table->enum('date_format', ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'])->default('DD/MM/YYYY');
             $table->enum('week_start', ['Sunday', 'Monday', 'Saturday'])->default('Sunday');
             $table->boolean('dark_mode')->default(false);

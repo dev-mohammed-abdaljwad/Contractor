@@ -11,6 +11,7 @@ use App\Services\AdvanceService;
 use App\Services\WageCalculationService;
 use App\Services\WorkerService;
 use App\Services\AdvanceCollectionService;
+use App\Services\OvertimeArchiveService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Repositories\Interfaces\OvertimeRepositoryInterface;
 
 class WorkerController extends Controller
 {
@@ -28,6 +30,8 @@ class WorkerController extends Controller
         private WorkerService             $workerService,
         private AdvanceCollectionService  $advanceCollectionService,
         private AdvanceService            $advanceService,
+        private OvertimeArchiveService    $overtimeArchiveService,
+        private OvertimeRepositoryInterface $overtimeRepository,
     ) {}
 
     public function index(): View
@@ -170,6 +174,10 @@ class WorkerController extends Controller
         // Build show page data from loaded relations — zero queries
         $showData = $this->workerService->buildShowPageData($worker);
 
+        // Get current week overtime and archives
+        $currentWeekOvertime = $this->overtimeRepository->getCurrentWeekOvertimeCount($worker->id);
+        $overtimeArchives = $worker->overtimeArchives()->orderBy('week_end', 'desc')->get();
+
         return view('contractor.workers.show', [
             'worker'             => $worker,
             'ledger'             => $ledger,
@@ -179,6 +187,8 @@ class WorkerController extends Controller
             'deductionsTimeline' => $showData['deductionsTimeline'],
             'pendingAdvances'    => $showData['pendingAdvances'],
             'collectedAdvances'  => $showData['collectedAdvances'],
+            'currentWeekOvertime' => $currentWeekOvertime,
+            'overtimeArchives'   => $overtimeArchives,
         ]);
     }
 
@@ -256,6 +266,9 @@ class WorkerController extends Controller
                 'payment_type' => $validated['payment_type'] ?? null,
                 'notes' => $validated['notes'] ?? null,
             ]);
+
+            // Archive overtime hours for this week
+            $this->overtimeArchiveService->archiveWeeklyOvertimes($worker, $payment);
 
             // Still collect pending advances from this payment amount
             $this->advanceCollectionService->collectAdvancesFromPayment(

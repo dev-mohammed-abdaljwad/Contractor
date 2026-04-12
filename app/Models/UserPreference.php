@@ -16,6 +16,7 @@ class UserPreference extends Model
         'notify_pending_advances',
         'language',
         'currency',
+        'overtime_hourly_rate',
         'date_format',
         'week_start',
         'dark_mode',
@@ -27,6 +28,7 @@ class UserPreference extends Model
         'notify_weekly_report' => 'boolean',
         'notify_pending_advances' => 'boolean',
         'dark_mode' => 'boolean',
+        'overtime_hourly_rate' => 'decimal:2',
     ];
 
     public function user()

@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\DailyDistribution;
 use App\Models\Collection;
+use App\Repositories\Interfaces\OvertimeRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private OvertimeRepositoryInterface $overtimeRepository,
+    ) {}
+
     public function index()
     {
         $contractorId = Auth::id();
@@ -63,6 +68,17 @@ class DashboardController extends Controller
         // Get total workers count without loading all workers
         $totalWorkersCount = Auth::user()->workers()->count() ?? 0;
 
+        // Get current week overtime summary for each worker with overtime
+        $allWorkers = Auth::user()->workers()->get();
+        $workersOvertimeSummary = [];
+        
+        foreach ($allWorkers as $worker) {
+            $overtimeCount = $this->overtimeRepository->getCurrentWeekOvertimeCount($worker->id);
+            if ($overtimeCount['total_hours'] > 0) {
+                $workersOvertimeSummary[$worker->id] = $overtimeCount;
+            }
+        }
+
         return view('dashboard', [
             'workersDistributedToday' => $todayDistributions->count(),
             'totalWorkersCount' => $totalWorkersCount,
@@ -71,6 +87,7 @@ class DashboardController extends Controller
             'companiesWithDistributions' => $companiesWithDistributions,
             'pendingCollections' => $pendingCollections,
             'todayDistributions' => $todayDistributions,
+            'workersOvertimeSummary' => $workersOvertimeSummary,
         ]);
     }
 }

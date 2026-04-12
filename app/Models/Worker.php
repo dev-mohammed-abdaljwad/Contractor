@@ -54,4 +54,9 @@ class Worker extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function overtimeArchives()
+    {
+        return $this->hasMany(OvertimeArchive::class);
+    }
 }

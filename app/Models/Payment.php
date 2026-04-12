@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Payment extends Model
 {
@@ -36,5 +37,13 @@ class Payment extends Model
     public function contractor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'contractor_id');
+    }
+
+    /**
+     * Get the overtime archive for this payment
+     */
+    public function overtimeArchive(): HasOne
+    {
+        return $this->hasOne(OvertimeArchive::class);
     }
 }

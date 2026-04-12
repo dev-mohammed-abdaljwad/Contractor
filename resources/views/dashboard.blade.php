@@ -26,8 +26,12 @@
     <div class="stat-card">
       <div class="stat-value" style="color: #059669;">{{ number_format($totalWagesToday ?? 0) }} ج</div>
       <div class="stat-label">الأجور اليوم</div>
-    </div>
-  </div>
+    </div>    <div class="stat-card">
+      <div class="stat-value" style="color: #7C3AED;">
+        {{ collect($workersOvertimeSummary ?? [])->sum(function($w) { return $w['total_hours']; }) }}
+      </div>
+      <div class="stat-label">ساعات سهر هذا الأسبوع</div>
+    </div>  </div>
 
   <!-- Today's Distributions -->
   @if(isset($companiesWithDistributions) && $companiesWithDistributions->count() > 0)

@@ -8,6 +8,7 @@ use App\Http\Controllers\Contractor\CollectionController;
 use App\Http\Controllers\Contractor\DistributionController;
 use App\Http\Controllers\Contractor\DeductionController;
 use App\Http\Controllers\Contractor\AdvanceController;
+use App\Http\Controllers\Contractor\OvertimeController;
 use App\Http\Controllers\Contractor\SettingsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
@@ -68,6 +69,13 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::get('/{id}', [WorkerController::class, 'show'])->name('contractor.workers.show');
         Route::put('/{id}', [WorkerController::class, 'update'])->name('contractor.workers.update');
         Route::delete('/{id}', [WorkerController::class, 'destroy'])->name('contractor.workers.destroy');
+    });
+
+    // Overtime Management
+    Route::prefix('overtime')->group(function () {
+        Route::get('/workers/{worker}', [OvertimeController::class, 'weeklyView'])->name('contractor.overtime.weekly');
+        Route::post('/', [OvertimeController::class, 'store'])->name('contractor.overtime.store');
+        Route::post('/bulk', [OvertimeController::class, 'bulkStore'])->name('contractor.overtime.bulk');
     });
 
     // Companies Management

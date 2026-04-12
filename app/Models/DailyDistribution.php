@@ -16,7 +16,9 @@ class DailyDistribution extends Model
         'contractor_id',
         'distribution_date', 
         'company_id',
-        'total_amount'
+        'total_amount',
+        'overtime_hours',
+        'overtime_rate'
     ];
 
     protected function casts(): array
@@ -24,6 +26,8 @@ class DailyDistribution extends Model
         return [
             'distribution_date' => 'date:Y-m-d',
             'total_amount' => 'decimal:2',
+            'overtime_hours' => 'decimal:1',
+            'overtime_rate' => 'decimal:2',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
@@ -61,6 +65,30 @@ class DailyDistribution extends Model
             return true; // New distributions can be edited
         }
         return $this->created_at->addDays(7)->isFuture();
+    }
+
+    /**
+     * Get overtime amount (overtime_hours * overtime_rate)
+     */
+    public function getOvertimeAmountAttribute(): float
+    {
+        return (float) ($this->overtime_hours ?? 0) * (float) ($this->overtime_rate ?? 0);
+    }
+
+    /**
+     * Get total amount including overtime
+     */
+    public function getTotalWithOvertimeAttribute(): float
+    {
+        return (float) ($this->total_amount ?? 0) + $this->overtime_amount;
+    }
+
+    /**
+     * Scope: Get distributions with overtime
+     */
+    public function scopeWithOvertime($query)
+    {
+        return $query->where('overtime_hours', '>', 0);
     }
 }
 
