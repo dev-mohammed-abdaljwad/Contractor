@@ -13,6 +13,8 @@ use App\Http\Controllers\Contractor\SettingsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ContractorsController;
 
 // Public Routes
 Route::get('/', function () {
@@ -153,11 +155,15 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
 // Admin Routes (Protected)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Admin Dashboard
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     
     // Contractor Management
-    Route::get('/contractors', [AdminController::class, 'index'])->name('admin.contractors.index');
-    Route::get('/contractors/{user}', [AdminController::class, 'showContractor'])->name('admin.contractors.show');
+    Route::prefix('contractors')->group(function () {
+        Route::get('/', [ContractorsController::class, 'index'])->name('admin.contractors.index');
+        Route::post('/', [ContractorsController::class, 'store'])->name('admin.contractors.store');
+        Route::post('/{contractor}/plan', [ContractorsController::class, 'updatePlan'])->name('admin.contractors.update-plan');
+        Route::post('/{contractor}/toggle-status', [ContractorsController::class, 'toggleStatus'])->name('admin.contractors.toggle-status');
+    });
 
     // Settings Management
     Route::prefix('settings')->group(function () {
