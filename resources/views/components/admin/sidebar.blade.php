@@ -4,9 +4,6 @@
     <div class="sb-logo-sub">لوحة الإدارة</div>
   </div>
 
-  <!-- Mobile Menu Toggle -->
-  <button class="sb-mobile-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">☰</button>
-
   <!-- Navigation Container -->
   <div class="sb-nav-container" id="sbNavContainer">
     <div class="sb-section">الرئيسية</div>
@@ -52,86 +49,15 @@
         <div class="sb-urole">Admin</div>
       </div>
     </div>
-    
-    <!-- Logout Button -->
-    <button 
-      type="button"
-      onclick="handleAdminLogout()"
-      style="
-        width: 100%;
-        padding: 10px;
-        background: #dc2626;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background 0.2s;
-        margin-top: 12px;
-      "
-      onmouseover="this.style.background='#b91c1c'"
-      onmouseout="this.style.background='#dc2626'"
-    >
-      <span style="margin-left: 8px;">🚪</span>
-      تسجيل الخروج
-    </button>
   </div>
 </div>
 
 <script>
-function toggleMobileMenu() {
-  const container = document.getElementById('sbNavContainer');
-  const toggle = document.getElementById('mobileMenuToggle');
-  
-  if (!container) return;
-  
-  if (container.style.display === 'none' || container.style.display === '') {
-    container.style.display = 'flex';
-    toggle.textContent = '✕';
-  } else {
-    container.style.display = 'none';
-    toggle.textContent = '☰';
-  }
-}
-
 // Initialize menu state on page load
 document.addEventListener('DOMContentLoaded', function() {
   const container = document.getElementById('sbNavContainer');
   if (container) {
-    // Hide nav by default on mobile/tablet
-    if (window.innerWidth <= 1024) {
-      container.style.display = 'none';
-    } else {
-      container.style.display = 'flex';
-    }
-  }
-  
-  // Close menu when a link is clicked
-  document.querySelectorAll('.sb-link').forEach(link => {
-    link.addEventListener('click', () => {
-      const container = document.getElementById('sbNavContainer');
-      const toggle = document.getElementById('mobileMenuToggle');
-      if (window.innerWidth <= 1024) {
-        container.style.display = 'none';
-        toggle.textContent = '☰';
-      }
-    });
-  });
-});
-
-// Handle window resize
-window.addEventListener('resize', function() {
-  const container = document.getElementById('sbNavContainer');
-  const toggle = document.getElementById('mobileMenuToggle');
-  if (!container) return;
-  
-  if (window.innerWidth <= 1024) {
-    container.style.display = 'none';
-    toggle.style.display = 'block';
-  } else {
     container.style.display = 'flex';
-    toggle.style.display = 'none';
   }
 });
 </script>
