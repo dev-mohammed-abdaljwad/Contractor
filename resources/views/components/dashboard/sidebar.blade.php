@@ -1,6 +1,6 @@
 <aside id="sidebar">
     <div class="sidebar-logo">
-        <h1>تحصيل</h1>
+        <h1>IDara</h1>
         <p>نظام إدارة العمالة الزراعية</p>
     </div>
     <nav style="padding:12px 0;flex:1">
