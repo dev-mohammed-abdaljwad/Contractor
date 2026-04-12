@@ -52,6 +52,30 @@
         <div class="sb-urole">Admin</div>
       </div>
     </div>
+    
+    <!-- Logout Button -->
+    <button 
+      type="button"
+      onclick="handleAdminLogout()"
+      style="
+        width: 100%;
+        padding: 10px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.2s;
+        margin-top: 12px;
+      "
+      onmouseover="this.style.background='#b91c1c'"
+      onmouseout="this.style.background='#dc2626'"
+    >
+      <span style="margin-left: 8px;">🚪</span>
+      تسجيل الخروج
+    </button>
   </div>
 </div>
 
