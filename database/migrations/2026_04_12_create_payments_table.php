@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('contractor_id')->constrained('users')->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
             $table->date('date');
-            $table->enum('payment_method', ['cash', 'transfer', 'check', 'other'])->default('cash');
-            $table->enum('payment_type', ['salary', 'advance_repayment', 'bonus', 'other'])->default('salary');
+            $table->enum('payment_method', ['cash', 'transfer', 'check', 'other'])->nullable();
+            $table->enum('payment_type', ['salary', 'advance_repayment', 'bonus', 'other'])->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

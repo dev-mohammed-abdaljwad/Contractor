@@ -233,8 +233,8 @@ class WorkerController extends Controller
         $validated = request()->validate([
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
-            'payment_method' => 'required|in:cash,transfer,check,other',
-            'payment_type' => 'required|in:salary,advance_repayment,bonus,other',
+            'payment_method' => 'nullable|in:cash,transfer,check,other',
+            'payment_type' => 'nullable|in:salary,advance_repayment,bonus,other',
             'notes' => 'nullable|string|max:500',
         ]);
 
@@ -243,13 +243,13 @@ class WorkerController extends Controller
             'contractor_id' => Auth::id(),
             'amount' => $validated['amount'],
             'date' => $validated['date'],
-            'payment_method' => $validated['payment_method'],
-            'payment_type' => $validated['payment_type'],
+            'payment_method' => $validated['payment_method'] ?? null,
+            'payment_type' => $validated['payment_type'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
 
         // If payment type is salary, automatically collect pending advances
-        if ($validated['payment_type'] === 'salary') {
+        if (($validated['payment_type'] ?? null) === 'salary') {
             $this->advanceCollectionService->collectAdvancesFromPayment(
                 $id,
                 $validated['amount'],
@@ -258,7 +258,7 @@ class WorkerController extends Controller
         }
 
         // If payment type is advance repayment, update the advance's paid_at date
-        if ($validated['payment_type'] === 'advance_repayment') {
+        if (($validated['payment_type'] ?? null) === 'advance_repayment') {
             // Find the oldest unpaid advance and mark it as paid
             $advance = Advance::where('worker_id', $id)
                 ->where('is_fully_collected', false)

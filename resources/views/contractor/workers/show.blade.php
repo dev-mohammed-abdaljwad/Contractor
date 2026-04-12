@@ -1191,66 +1191,14 @@ function handleSafeError(error, context = 'عملية') {
     </div>
     <div class="modal-body">
       <form id="paymentForm">
-        <!-- Payment Method Selector -->
-        <div class="form-group">
-          <label class="form-label">طريقة حساب الدفع</label>
-          <div style="display:flex;gap:12px;margin-top:8px;">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-              <input type="radio" name="paymentCalculation" value="automatic" checked>
-              <span>قبض اليوم (تلقائي)</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-              <input type="radio" name="paymentCalculation" value="manual">
-              <span>مبلغ محدد</span>
-            </label>
-          </div>
-        </div>
-
         <div class="form-group">
           <label class="form-label">التاريخ *</label>
           <input type="date" class="form-input" id="paymentDate" value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" required>
         </div>
 
-        <!-- Automatic Payment Section -->
-        <div id="automaticPaymentSection" style="display:block;">
-          <div class="form-alert" style="background:#F0FDF4;border:1px solid #DCFCE7;color:#166534;padding:12px;border-radius:6px;font-size:13px;margin-bottom:12px;">
-            <strong>💡 القبض التلقائي:</strong> سيتم حساب المبلغ الكلي (الأجر - الخصومات - السلف) تلقائياً
-          </div>
-          <div class="payment-summary" style="background:#FAFAFA;padding:12px;border-radius:6px;margin-bottom:12px;font-size:13px;">
-            <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>الأجر المستحق:</span><strong id="summaryGross">0</strong></div>
-            <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>− الخصومات:</span><strong id="summaryDeductions">0</strong></div>
-            <div style="display:flex;justify-content:space-between;margin:6px 0;"><span>− السلف المعلقة:</span><strong id="summaryAdvances">0</strong></div>
-            <div style="display:flex;justify-content:space-between;margin:8px 0;padding-top:8px;border-top:1px solid #ddd;"><span style="font-weight:600;">المبلغ النهائي:</span><strong id="summaryFinal" style="color:#059669;font-size:14px;">0</strong></div>
-          </div>
-        </div>
-
-        <!-- Manual Amount Section -->
-        <div id="manualAmountSection" style="display:none;">
-          <div class="form-group">
-            <label class="form-label">المبلغ (جنيه) *</label>
-            <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0.01" step="0.01">
-          </div>
-        </div>
-
         <div class="form-group">
-          <label class="form-label">طريقة الدفع *</label>
-          <select class="form-input" id="paymentMethod" required>
-            <option value="">-- اختر طريقة الدفع --</option>
-            <option value="cash">نقداً</option>
-            <option value="transfer">تحويل بنكي</option>
-            <option value="check">شيك</option>
-            <option value="other">أخرى</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">نوع الدفع *</label>
-          <select class="form-input" id="paymentType" required>
-            <option value="">-- اختر نوع الدفع --</option>
-            <option value="salary">دفع أجر</option>
-            <option value="advance_repayment">سداد سلفة</option>
-            <option value="bonus">مكافأة</option>
-            <option value="other">أخرى</option>
-          </select>
+          <label class="form-label">المبلغ (جنيه) *</label>
+          <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0.01" step="0.01" required>
         </div>
         <div class="form-group">
           <label class="form-label">ملاحظات</label>
@@ -1444,19 +1392,7 @@ function saveAdvance(workerId) {
 
 function savePayment(workerId) {
   const date = document.getElementById('paymentDate').value;
-  const calculation = document.querySelector('input[name="paymentCalculation"]:checked').value;
-  let amount;
-
-  if (calculation === 'automatic') {
-    // Get the final amount from the summary
-    const summaryText = document.getElementById('summaryFinal').textContent;
-    amount = parseFloat(summaryText) || 0;
-  } else {
-    amount = document.getElementById('paymentAmount').value;
-  }
-
-  const method = document.getElementById('paymentMethod').value;
-  const type = document.getElementById('paymentType').value;
+  const amount = document.getElementById('paymentAmount').value;
   const notes = document.getElementById('paymentNotes').value;
 
   // Client-side validation
@@ -1468,21 +1404,11 @@ function savePayment(workerId) {
     showErrorToast('المبلغ يجب أن يكون أكبر من صفر');
     return;
   }
-  if (!method) {
-    showErrorToast('الرجاء اختيار طريقة الدفع');
-    return;
-  }
-  if (!type) {
-    showErrorToast('الرجاء اختيار نوع الدفع');
-    return;
-  }
 
   const payload = {
     worker_id: workerId,
     amount: parseFloat(amount),
     date: date,
-    payment_method: method,
-    payment_type: type,
     notes: notes || null
   };
 
