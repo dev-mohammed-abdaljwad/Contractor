@@ -402,7 +402,16 @@
       <div class="form-group">
         <label class="form-label">الجوال</label>
         <input type="tel" class="form-input" id="phone" value="{{ $company->phone }}">
-        <div class="form-group">
+      </div>
+      <div class="form-group">
+        <label class="form-label">الأجر اليومي (ج)</label>
+        <input type="number" class="form-input" id="dailyWage" value="{{ $company->daily_wage }}" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">دورة الدفع</label>
+        <select class="form-input" id="paymentCycle">
+          <option value="daily" {{ $company->payment_cycle === 'daily' ? 'selected' : '' }}>يومي</option>
+          <option value="weekly" {{ $company->payment_cycle === 'weekly' ? 'selected' : '' }}>أسبوعي</option>
           <option value="bimonthly" {{ $company->payment_cycle === 'bimonthly' ? 'selected' : '' }}>نصف شهري</option>
           <option value="monthly" {{ $company->payment_cycle === 'monthly' ? 'selected' : '' }}>شهري</option>
         </select>
@@ -437,25 +446,14 @@
           <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" min="0" step="0.01">
         </div>
         <div class="form-group">
-          <label class="form-label">طريقة الدفع</label>
-          <select class="form-input" id="paymentMethod">
-            <option value="">اختر طريقة الدفع</option>
-            <option value="cash">كاش</option>
-            <option value="bank_transfer">تحويل بنكي</option>
-            <option value="cheque">شيك</option>
-          </select>
+          <label class="form-label">ملاحظات</label>
+          <textarea class="form-textarea" id="paymentNotes" placeholder="اضف ملاحظات..."></textarea>
         </div>
-        <div class="form-group">
-          <label class="form-label">نوع الدفعة</label>
-          <select class="form-input" id="paymentType">
-            <option value="">اختر نوع الدفعة</option>
-            <option value="advance">دفعة مقدمة</option>
-            <option value="salary">راتب</option>
-            <option value="bonus">حافز</option>
-            <option value="settlement">تسوية</option>
-          </select>
-        </div>
-          <div class="form-group">
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+      <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $company->id }})">تسجيل الدفعة</button>
     </div>
   </div>
 </div>

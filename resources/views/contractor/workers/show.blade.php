@@ -986,6 +986,10 @@ function handleSafeError(error, context = 'عملية') {
       </div>
     @endforelse
 
+    <div id="deductionFilterEmptyState" style="display:none;text-align:center;padding:24px 16px;color:#9AA0A6;">
+      لا توجد خصومات في الفترة المحددة
+    </div>
+
     @if(!empty($deductionsTimeline) && count($deductionsTimeline) > 0)
     <div class="disc-total">
       <div class="disc-total-row"><span style="color:#777;">إجمالي الخصومات</span><span style="color:#DC2626;font-weight:600;">− {{ $ledger['deductions'] ?? 0 }} ج</span></div>
@@ -1544,18 +1548,27 @@ function initAdvanceFilters() {
 function initDeductionFilters() {
   const filterButtons = document.querySelectorAll('.deduction-filter');
   if (!filterButtons.length) return;
+  const emptyState = document.getElementById('deductionFilterEmptyState');
 
   const applyFilter = (filter) => {
     const deductionItems = document.querySelectorAll('.deduction-item');
+    if (!deductionItems.length) {
+      if (emptyState) emptyState.style.display = 'none';
+      return;
+    }
+
     const today = new Date();
     const weekStart = new Date(today);
     weekStart.setHours(0, 0, 0, 0);
     weekStart.setDate(today.getDate() - 6);
+    let visibleCount = 0;
 
     deductionItems.forEach(item => {
       const dateStr = item.dataset.date;
       if (!dateStr) {
-        item.style.display = filter === 'all' ? '' : 'none';
+        const isVisible = filter === 'all';
+        item.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
         return;
       }
 
@@ -1570,7 +1583,12 @@ function initDeductionFilters() {
       }
 
       item.style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
     });
+
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
   };
 
   filterButtons.forEach(button => {

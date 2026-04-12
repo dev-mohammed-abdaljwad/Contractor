@@ -6,7 +6,7 @@
 body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8; min-height: 100vh; }
 
 .topbar {
-  background: linear-gradient(135deg, #0C447C 0%, #185FA5 100%);
+  background: linear-gradient(135deg, #0E5A43 0%, #1D9E75 100%);
   padding: 16px 20px 20px;
 }
 .topbar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -90,13 +90,13 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
 }
 .filter-search-input::placeholder { color: #bbb; }
 .filter-btn {
-  background: #185FA5; color: #fff; border: none;
+  background: #1D9E75; color: #fff; border: none;
   padding: 6px 14px; border-radius: 20px; font-size: 12px;
   font-weight: 600; cursor: pointer; display: flex; align-items: center;
   gap: 5px; white-space: nowrap; flex-shrink: 0;
   transition: background 0.15s;
 }
-.filter-btn:hover { background: #1449a1; }
+.filter-btn:hover { background: #167A5B; }
 .filter-actions {
   display: flex; gap: 8px; align-items: center; flex-shrink: 0;
 }
