@@ -37,15 +37,19 @@ class DeductionService
                 throw DeductionException::workerNotDistributed();
             }
 
-            // Calculate amount from daily_wage × multiplier
-            $typeMultipliers = [
-                'quarter' => 0.25,
-                'half' => 0.5,
-                'full' => 1.0,
-            ];
+            // Calculate amount from daily_wage × multiplier or use custom amount
+            if ($type === 'custom' && isset($data['amount'])) {
+                $amount = (float) $data['amount'];
+            } else {
+                $typeMultipliers = [
+                    'quarter' => 0.25,
+                    'half' => 0.5,
+                    'full' => 1.0,
+                ];
 
-            $multiplier = $typeMultipliers[$type] ?? 0;
-            $amount = $distribution->company->daily_wage * $multiplier;
+                $multiplier = $typeMultipliers[$type] ?? 0;
+                $amount = $distribution->company->daily_wage * $multiplier;
+            }
 
             // Create deduction with created_at set to the deduction date
             $deduction = new Deduction([

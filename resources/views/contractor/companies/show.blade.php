@@ -205,9 +205,8 @@
   </div>
   <div class="actions">
     <button class="act-btn" onclick="openModal('editModal')"><span class="act-icon">✎</span>تعديل</button>
-    <button class="act-btn" onclick="goToCollection()"><span class="act-icon">💰</span>تحصيل</button>
-    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">↓</span>دفعة</button>
-    <button class="act-btn" onclick="openModal('distributionModal')"><span class="act-icon">+</span>توزيع</button>
+    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">💰</span>تحصيل</button>
+
   </div>
 </div>
 
@@ -376,7 +375,7 @@
     @else
       <div style="color: #aaa; text-align: center; padding: 20px;">لا توجد دفعات مسجلة</div>
     @endif
-    <button style="width: 100%; padding: 13px; background: #1D9E75; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;" onclick="openModal('paymentModal')">+ تسجيل دفعة جديدة</button>
+    <button style="width: 100%; padding: 13px; background: #1D9E75; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;" onclick="openModal('paymentModal')">+ تحصيل </button>
   </div>
 
 </div>
@@ -432,7 +431,7 @@
 <div class="modal-overlay" id="paymentModal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">تسجيل دفعة</div>
+      <div class="modal-title">  تحصيل</div>
       <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
     </div>
     <div class="modal-body">
@@ -453,36 +452,31 @@
     </div>
     <div class="modal-footer">
       <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
-      <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $company->id }})">تسجيل الدفعة</button>
+      <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $company->id }})">تحصيل المبلغ</button>
     </div>
   </div>
 </div>
 
-<!-- DISTRIBUTION MODAL -->
-<div class="modal-overlay" id="distributionModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">توزيع عمال</div>
-      <button class="modal-close" onclick="closeModal('distributionModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-alert">
-        ℹ️ اختر العمال الموزعين اليوم على هذه الشركة
-      </div>
-      <div class="form-group">
-        <label class="form-label">العمال</label>
-        <input type="text" class="form-input" placeholder="ابحث عن عامل..." id="workerSearch">
-        <div id="workersList" style="margin-top:8px;"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal('distributionModal')">إلغاء</button>
-      <button class="modal-btn modal-btn-primary" onclick="saveDistribution({{ $company->id }})">حفظ التوزيع</button>
-    </div>
-  </div>
-</div>
+
 
 <script>
+// ============ TOAST FUNCTIONS ============
+function showSuccessToast(message) {
+  if (window.showToast) {
+    window.showToast(message, 'success');
+  } else {
+    alert('✓ ' + message);
+  }
+}
+
+function showErrorToast(message) {
+  if (window.showToast) {
+    window.showToast(message, 'error');
+  } else {
+    alert('✗ ' + message);
+  }
+}
+
 // ============ MODAL FUNCTIONS ============
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
@@ -578,14 +572,14 @@ function saveCompanyEdit(companyId) {
   })
   .then(data => {
     if (data.success) {
-      alert('تم تحديث البيانات بنجاح');
+      showSuccessToast('تم تحديث البيانات بنجاح');
       closeModal('editModal');
       location.reload();
     } else {
-      alert('خطأ: ' + (data.message || 'حدث خطأ'));
+      showErrorToast(data.message || 'حدث خطأ');
     }
   })
-  .catch(e => alert('خطأ: ' + e.message));
+  .catch(e => showErrorToast('خطأ: ' + e.message));
 }
 
 // ============ PAYMENT ============
@@ -596,15 +590,15 @@ function savePayment(companyId) {
 
   // Client-side validation
   if (!date) {
-    alert('الرجاء اختيار التاريخ');
+    showErrorToast('الرجاء اختيار التاريخ');
     return;
   }
   if (!amount) {
-    alert('الرجاء إدخال المبلغ');
+    showErrorToast('الرجاء إدخال المبلغ');
     return;
   }
   if (parseFloat(amount) <= 0) {
-    alert('المبلغ يجب أن يكون أكبر من صفر');
+    showErrorToast('المبلغ يجب أن يكون أكبر من صفر');
     return;
   }
 
@@ -627,24 +621,24 @@ function savePayment(companyId) {
   .then(r => r.json().then(data => ({ ok: r.ok, status: r.status, data })))
   .then(({ ok, status, data }) => {
     if (ok && data.success) {
-      alert('تم تسجيل الدفعة بنجاح');
+      showSuccessToast('تم تحصيل المبلغ بنجاح');
       closeModal('paymentModal');
       document.getElementById('paymentForm').reset();
       setTimeout(() => location.reload(), 1500);
     } else {
       console.error('Payment failed:', data);
-      alert('يرجى التحقق من البيانات المدخلة');
+      showErrorToast(data.message || 'يرجى التحقق من البيانات المدخلة');
     }
   })
   .catch(e => {
     console.error('Error:', e);
-    alert('حدث خطأ أثناء تسجيل الدفعة');
+    showErrorToast('حدث خطأ أثناء تحصيل المبلغ');
   });
 }
 
 // ============ DISTRIBUTION ============
 function saveDistribution(companyId) {
-  alert('سيتم إضافة عمل التوزيع قريباً');
+  showErrorToast('سيتم إضافة عمل التوزيع قريباً');
   closeModal('distributionModal');
 }
 </script>

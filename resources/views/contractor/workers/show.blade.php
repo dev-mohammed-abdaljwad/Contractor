@@ -1376,12 +1376,18 @@ function saveDeduction(workerId) {
     worker_id: workerId,
     date: date,
     type: type,
-    reason: reason || null
   };
+
+  // Add optional fields only if they have values
+  if (reason && reason.trim()) {
+    payload.reason = reason.trim();
+  }
 
   if (type === 'custom' && amount) {
     payload.amount = parseFloat(amount);
   }
+
+  console.log('Sending deduction payload:', payload);
 
   fetch('/contractor/deductions', {
     method: 'POST',
@@ -1400,12 +1406,15 @@ function saveDeduction(workerId) {
       document.getElementById('deductionForm').reset();
       setTimeout(() => location.reload(), 1500);
     } else {
-      // Log actual error for debugging, show generic message to user
+      // Log actual error for debugging
       console.error('Deduction failed:', data);
-      showErrorToast('يرجى التحقق من البيانات المدخلة');
+      showErrorToast(data.message || 'يرجى التحقق من البيانات المدخلة');
     }
   })
-  .catch(e => handleSafeError(e, 'تسجيل الخصم'));
+  .catch(e => {
+    console.error('Deduction error:', e);
+    handleSafeError(e, 'تسجيل الخصم');
+  });
 }
 
 // ============ ADVANCE ============

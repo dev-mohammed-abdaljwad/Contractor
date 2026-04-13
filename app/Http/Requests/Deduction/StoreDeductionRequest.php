@@ -23,7 +23,7 @@ class StoreDeductionRequest extends FormRequest
             'worker_id' => 'required|integer|exists:workers,id',
             'date' => 'required|date_format:Y-m-d|before_or_equal:today',
             'type' => 'required|in:quarter,half,full,custom',
-            'amount' => 'nullable|numeric|min:0',
+            'amount' => 'required_if:type,custom|nullable|numeric|min:0.01',
             'reason' => 'nullable|string|max:500',
         ];
     }
@@ -41,8 +41,9 @@ class StoreDeductionRequest extends FormRequest
             'date.before_or_equal' => 'يجب أن يكون التاريخ اليوم أو أقدم',
             'type.required' => 'نوع الخصم مطلوب',
             'type.in' => 'نوع الخصم غير صحيح',
+            'amount.required_if' => 'المبلغ مطلوب عند اختيار خصم مخصص',
             'amount.numeric' => 'المبلغ يجب أن يكون رقماً',
-            'amount.min' => 'المبلغ يجب أن يكون أكبر من أو يساوي صفر',
+            'amount.min' => 'المبلغ يجب أن يكون أكبر من صفر',
             'reason.string' => 'السبب يجب أن يكون نصاً',
             'reason.max' => 'السبب يجب ألا يتجاوز 500 حرف',
         ];
