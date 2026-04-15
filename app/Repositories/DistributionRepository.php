@@ -34,11 +34,13 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         return DailyDistribution::where('distribution_date', $date)
             ->where('contractor_id', $contractorId)
-            ->select(['id', 'contractor_id', 'company_id', 'distribution_date', 'total_amount'])
+            ->select(['id', 'contractor_id', 'company_id', 'distribution_date', 'total_amount', 'created_at'])
+            ->withCount('workers')
             ->with([
                 'workers:id,name,phone',
                 'company:id,name,daily_wage',
             ])
+            ->orderByDesc('created_at')
             ->get();
     }
 

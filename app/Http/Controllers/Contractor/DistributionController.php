@@ -30,7 +30,8 @@ class DistributionController extends Controller
     public function index(): View
     {
         $contractorId  = Auth::id();
-        $distributions = $this->distributionRepository->getAllByContractor($contractorId);
+        $today = now()->toDateString();
+        $distributions = $this->distributionRepository->getByDateAndContractor($today, $contractorId);
 
         return view('contractor.distributions.index', [
             'distributions'      => $distributions,
