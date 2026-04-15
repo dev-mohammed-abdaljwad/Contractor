@@ -40,9 +40,9 @@
         <!-- LOGOUT BUTTON -->
         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="margin-top: 12px;">
             @csrf
-            <button 
+            <button
                 type="button"
-                onclick="handleLogout()"
+                onclick="showLogoutModal()"
                 style="
                     width: 100%;
                     padding: 10px;

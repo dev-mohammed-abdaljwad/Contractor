@@ -289,11 +289,17 @@
         }
 
         /**
-         * Close modal when clicking outside of it
+         * Close modal when clicking outside of it or pressing ESC
          */
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('logout-modal-overlay');
             if (event.target === modal) {
+                closeLogoutModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
                 closeLogoutModal();
             }
         });

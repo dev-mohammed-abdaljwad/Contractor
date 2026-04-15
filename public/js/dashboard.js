@@ -317,3 +317,17 @@ async function handleLogout() {
         document.getElementById('logout-form').submit();
     }
 }
+
+// ============ LOGOUT MODAL FUNCTIONS ============
+function showLogoutModal() {
+    document.getElementById('logout-modal-overlay').style.display = 'flex';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logout-modal-overlay').style.display = 'none';
+}
+
+function confirmLogout() {
+    closeLogoutModal();
+    handleLogout();
+}

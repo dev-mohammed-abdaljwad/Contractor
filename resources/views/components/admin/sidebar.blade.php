@@ -54,7 +54,7 @@
     <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
       @csrf
     </form>
-    <div class="sb-logout" onclick="document.getElementById('logoutForm').submit();" title="تسجيل الخروج">
+    <div class="sb-logout" onclick="handleAdminLogout();" title="تسجيل الخروج">
       <span style="font-size: 16px;">🚪</span>
       <span>تسجيل الخروج</span>
     </div>
