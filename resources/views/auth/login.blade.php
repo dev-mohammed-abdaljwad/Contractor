@@ -159,7 +159,7 @@
         font-size: 13px;
         color: #1a1c19;
         outline: none;
-        padding: 0 44px 0 16px;
+        padding: 0 44px 0 50px;
         direction: ltr;
         text-align: left;
         transition: border 0.15s;
@@ -491,21 +491,16 @@
 
         <!-- Stats Box -->
         <div class="stats-box">
-            <div class="stats-label">إحصائيات اليوم</div>
+            <div class="stats-label">إحصائيات النظام</div>
             <div class="stats-row">
                 <div class="stat-item">
-                    <div class="stat-number">47</div>
+                    <div class="stat-number">{{ $activeWorkers ?? 0 }}</div>
                     <div class="stat-label">عامل نشط</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                    <div class="stat-number">3</div>
+                    <div class="stat-number">{{ $activeCompanies ?? 0 }}</div>
                     <div class="stat-label">شركات</div>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <div class="stat-number">9,400</div>
-                    <div class="stat-label">ج إجمالي</div>
                 </div>
             </div>
         </div>

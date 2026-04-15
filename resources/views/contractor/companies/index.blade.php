@@ -648,6 +648,7 @@ function openCompanyModal(isEdit, companyId) {
           const formFields = {
             'form-name': company.name || '',
             'form-daily_wage': company.daily_wage || '',
+            'form-overtime_rate': company.overtime_rate || '',
             'form-payment_cycle': company.payment_cycle || '',
             'form-contract_start_date': company.contract_start_date || '',
             'form-is_active': company.is_active ? '1' : '0'

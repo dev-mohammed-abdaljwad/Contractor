@@ -33,6 +33,11 @@
       <div class="stat-label">ساعات سهر هذا الأسبوع</div>
     </div>  </div>
 
+  <!-- NEW: Bulk Overtime Action Card -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px;">
+    @include('components.bulk-overtime-card')
+  </div>
+
   <!-- Today's Distributions -->
   @if(isset($companiesWithDistributions) && $companiesWithDistributions->count() > 0)
   <div class="section-card">
@@ -182,4 +187,8 @@
   }
 }
 </style>
+
+<!-- Bulk Overtime Modal -->
+@include('components.bulk-overtime-modal', ['companies' => $companies ?? []])
+
 @endsection

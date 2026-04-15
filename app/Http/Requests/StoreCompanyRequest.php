@@ -18,6 +18,7 @@ class StoreCompanyRequest extends FormRequest
             'contact_person' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'daily_wage' => 'required|numeric|min:0',
+            'overtime_rate' => 'required|numeric|min:0',
             'payment_cycle' => 'required|in:daily,weekly,bimonthly',
             'weekly_pay_day' => 'nullable|string|max:20',
             'contract_start_date' => 'required|date_format:Y-m-d',
@@ -33,6 +34,8 @@ class StoreCompanyRequest extends FormRequest
             'phone.required' => 'رقم الهاتف مطلوب',
             'daily_wage.required' => 'الأجر اليومي مطلوب',
             'daily_wage.numeric' => 'الأجر يجب أن يكون رقماً',
+            'overtime_rate.required' => 'أجر ساعة السهر مطلوب',
+            'overtime_rate.numeric' => 'أجر ساعة السهر يجب أن يكون رقماً',
             'payment_cycle.required' => 'دورة الدفع مطلوبة',
             'contract_start_date.required' => 'تاريخ بدء العقد مطلوب',
         ];

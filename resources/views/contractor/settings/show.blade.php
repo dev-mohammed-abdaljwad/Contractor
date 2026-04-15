@@ -399,12 +399,6 @@
                     <option value="Saturday" @selected($preferences->week_start === 'Saturday')>السبت</option>
                 </select>
             </div>
-            <div class="field-group">
-                <div class="field-label">سعر ساعة السهر (ج) <span class="field-required">*</span></div>
-                <input class="field-input @error('overtime_hourly_rate') is-invalid @enderror" type="number" name="overtime_hourly_rate" value="{{ old('overtime_hourly_rate', $preferences->overtime_hourly_rate ?? 20) }}" min="5" max="1000" step="0.5" required/>
-                <div class="field-hint">المبلغ الذي سيتم احتسابه لكل ساعة سهر (الافتراضي: 20 ج)</div>
-                @error('overtime_hourly_rate') <div class="field-error">{{ $message }}</div> @enderror
-            </div>
             <div class="toggle-row" style="padding-top:4px;">
                 <div class="toggle-info">
                     <div class="toggle-title">الوضع الليلي</div>

@@ -273,6 +273,10 @@
       <div class="info-val">{{ number_format($company->daily_wage, 0) }} جنيه</div>
     </div>
     <div class="info-row">
+      <div class="info-key">أجر ساعة السهر</div>
+      <div class="info-val">{{ number_format($company->overtime_rate ?? 20, 0) }} جنيه</div>
+    </div>
+    <div class="info-row">
       <div class="info-key">دورة الدفع</div>
       <div class="info-val">
         @if($company->payment_cycle === 'daily') دفع يومي
@@ -390,34 +394,34 @@
       <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
     </div>
     <div class="modal-body">
+      <!-- اسم الشركة -->
       <div class="form-group">
-        <label class="form-label">اسم الشركة</label>
-        <input type="text" class="form-input" id="companyName" value="{{ $company->name }}">
+        <label class="form-label">اسم الشركة *</label>
+        <input type="text" class="form-input" id="form-name" value="{{ $company->name }}">
       </div>
+
+      <!-- الأجر اليومي -->
       <div class="form-group">
-        <label class="form-label">المسؤول</label>
-        <input type="text" class="form-input" id="contactPerson" value="{{ $company->contact_person }}">
+        <label class="form-label">الأجر اليومي *</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" class="form-input" id="form-daily_wage" value="{{ $company->daily_wage }}" min="0" step="0.01" style="flex:1">
+          <span style="color:#707a6c;font-weight:600">ج</span>
+        </div>
       </div>
+
+      <!-- أجر ساعة السهر -->
       <div class="form-group">
-        <label class="form-label">الجوال</label>
-        <input type="tel" class="form-input" id="phone" value="{{ $company->phone }}">
+        <label class="form-label">أجر ساعة السهر *</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" class="form-input" id="form-overtime_rate" value="{{ $company->overtime_rate ?? 20 }}" min="0" step="0.01" style="flex:1">
+          <span style="color:#707a6c;font-weight:600">ج</span>
+        </div>
       </div>
+
+      <!-- تاريخ بدء التعاقد -->
       <div class="form-group">
-        <label class="form-label">الأجر اليومي (ج)</label>
-        <input type="number" class="form-input" id="dailyWage" value="{{ $company->daily_wage }}" min="0" step="0.01">
-      </div>
-      <div class="form-group">
-        <label class="form-label">دورة الدفع</label>
-        <select class="form-input" id="paymentCycle">
-          <option value="daily" {{ $company->payment_cycle === 'daily' ? 'selected' : '' }}>يومي</option>
-          <option value="weekly" {{ $company->payment_cycle === 'weekly' ? 'selected' : '' }}>أسبوعي</option>
-          <option value="bimonthly" {{ $company->payment_cycle === 'bimonthly' ? 'selected' : '' }}>نصف شهري</option>
-          <option value="monthly" {{ $company->payment_cycle === 'monthly' ? 'selected' : '' }}>شهري</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">ملاحظات</label>
-        <textarea class="form-textarea" id="notes" placeholder="أضف ملاحظات...">{{ $company->notes ?? '' }}</textarea>
+        <label class="form-label">متى بدأت العلاقة معهم؟ *</label>
+        <input type="date" class="form-input" id="form-contract_start_date" value="{{ $company->contract_start_date->format('Y-m-d') }}">
       </div>
     </div>
     <div class="modal-footer">
@@ -549,13 +553,29 @@ function deactivateCompany(companyId) {
 // ============ EDIT COMPANY ============
 function saveCompanyEdit(companyId) {
   const data = {
-    name: document.getElementById('companyName').value,
-    contact_person: document.getElementById('contactPerson').value,
-    phone: document.getElementById('phone').value,
-    daily_wage: parseFloat(document.getElementById('dailyWage').value),
-    payment_cycle: document.getElementById('paymentCycle').value,
-    notes: document.getElementById('notes').value
+    name: document.getElementById('form-name').value,
+    daily_wage: parseFloat(document.getElementById('form-daily_wage').value),
+    overtime_rate: parseFloat(document.getElementById('form-overtime_rate').value),
+    contract_start_date: document.getElementById('form-contract_start_date').value
   };
+
+  // Validation
+  if (!data.name.trim()) {
+    window.showToast('يرجى إدخال اسم الشركة', 'error');
+    return;
+  }
+  if (!data.daily_wage || data.daily_wage <= 0) {
+    window.showToast('يرجى إدخال الأجر اليومي (أكبر من صفر)', 'error');
+    return;
+  }
+  if (!data.overtime_rate || data.overtime_rate <= 0) {
+    window.showToast('يرجى إدخال أجر ساعة السهر (أكبر من صفر)', 'error');
+    return;
+  }
+  if (!data.contract_start_date) {
+    window.showToast('يرجى اختيار تاريخ بدء التعاقد', 'error');
+    return;
+  }
 
   fetch(`/contractor/companies/${companyId}`, {
     method: 'PUT',
@@ -572,14 +592,14 @@ function saveCompanyEdit(companyId) {
   })
   .then(data => {
     if (data.success) {
-      showSuccessToast('تم تحديث البيانات بنجاح');
+      window.showToast(data.message || 'تم تحديث البيانات بنجاح', 'success');
       closeModal('editModal');
-      location.reload();
+      setTimeout(() => location.reload(), 1500);
     } else {
-      showErrorToast(data.message || 'حدث خطأ');
+      window.showToast(data.message || 'حدث خطأ', 'error');
     }
   })
-  .catch(e => showErrorToast('خطأ: ' + e.message));
+  .catch(e => window.showToast('خطأ: ' + e.message, 'error'));
 }
 
 // ============ PAYMENT ============

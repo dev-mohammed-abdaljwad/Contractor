@@ -38,6 +38,18 @@
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
                     <div>
+                        <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">أجر ساعة السهر *</label>
+                        <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 أجر الساعة الواحدة للعمل الإضافي</p>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <input type="number" name="overtime_rate" id="form-overtime_rate" step="0.01"
+                                style="flex:1;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none"
+                                placeholder="20.00">
+                            <span style="color:#707a6c;font-weight:600">ج</span>
+                        </div>
+                        <p class="form-error" id="error-overtime_rate" style="color:#ba1a1a;font-size:11px;margin-top:4px;display:none"></p>
+                    </div>
+
+                    <div>
                         <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">كم مرة يتم الدفع؟ *</label>
                         <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 الفترة ما بين كل دفعة والتي تليها</p>
                         <select name="payment_cycle" id="form-payment_cycle"
@@ -58,6 +70,7 @@
                         style="width:100%;padding:10px 12px;border:0.5px solid #d0d0c8;border-radius:8px;font-size:13px;box-sizing:border-box;outline:none">
                     <p class="form-error" id="error-contract_start_date" style="color:#ba1a1a;font-size:11px;margin-top:4px;display:none"></p>
                 </div>
+
 
                 <div style="margin-bottom:24px;display:none" id="status-field">
                     <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">هل العلاقة نشطة؟</label>

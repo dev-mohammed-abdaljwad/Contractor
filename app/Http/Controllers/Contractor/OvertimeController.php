@@ -127,4 +127,69 @@ class OvertimeController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Show bulk overtime entry form for a company on a specific date
+     */
+    public function bulkByCompanyForm(): View
+    {
+        $companies = auth()->user()->companies;
+        return view('contractor.overtime.bulk-by-company', [
+            'companies' => $companies,
+        ]);
+    }
+
+    /**
+     * Record overtime for all workers in a company on a specific date
+     */
+    public function bulkStoreByCompany(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'company_id' => 'required|integer|exists:companies,id',
+                'distribution_date' => 'required|date',
+                'overtime_hours' => 'required|numeric|min:0|max:12',
+            ], [
+                'company_id.required' => 'الشركة مطلوبة',
+                'company_id.exists' => 'الشركة غير موجودة',
+                'distribution_date.required' => 'التاريخ مطلوب',
+                'distribution_date.date' => 'التاريخ غير صحيح',
+                'overtime_hours.required' => 'عدد الساعات مطلوب',
+                'overtime_hours.numeric' => 'عدد الساعات يجب أن يكون رقمياً',
+                'overtime_hours.min' => 'عدد الساعات يجب أن يكون أكبر من أو يساوي 0',
+                'overtime_hours.max' => 'عدد الساعات يجب أن لا يزيد عن 12 ساعة',
+            ]);
+
+            $results = $this->overtimeService->bulkOvertimeByCompany(
+                $validated['company_id'],
+                $validated['distribution_date'],
+                (float) $validated['overtime_hours'],
+                auth()->id()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => sprintf('تم تحديث ساعات السهر لـ %d عامل بنجاح ✓', count($results['updated'])),
+                'updated_count' => count($results['updated']),
+                'skipped_count' => count($results['skipped']),
+                'distributions' => $results['updated'],
+            ]);
+        } catch (OvertimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            logger()->error('Bulk company overtime recording error', [
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id(),
+                'request' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء حفظ البيانات',
+            ], 500);
+        }
+    }
 }

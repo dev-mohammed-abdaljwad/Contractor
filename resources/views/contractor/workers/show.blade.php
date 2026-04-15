@@ -835,9 +835,9 @@ function handleSafeError(error, context = 'عملية') {
     </div>
   </div>
   <div class="actions">
-    <button class="act-btn" onclick="openModal('editModal')"><span class="act-icon">✎</span>تعديل</button>
+    <button class="act-btn" onclick="openModal('workerEditModal')"><span class="act-icon">✎</span>تعديل</button>
     <a href="{{ route('contractor.overtime.weekly', $worker->id) }}" class="act-btn" style="text-decoration:none;color:inherit;"><span class="act-icon">⏰</span>سهر</a>
-    <button class="act-btn" onclick="openModal('paymentModal')"><span class="act-icon">💰</span>تسجيل الدفع</button>
+    <button class="act-btn" onclick="openModal('workerPaymentModal')"><span class="act-icon">💰</span>تسجيل الدفع</button>
     <button class="act-btn" onclick="openModal('deductionModal')"><span class="act-icon">−</span>خصم</button>
     <button class="act-btn" onclick="openModal('advanceModal')"><span class="act-icon">↑</span>سلفة</button>
   </div>
@@ -1123,7 +1123,7 @@ function handleSafeError(error, context = 'عملية') {
         <span>↑</span>
         <span>تسجيل سلفة</span>
       </button>
-      <button class="action-btn" onclick="openModal('paymentModal')" title="تسجيل دفع">
+      <button class="action-btn" onclick="openModal('workerPaymentModal')" title="تسجيل دفع">
         <span>✓</span>
         <span>تسجيل دفع</span>
       </button>
@@ -1146,11 +1146,11 @@ function handleSafeError(error, context = 'عملية') {
 <!-- ============ MODALS ============ -->
 
 <!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal">
+<div class="modal-overlay" id="workerEditModal">
   <div class="modal-box">
     <div class="modal-header">
       <div class="modal-title">تعديل بيانات العامل</div>
-      <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+      <button class="modal-close" onclick="closeModal('workerEditModal')">&times;</button>
     </div>
     <div class="modal-body">
       <form id="editForm">
@@ -1172,7 +1172,7 @@ function handleSafeError(error, context = 'عملية') {
       </form>
     </div>
     <div class="modal-footer">
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal('editModal')">إلغاء</button>
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('workerEditModal')">إلغاء</button>
       <button class="modal-btn modal-btn-primary" onclick="saveWorkerEdit({{ $worker->id }})">حفظ التغييرات</button>
     </div>
   </div>
@@ -1248,11 +1248,11 @@ function handleSafeError(error, context = 'عملية') {
 </div>
 
 <!-- Payment Modal -->
-<div class="modal-overlay" id="paymentModal">
+<div class="modal-overlay" id="workerPaymentModal">
   <div class="modal-box">
     <div class="modal-header">
       <div class="modal-title">تسجيل الدفع</div>
-      <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+      <button class="modal-close" onclick="closeModal('workerPaymentModal')">&times;</button>
     </div>
     <div class="modal-body">
       <form id="paymentForm">
@@ -1272,7 +1272,7 @@ function handleSafeError(error, context = 'عملية') {
       </form>
     </div>
     <div class="modal-footer">
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal('workerPaymentModal')">إلغاء</button>
       <button class="modal-btn modal-btn-primary" onclick="savePayment({{ $worker->id }})">تسجيل الدفع</button>
     </div>
   </div>
@@ -1330,7 +1330,7 @@ function saveWorkerEdit(workerId) {
   .then(({ ok, data }) => {
     if (ok && data.success) {
       showSuccessToast('تم تحديث البيانات بنجاح');
-      closeModal('editModal');
+      closeModal('workerEditModal');
       setTimeout(() => location.reload(), 1500);
     } else {
       console.error('Edit failed:', data);
@@ -1502,7 +1502,7 @@ function savePayment(workerId) {
       if (data.warning) {
         setTimeout(() => showErrorToast(data.warning), 400);
       }
-      closeModal('paymentModal');
+      closeModal('workerPaymentModal');
       document.getElementById('paymentForm').reset();
       setTimeout(() => location.reload(), 1500);
     } else {

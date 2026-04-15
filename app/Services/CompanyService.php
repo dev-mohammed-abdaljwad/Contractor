@@ -218,7 +218,7 @@ class CompanyService
     public function getCompanyAsJson(Company $company): array
     {
         return $company->only([
-            'id', 'name', 'contact_person', 'phone', 'daily_wage',
+            'id', 'name', 'contact_person', 'phone', 'daily_wage', 'overtime_rate',
             'payment_cycle', 'weekly_pay_day', 'is_active', 'notes',
         ]) + ['contract_start_date' => $company->contract_start_date?->format('Y-m-d')];
     }

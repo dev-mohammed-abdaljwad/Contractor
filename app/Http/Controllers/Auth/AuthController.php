@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Worker;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,7 +12,14 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('auth.login');
+        // جلب البيانات الحقيقية من الـ database
+        $activeWorkers = Worker::where('is_active', true)->count();
+        $activeCompanies = Company::where('is_active', true)->count();
+
+        return view('auth.login', [
+            'activeWorkers' => $activeWorkers,
+            'activeCompanies' => $activeCompanies,
+        ]);
     }
 
     public function login(Request $request)
@@ -25,11 +34,11 @@ class AuthController extends Controller
 
         if (Auth::attempt(['phone' => $credentials['phone'], 'password' => $credentials['password']])) {
             $request->session()->regenerate();
-            
+
             if (Auth::user()->isAdmin()) {
                 return redirect()->route('admin.dashboard');
             }
-            
+
             return redirect()->route('contractor.dashboard');
         }
 
@@ -53,7 +62,7 @@ class AuthController extends Controller
 
         // Save registration request
         \App\Models\RegistrationRequest::create($validated);
-        
+
         return redirect()->back()->with('success', 'تم استقبال طلبك! سيتواصل معك فريق الدعم قريباً.');
     }
 

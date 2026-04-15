@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Contractor;
 
 use App\Exceptions\DuplicateDistributionException;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\DailyDistribution;
 use App\Models\Worker;
 use App\Repositories\Interfaces\CompanyRepositoryInterface;
@@ -63,15 +64,14 @@ class DistributionController extends Controller
         try {
             $this->distributionService->distributeWorkers(
                 contractorId: Auth::id(),
-                companyId:    $validated['company_id'],
-                workerIds:    $validated['worker_ids'],
-                date:         now()->toDateString(),
+                companyId: $validated['company_id'],
+                workerIds: $validated['worker_ids'],
+                date: now()->toDateString(),
             );
 
             return $request->expectsJson()
                 ? response()->json(['success' => true, 'message' => 'تم إنشاء التوزيع بنجاح'])
                 : redirect()->route('contractor.distributions.index')->with('success', 'تم إنشاء التوزيع بنجاح!');
-
         } catch (DuplicateDistributionException $e) {
             $workerName = Worker::select('name')->find($e->getWorkerId())?->name ?? 'عامل';
             $message    = "العامل {$workerName} مسجل بالفعل لشركة أخرى اليوم";
@@ -130,13 +130,12 @@ class DistributionController extends Controller
     {
         try {
             $earnings = $this->distributionService->calculateRealTimeEarnings(
-                companyId:  (int) request('company_id'),
-                workerIds:  request('worker_ids', []),
-                date:       request('date', Carbon::today()->toDateString()),
+                companyId: (int) request('company_id'),
+                workerIds: request('worker_ids', []),
+                date: request('date', Carbon::today()->toDateString()),
             );
 
             return response()->json(['success' => true, 'data' => $earnings]);
-
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -147,7 +146,8 @@ class DistributionController extends Controller
         $date         = request('date', Carbon::today()->toDateString());
         $distributions = $this->distributionRepository->getByDateAndContractor($date, Auth::id());
 
-        $assigned = $distributions->flatMap(fn($dist) =>
+        $assigned = $distributions->flatMap(
+            fn($dist) =>
             $dist->workers->map(fn($worker) => [
                 'id'           => $dist->id,
                 'worker_id'    => $worker->id,
@@ -175,5 +175,62 @@ class DistributionController extends Controller
             ->values();
 
         return response()->json(['success' => true, 'data' => $available]);
+    }
+
+    public function getCompanyWorkers(): JsonResponse
+    {
+        $date      = request('date', Carbon::today()->toDateString());
+        $companyId = request('company_id');
+
+        if (!$companyId) {
+            return response()->json(['success' => false, 'message' => 'الشركة مطلوبة'], 422);
+        }
+
+        // Get company with overtime_rate
+        $company = Company::where('id', $companyId)
+            ->where('contractor_id', Auth::id())
+            ->first();
+
+        if (!$company) {
+            return response()->json(['success' => false, 'message' => 'الشركة غير موجودة'], 404);
+        }
+
+        // Get all distributions for this company on this date
+        $distributions = DailyDistribution::where('company_id', $companyId)
+            ->where('distribution_date', $date)
+            ->where('contractor_id', Auth::id())
+            ->with('workers')
+            ->get();
+
+        if ($distributions->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'workers' => [],
+                    'count' => 0,
+                    'overtime_rate' => $company->overtime_rate,
+                    'message' => 'لا توجد عمال موزعين في هذا اليوم',
+                ]
+            ]);
+        }
+
+        $workers = $distributions->flatMap(
+            fn($dist) =>
+            $dist->workers->map(fn($worker) => [
+                'id'              => $worker->id,
+                'name'            => $worker->name,
+                'distribution_id' => $dist->id,
+                'current_hours'   => $dist->overtime_hours ?? 0,
+            ])
+        )->unique('id')->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'workers' => $workers,
+                'count' => $workers->count(),
+                'overtime_rate' => $company->overtime_rate,
+            ]
+        ]);
     }
 }

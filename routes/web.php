@@ -76,6 +76,8 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
     // Overtime Management
     Route::prefix('overtime')->group(function () {
         Route::get('/workers/{worker}', [OvertimeController::class, 'weeklyView'])->name('contractor.overtime.weekly');
+        Route::get('/bulk-by-company', [OvertimeController::class, 'bulkByCompanyForm'])->name('contractor.overtime.bulk-by-company-form');
+        Route::post('/bulk-by-company', [OvertimeController::class, 'bulkStoreByCompany'])->name('contractor.overtime.bulk-by-company');
         Route::post('/', [OvertimeController::class, 'store'])->name('contractor.overtime.store');
         Route::post('/bulk', [OvertimeController::class, 'bulkStore'])->name('contractor.overtime.bulk');
     });
@@ -105,6 +107,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::post('/calculate-earnings', [DistributionController::class, 'calculateEarnings'])->name('contractor.distributions.calculate-earnings');
         Route::get('/assigned-workers', [DistributionController::class, 'getAssignedWorkers'])->name('contractor.distributions.get-assigned-workers');
         Route::get('/available-workers', [DistributionController::class, 'getAvailableWorkers'])->name('contractor.distributions.get-available-workers');
+        Route::get('/company-workers', [DistributionController::class, 'getCompanyWorkers'])->name('contractor.distributions.get-company-workers');
         
         // Resourceful routes
         Route::get('/', [DistributionController::class, 'index'])->name('contractor.distributions.index');

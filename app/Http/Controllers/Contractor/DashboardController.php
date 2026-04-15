@@ -88,6 +88,7 @@ class DashboardController extends Controller
             'pendingCollections' => $pendingCollections,
             'todayDistributions' => $todayDistributions,
             'workersOvertimeSummary' => $workersOvertimeSummary,
+            'companies' => $activeCompanies,
         ]);
     }
 }

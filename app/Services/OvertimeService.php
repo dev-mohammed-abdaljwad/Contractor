@@ -155,4 +155,90 @@ class OvertimeService
 
         return $this->overtimeRepository->getWorkerOvertimeByMonth($workerId, $month, $year);
     }
+
+    /**
+     * Record overtime for all workers in a company on a specific date
+     *
+     * @param int $companyId
+     * @param string $distributionDate
+     * @param float $overtimeHours
+     * @param int $contractorId
+     * @return array{updated: array, skipped: array}
+     * @throws OvertimeException
+     */
+    public function bulkOvertimeByCompany(int $companyId, string $distributionDate, float $overtimeHours, int $contractorId): array
+    {
+        return DB::transaction(function () use ($companyId, $distributionDate, $overtimeHours, $contractorId) {
+            // Get the date
+            try {
+                $date = Carbon::parse($distributionDate)->toDateString();
+            } catch (\Exception $e) {
+                throw OvertimeException::invalidDate();
+            }
+
+            // Verify company belongs to contractor
+            $company = \App\Models\Company::where('id', $companyId)
+                ->where('contractor_id', $contractorId)
+                ->firstOrFail();
+
+            // Get all distributions for this company on this date
+            $distributions = DailyDistribution::where('company_id', $companyId)
+                ->where('distribution_date', $date)
+                ->where('contractor_id', $contractorId)
+                ->get();
+
+            if ($distributions->isEmpty()) {
+                throw OvertimeException::noDistributionsFound();
+            }
+
+            // Get company's overtime hourly rate (with fallback to contractor preferences)
+            $user = auth()->user() ?? \App\Models\User::find($contractorId);
+            $preferences = $user->preferences;
+            $overtimeRate = (float) ($company->overtime_rate ?? $preferences?->overtime_hourly_rate ?? 20);
+
+            $updated = [];
+            $skipped = [];
+
+            foreach ($distributions as $distribution) {
+                try {
+                    // Check if distribution is within edit window
+                    if (!$distribution->canEdit()) {
+                        $skipped[] = [
+                            'distribution_id' => $distribution->id,
+                            'reason' => 'التوزيع قديم جداً (أكثر من 7 أيام)',
+                        ];
+                        continue;
+                    }
+
+                    // Update the distribution
+                    $updated[] = $this->overtimeRepository->updateOvertime(
+                        $distribution->id,
+                        $overtimeHours,
+                        $overtimeRate
+                    );
+                } catch (\Exception $e) {
+                    logger()->warning('Bulk company overtime recording failed', [
+                        'distribution_id' => $distribution->id,
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    $skipped[] = [
+                        'distribution_id' => $distribution->id,
+                        'reason' => 'حدث خطأ أثناء معالجة هذا التوزيع',
+                    ];
+                }
+            }
+
+            return [
+                'updated' => collect($updated)->map(function ($dist) {
+                    return [
+                        'id' => $dist->id,
+                        'overtime_hours' => $dist->overtime_hours,
+                        'overtime_amount' => $dist->overtime_amount,
+                    ];
+                })->all(),
+                'skipped' => $skipped,
+            ];
+        });
+    }
 }

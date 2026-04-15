@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[\Database\Eloquent\Attributes\Fillable(['contractor_id', 'name', 'contact_person', 'phone', 'daily_wage', 'payment_cycle', 'weekly_pay_day', 'contract_start_date', 'notes', 'is_active'])]
+#[\Database\Eloquent\Attributes\Fillable(['contractor_id', 'name', 'contact_person', 'phone', 'daily_wage', 'overtime_rate', 'payment_cycle', 'weekly_pay_day', 'contract_start_date', 'notes', 'is_active'])]
 class Company extends Model
 {
     use HasFactory, SoftDeletes;
@@ -17,6 +17,7 @@ class Company extends Model
         'contact_person',
         'phone',
         'daily_wage',
+        'overtime_rate',
         'payment_cycle',
         'weekly_pay_day',
         'contract_start_date',
@@ -30,6 +31,7 @@ class Company extends Model
             'contract_start_date' => 'date',
             'is_active' => 'boolean',
             'daily_wage' => 'decimal:2',
+            'overtime_rate' => 'decimal:2',
         ];
     }
 

@@ -45,4 +45,20 @@ class OvertimeException extends RuntimeException
     {
         return new self('عدد الساعات غير صحيح');
     }
+
+    /**
+     * Invalid date format
+     */
+    public static function invalidDate(): self
+    {
+        return new self('التاريخ غير صحيح');
+    }
+
+    /**
+     * No distributions found for company on date
+     */
+    public static function noDistributionsFound(): self
+    {
+        return new self('لا توجد توزيعات للشركة في هذا التاريخ');
+    }
 }
