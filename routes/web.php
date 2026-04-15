@@ -6,6 +6,7 @@ use App\Http\Controllers\Contractor\WorkerController;
 use App\Http\Controllers\Contractor\CompanyController;
 use App\Http\Controllers\Contractor\CollectionController;
 use App\Http\Controllers\Contractor\DistributionController;
+use App\Http\Controllers\Contractor\DistributionReportController;
 use App\Http\Controllers\Contractor\DeductionController;
 use App\Http\Controllers\Contractor\AdvanceController;
 use App\Http\Controllers\Contractor\OvertimeController;
@@ -22,7 +23,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect('/contractor/dashboard')->with('refresh', true);
     }
-    
+
     return view('welcome');
 });
 
@@ -60,7 +61,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('contractor.dashboard');
-    
+
     // Workers Management
     Route::prefix('workers')->group(function () {
         Route::get('/', [WorkerController::class, 'index'])->name('contractor.workers.index');
@@ -103,12 +104,15 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
 
     // Distributions Management
     Route::prefix('distributions')->group(function () {
+        // Reports (before API endpoints to avoid conflicts)
+        Route::get('/reports', [DistributionReportController::class, 'index'])->name('contractor.distributions.reports');
+
         // API Endpoints for real-time calculations (before resourceful routes)
         Route::post('/calculate-earnings', [DistributionController::class, 'calculateEarnings'])->name('contractor.distributions.calculate-earnings');
         Route::get('/assigned-workers', [DistributionController::class, 'getAssignedWorkers'])->name('contractor.distributions.get-assigned-workers');
         Route::get('/available-workers', [DistributionController::class, 'getAvailableWorkers'])->name('contractor.distributions.get-available-workers');
         Route::get('/company-workers', [DistributionController::class, 'getCompanyWorkers'])->name('contractor.distributions.get-company-workers');
-        
+
         // Resourceful routes
         Route::get('/', [DistributionController::class, 'index'])->name('contractor.distributions.index');
         Route::get('/create', [DistributionController::class, 'create'])->name('contractor.distributions.create');
@@ -123,7 +127,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
     Route::prefix('deductions')->group(function () {
         // API endpoint for wage preview - MUST come before generic routes
         Route::get('/worker/{workerId}/wage-preview', [DeductionController::class, 'getWageForDate'])->name('contractor.deductions.wage-preview');
-        
+
         // Generic routes after specific ones
         Route::get('/worker/{worker}', [DeductionController::class, 'index'])->name('contractor.deductions.index');
         Route::post('/', [DeductionController::class, 'store'])->name('contractor.deductions.store');
@@ -135,7 +139,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         // API endpoints for dashboard
         Route::get('/summary', [AdvanceController::class, 'getSummary'])->name('contractor.advances.summary');
         Route::get('/list', [AdvanceController::class, 'getContractorAdvances'])->name('contractor.advances.list');
-        
+
         // Worker advances
         Route::get('/worker/{worker}', [AdvanceController::class, 'index'])->name('contractor.advances.index');
         Route::post('/worker/{worker}', [AdvanceController::class, 'store'])->name('contractor.advances.store');
@@ -159,7 +163,7 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    
+
     // Contractor Management
     Route::prefix('contractors')->group(function () {
         Route::get('/', [ContractorsController::class, 'index'])->name('admin.contractors.index');

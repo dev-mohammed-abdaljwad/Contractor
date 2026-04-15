@@ -104,7 +104,7 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         $fromDate = Carbon::parse($from)->format('Y-m-d');
         $toDate = Carbon::parse($to)->format('Y-m-d');
-        
+
         return DailyDistribution::where('company_id', $companyId)
             ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'contractor_id', 'distribution_date', 'total_amount'])
@@ -116,7 +116,7 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         $fromDate = Carbon::parse($from)->format('Y-m-d');
         $toDate = Carbon::parse($to)->format('Y-m-d');
-        
+
         return DailyDistribution::whereHas('workers', fn($q) => $q->where('worker_id', $workerId))
             ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'distribution_date', 'total_amount'])
@@ -127,12 +127,12 @@ class DistributionRepository implements DistributionRepositoryInterface
     public function findByIdWithDetails(int $id): DailyDistribution
     {
         return DailyDistribution::withCount('workers')
-        ->with([
-            'workers:id,name,phone',
-            'company:id,name,daily_wage',
-            'actionLogs',
-        ])
-        ->findOrFail($id);
+            ->with([
+                'workers:id,name,phone',
+                'company:id,name,daily_wage',
+                'actionLogs',
+            ])
+            ->findOrFail($id);
     }
 
     public function create(array $data): DailyDistribution

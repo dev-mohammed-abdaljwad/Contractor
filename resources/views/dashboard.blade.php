@@ -38,6 +38,17 @@
     @include('components.bulk-overtime-card')
   </div>
 
+  <!-- Quick Actions -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px;">
+    <a href="{{ route('contractor.distributions.reports') }}" style="text-decoration: none;">
+      <div class="quick-action-card">
+        <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+        <div class="quick-action-title">تقارير التوزيعات</div>
+        <div class="quick-action-desc">شهري وأسبوعي حسب الشركة</div>
+      </div>
+    </a>
+  </div>
+
   <!-- Today's Distributions -->
   @if(isset($companiesWithDistributions) && $companiesWithDistributions->count() > 0)
   <div class="section-card">
@@ -184,6 +195,128 @@
   .coll-amount {
     align-self: flex-end;
     margin-top: 8px;
+  }
+}
+
+.quick-action-card {
+  background: linear-gradient(135deg, #0d631b 0%, #1D9E75 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(13, 99, 27, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(13, 99, 27, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.quick-action-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.quick-action-desc {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+  .dashboard-container { padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container { padding: 12px; }
+  .page-title { font-size: 22px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { padding: 16px; }
+  .stat-value { font-size: 24px; }
+  .stat-label { font-size: 12px; }
+  
+  .section-card { padding: 16px; margin-bottom: 16px; }
+  .section-title { font-size: 14px; margin-bottom: 12px; }
+  
+  .distribution-item, .collection-item {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container { padding: 8px; }
+  .page-title { font-size: 18px; margin-bottom: 8px; }
+  .subtitle { font-size: 12px; }
+  
+  .stats-grid { 
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .stat-card { 
+    padding: 14px;
+    border-radius: 10px;
+  }
+  
+  .stat-value { font-size: 20px; margin-bottom: 6px; }
+  .stat-label { font-size: 11px; }
+  
+  .quick-action-card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+  
+  .quick-action-title { font-size: 13px; }
+  .quick-action-desc { font-size: 11px; }
+  
+  .section-card { 
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+  
+  .section-title { 
+    font-size: 13px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+  
+  .distributions-list,
+  .collections-list {
+    gap: 8px;
+  }
+  
+  .distribution-item,
+  .collection-item {
+    padding: 10px;
+    border-radius: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .dist-company, .coll-company {
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  
+  .dist-workers, .coll-workers {
+    font-size: 11px;
+  }
+  
+  .dist-wage,
+  .coll-amount {
+    align-self: flex-end;
+    margin-top: 4px;
   }
 }
 </style>
