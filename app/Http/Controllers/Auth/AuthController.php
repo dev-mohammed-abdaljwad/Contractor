@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Worker;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -73,5 +75,71 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/login');
+    }
+
+    /**
+     * Show the forgot password form.
+     */
+    public function showForgotPassword()
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Verify if a phone number exists in the database.
+     */
+    public function verifyPhone(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => 'required|string',
+        ]);
+
+        $phone = $request->input('phone');
+
+        $user = \App\Models\User::where('phone', $phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'رقم الهاتف غير مسجل في النظام',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'name' => $user->name,
+            'message' => 'تم التحقق من الرقم بنجاح',
+        ]);
+    }
+
+    /**
+     * Reset user password after phone verification.
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'password.min' => 'كلمة المرور يجب أن تكون ٦ أحرف على الأقل',
+            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+        ]);
+
+        $user = \App\Models\User::where('phone', $request->input('phone'))->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'رقم الهاتف غير مسجل في النظام',
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تعيين كلمة المرور الجديدة بنجاح! سيتم توجيهك لتسجيل الدخول...',
+        ]);
     }
 }

@@ -44,12 +44,24 @@
                 </div>
 
                 <div>
-                    <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">الأجر اليومي *</label>
-                    <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 أجر العامل الواحد في اليوم</p>
+                    <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">أجر الشركة (لكل عامل) *</label>
+                    <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 المبلغ الذي تدفعه الشركة للمقاول عن كل عامل</p>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <input type="number" name="contractor_rate" value="{{ old('contractor_rate') }}" step="0.01"
+                            style="width:100%;padding:10px 12px;border:0.5px solid @error('contractor_rate') #ba1a1a @else #d0d0c8 @enderror;border-radius:8px;font-size:13px;box-sizing:border-box"
+                            placeholder="300">
+                        <span style="font-size:12px;color:#707a6c;white-space:nowrap;font-weight:500">جنيه</span>
+                    </div>
+                    @error('contractor_rate') <p style="color:#ba1a1a;font-size:11px;margin-top:4px">❌ {{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:13px;font-weight:600;color:#1a1c19;margin-bottom:6px">أجر العامل (يومي) *</label>
+                    <p style="display:block;font-size:11px;color:#707a6c;margin-bottom:8px">💡 المبلغ الفعلي الذي يتقاضاه العامل من المقاول</p>
                     <div style="display:flex;align-items:center;gap:8px">
                         <input type="number" name="daily_wage" value="{{ old('daily_wage') }}" step="0.01"
                             style="width:100%;padding:10px 12px;border:0.5px solid @error('daily_wage') #ba1a1a @else #d0d0c8 @enderror;border-radius:8px;font-size:13px;box-sizing:border-box"
-                            placeholder="250">
+                            placeholder="270">
                         <span style="font-size:12px;color:#707a6c;white-space:nowrap;font-weight:500">جنيه</span>
                     </div>
                     @error('daily_wage') <p style="color:#ba1a1a;font-size:11px;margin-top:4px">❌ {{ $message }}</p> @enderror

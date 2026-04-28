@@ -6,6 +6,7 @@ use App\Exceptions\DuplicateDistributionException;
 use App\Models\Company;
 use App\Models\DailyDistribution;
 use App\Models\DistributionActionLog;
+use App\Models\Worker;
 use App\Repositories\Interfaces\DistributionRepositoryInterface;
 
 class DistributionService
@@ -15,10 +16,17 @@ class DistributionService
     ) {}
 
     /**
-     * Distribute workers — batch duplicate check, no loop queries
+     * Distribute workers — batch duplicate check, no loop queries.
+     *
+     * @param float|null $workerDailyWage  Optional override wage; if null, uses average of workers' default_daily_wage.
      */
-    public function distributeWorkers(int $contractorId, int $companyId, array $workerIds, string $date): DailyDistribution
-    {
+    public function distributeWorkers(
+        int $contractorId,
+        int $companyId,
+        array $workerIds,
+        string $date,
+        ?float $workerDailyWage = null
+    ): DailyDistribution {
         // Single query to check all duplicates at once
         $alreadyAssigned = $this->distributionRepository
             ->getAssignedWorkerIdsFromList($workerIds, $date);
@@ -30,11 +38,20 @@ class DistributionService
         $company     = Company::select(['id', 'name', 'daily_wage'])->findOrFail($companyId);
         $totalAmount = count($workerIds) * $company->daily_wage;
 
+        // Snapshot worker_daily_wage at creation time.
+        // If an explicit override is passed, use it; otherwise use the average of selected workers.
+        if ($workerDailyWage === null) {
+            $workerDailyWage = (float) Worker::whereIn('id', $workerIds)
+                ->where('contractor_id', $contractorId)
+                ->avg('default_daily_wage') ?? 0.0;
+        }
+
         $distribution = $this->distributionRepository->create([
             'contractor_id'     => $contractorId,
             'company_id'        => $companyId,
             'distribution_date' => $date,
             'total_amount'      => $totalAmount,
+            'worker_daily_wage' => $workerDailyWage,
         ]);
 
         $distribution->workers()->attach($workerIds);
@@ -44,9 +61,10 @@ class DistributionService
             'daily_distribution_id'  => $distribution->id,
             'action'                 => 'created',
             'new_data'               => [
-                'company_id'   => $companyId,
-                'worker_count' => count($workerIds),
-                'total_amount' => $totalAmount,
+                'company_id'        => $companyId,
+                'worker_count'      => count($workerIds),
+                'total_amount'      => $totalAmount,
+                'worker_daily_wage' => $workerDailyWage,
             ],
         ]);
 

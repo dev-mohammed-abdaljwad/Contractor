@@ -18,6 +18,7 @@ class StoreCompanyRequest extends FormRequest
             'contact_person' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'daily_wage' => 'required|numeric|min:0',
+            'contractor_rate' => 'required|numeric|min:0',
             'overtime_rate' => 'required|numeric|min:0',
             'payment_cycle' => 'required|in:daily,weekly,bimonthly',
             'weekly_pay_day' => 'nullable|string|max:20',

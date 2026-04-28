@@ -61,15 +61,16 @@ class CompanyService
         $todayDists = $distributions->filter(
             fn($d) => Carbon::parse($d->distribution_date)->toDateString() === $today->toDateString()
         );
+        $companyRate = (float) ($company->contractor_rate ?? $company->daily_wage);
         $company->workers_today = $todayDists->sum(fn($d) => $d->workers->count());
-        $company->wage_today    = $company->workers_today * $company->daily_wage;
+        $company->wage_today    = $company->workers_today * $companyRate;
 
         // الشهر - filter على collection (لا query)
         $monthDists = $distributions->filter(
             fn($d) => Carbon::parse($d->distribution_date)->toDateString() >= $monthStart->toDateString()
                    && Carbon::parse($d->distribution_date)->toDateString() <= $monthEnd->toDateString()
         );
-        $company->total_month       = $monthDists->sum(fn($d) => $d->workers->count() * $company->daily_wage);
+        $company->total_month       = $monthDists->sum(fn($d) => $d->workers->count() * $companyRate);
         $company->days_worked_month = $monthDists->pluck('distribution_date')->unique()->count();
 
         // العمال الفريدين - filter على collection (لا query)
@@ -140,7 +141,7 @@ class CompanyService
         // loadMissing prevents reloading if already loaded
         $company->loadMissing([
             'distributions:id,company_id,distribution_date',
-            'distributions.workers:id,name,phone',
+            'distributions.workers',
             'payments:id,company_id,amount,date,payment_method,payment_type,created_at',
         ]);
 
@@ -162,8 +163,9 @@ class CompanyService
             ->filter(fn($d) => Carbon::parse($d->distribution_date)->between($thisMonth[0], $thisMonth[1]))
             ->values();
 
+        $companyRate = (float) ($company->contractor_rate ?? $company->daily_wage);
         $monthlyTotal = $thisMonthDistributions
-            ->sum(fn($d) => $d->workers->count() * $company->daily_wage);
+            ->sum(fn($d) => $d->workers->count() * $companyRate);
 
         $distributionHistory = $distributions
             ->filter(fn($d) => Carbon::parse($d->distribution_date)->toDateString() >= $thirtyDaysAgo->toDateString())
@@ -218,7 +220,7 @@ class CompanyService
     public function getCompanyAsJson(Company $company): array
     {
         return $company->only([
-            'id', 'name', 'contact_person', 'phone', 'daily_wage', 'overtime_rate',
+            'id', 'name', 'contact_person', 'phone', 'daily_wage', 'contractor_rate', 'overtime_rate',
             'payment_cycle', 'weekly_pay_day', 'is_active', 'notes',
         ]) + ['contract_start_date' => $company->contract_start_date?->format('Y-m-d')];
     }

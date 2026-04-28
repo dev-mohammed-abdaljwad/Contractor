@@ -228,8 +228,8 @@
 
 <div class="stats-row">
   <div class="stat-card">
-    <div class="stat-val v-green">{{ number_format($company->daily_wage, 0) }}</div>
-    <div class="stat-label">أجر/عامل (ج)</div>
+    <div class="stat-val v-green">{{ number_format($company->contractor_rate ?? $company->daily_wage, 0) }}</div>
+    <div class="stat-label">أجر الشركة/عامل (ج)</div>
   </div>
   <div class="stat-card">
     <div class="stat-val v-green">{{ $workersToday->count() }}</div>
@@ -269,8 +269,16 @@
       <div class="info-val" style="color:#1D9E75;direction:ltr;unicode-bidi:plaintext;">{{ $company->phone }}</div>
     </div>
     <div class="info-row">
-      <div class="info-key">الأجر اليومي</div>
-      <div class="info-val">{{ number_format($company->daily_wage, 0) }} جنيه</div>
+      <div class="info-key">أجر الشركة (الإيراد)</div>
+      <div class="info-val" style="color:#1D9E75;font-weight:600;">{{ number_format($company->contractor_rate ?? $company->daily_wage, 0) }} جنيه</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">أجر العامل (التكلفة)</div>
+      <div class="info-val" style="color:#D97706;font-weight:600;">{{ number_format($company->daily_wage, 0) }} جنيه</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">هامش الربح/عامل</div>
+      <div class="info-val" style="color:#059669;font-weight:700;">{{ number_format(($company->contractor_rate ?? $company->daily_wage) - $company->daily_wage, 0) }} جنيه</div>
     </div>
     <div class="info-row">
       <div class="info-key">أجر ساعة السهر</div>
@@ -310,7 +318,7 @@
         @foreach($workersToday as $worker)
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;border-radius:10px;border-left:3px solid #1D9E75;">
             <div style="font-size:13px;font-weight:500;color:#222;">{{ $worker->name }}</div>
-            <div style="font-size:12px;color:#aaa;">{{ $company->daily_wage }} ج</div>
+            <div style="font-size:12px;color:#aaa;">{{ number_format($company->contractor_rate ?? $company->daily_wage, 0) }} ج</div>
           </div>
         @endforeach
       </div>

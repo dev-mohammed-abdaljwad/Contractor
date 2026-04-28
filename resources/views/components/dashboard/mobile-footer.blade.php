@@ -16,9 +16,13 @@
             <span class="ms ms-fill">groups</span>
             <span class="mobile-footer-label">العمال</span>
         </a>
-        <a href="{{ route('settings.index') }}" class="mobile-footer-link">
-            <span class="ms ms-fill">settings</span>
-            <span class="mobile-footer-label">الإعدادات</span>
+        <a href="{{ route('contractor.profit.daily') }}" class="mobile-footer-link">
+            <span class="ms ms-fill">trending_up</span>
+            <span class="mobile-footer-label">الربح</span>
+        </a>
+        <a href="{{ route('contractor.profit.calculator') }}" class="mobile-footer-link">
+            <span class="ms ms-fill">calculate</span>
+            <span class="mobile-footer-label">الحاسبة</span>
         </a>
         
         <!-- LOGOUT BUTTON FOR MOBILE -->

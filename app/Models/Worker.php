@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[\Database\Eloquent\Attributes\Fillable(['contractor_id', 'name', 'phone', 'national_id', 'joined_date', 'is_active'])]
+#[\Database\Eloquent\Attributes\Fillable(['contractor_id', 'name', 'phone', 'national_id', 'joined_date', 'is_active', 'default_daily_wage'])]
 class Worker extends Model
 {
     use HasFactory, SoftDeletes;
@@ -18,13 +18,15 @@ class Worker extends Model
         'national_id',
         'joined_date',
         'is_active',
+        'default_daily_wage',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
-            'joined_date' => 'date',
+            'is_active'           => 'boolean',
+            'joined_date'         => 'date',
+            'default_daily_wage'  => 'decimal:2',
         ];
     }
 

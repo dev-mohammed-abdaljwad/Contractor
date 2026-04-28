@@ -17,6 +17,7 @@ class Company extends Model
         'contact_person',
         'phone',
         'daily_wage',
+        'contractor_rate',
         'overtime_rate',
         'payment_cycle',
         'weekly_pay_day',
@@ -31,6 +32,7 @@ class Company extends Model
             'contract_start_date' => 'date',
             'is_active' => 'boolean',
             'daily_wage' => 'decimal:2',
+            'contractor_rate' => 'decimal:2',
             'overtime_rate' => 'decimal:2',
         ];
     }
@@ -72,5 +74,14 @@ class Company extends Model
     public function payments()
     {
         return $this->hasMany(CompanyPayment::class);
+    }
+
+    /**
+     * Alias accessor: what the company pays the contractor per worker per day.
+     * Used in profit reports for semantic clarity.
+     */
+    public function getDailyWageForContractorAttribute(): float
+    {
+        return (float) ($this->daily_wage ?? 0);
     }
 }

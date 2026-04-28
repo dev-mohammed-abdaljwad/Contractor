@@ -582,6 +582,8 @@
                 @enderror
             </div>
 
+            <a href="{{ route('password.forgot') }}" class="forgot">نسيت كلمة المرور؟</a>
+
             <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
 

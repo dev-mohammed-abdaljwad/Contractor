@@ -81,9 +81,9 @@ class WageCalculationService
 
         return [
             'total_days' => $distributions->count(),
-            'total_wages' => $distributions->sum(fn($dist) => $dist->company->daily_wage),
+            'total_wages' => $distributions->sum(fn($dist) => $dist->company->contractor_rate ?? $dist->company->daily_wage),
             'total_deductions' => $deductions->sum('amount'),
-            'net_owed' => $distributions->sum(fn($dist) => $dist->company->daily_wage) - $deductions->sum('amount'),
+            'net_owed' => $distributions->sum(fn($dist) => $dist->company->contractor_rate ?? $dist->company->daily_wage) - $deductions->sum('amount'),
         ];
     }
 }

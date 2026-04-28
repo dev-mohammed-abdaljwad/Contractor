@@ -11,6 +11,7 @@ use App\Http\Controllers\Contractor\DeductionController;
 use App\Http\Controllers\Contractor\AdvanceController;
 use App\Http\Controllers\Contractor\OvertimeController;
 use App\Http\Controllers\Contractor\SettingsController;
+use App\Http\Controllers\Contractor\ProfitController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\AdminController;
@@ -47,6 +48,11 @@ Route::get('/sw.js', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Forgot Password
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.forgot');
+    Route::post('/forgot-password/verify', [AuthController::class, 'verifyPhone'])->name('password.verify-phone');
+    Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
 });
 
 // Public Routes
@@ -156,6 +162,13 @@ Route::middleware(['auth', 'contractor'])->prefix('contractor')->group(function 
         Route::patch('/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications');
         Route::patch('/system', [SettingsController::class, 'updateSystemPreferences'])->name('settings.system');
         Route::delete('/sessions', [SettingsController::class, 'terminateSessions'])->name('settings.sessions');
+    });
+
+    // Profit & Wage Reports
+    Route::prefix('profit')->group(function () {
+        Route::get('/daily',      [ProfitController::class, 'daily'])->name('contractor.profit.daily');
+        Route::get('/monthly',    [ProfitController::class, 'monthly'])->name('contractor.profit.monthly');
+        Route::get('/calculator', [ProfitController::class, 'calculator'])->name('contractor.profit.calculator');
     });
 });
 

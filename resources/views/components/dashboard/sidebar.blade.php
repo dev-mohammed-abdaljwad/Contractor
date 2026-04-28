@@ -16,6 +16,12 @@
         <a href="{{ route('contractor.distributions.index') }}" class="nav-link" style="text-decoration:none;color:inherit">
             <span class="ms ms-fill">swap_horiz</span> التوزيع اليومي
         </a>
+        <a href="{{ route('contractor.profit.daily') }}" class="nav-link" style="text-decoration:none;color:inherit">
+            <span class="ms ms-fill">trending_up</span> تقارير الربح
+        </a>
+        <a href="{{ route('contractor.profit.calculator') }}" class="nav-link" style="text-decoration:none;color:inherit">
+            <span class="ms ms-fill">calculate</span> حاسبة الأجور
+        </a>
     </nav>
     <div class="sidebar-bottom">
         <div class="sidebar-user">

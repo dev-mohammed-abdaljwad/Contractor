@@ -496,7 +496,7 @@ body { font-family: 'Segoe UI', sans-serif; direction: rtl; background: #f5f6f8;
         </div>
         <div class="co-stats">
           <div class="mini-stat"><div class="mini-val" style="color:{{ $company->workers_today > 0 ? '#059669' : '#D1D5DB' }};">{{ $company->workers_today }}</div><div class="mini-lbl">عمال اليوم</div></div>
-          <div class="mini-stat"><div class="mini-val">{{ number_format($company->daily_wage, 0) }} ج</div><div class="mini-lbl">أجر/عامل</div></div>
+          <div class="mini-stat"><div class="mini-val">{{ number_format($company->contractor_rate ?? $company->daily_wage, 0) }} ج</div><div class="mini-lbl">أجر الشركة</div></div>
           <div class="mini-stat"><div class="mini-val">{{ number_format($company->total_month, 0) }} ج</div><div class="mini-lbl">إجمالي الشهر</div></div>
         </div>
         <div class="urgency-row">
@@ -648,6 +648,7 @@ function openCompanyModal(isEdit, companyId) {
           const formFields = {
             'form-name': company.name || '',
             'form-daily_wage': company.daily_wage || '',
+            'form-contractor_rate': company.contractor_rate || '',
             'form-overtime_rate': company.overtime_rate || '',
             'form-payment_cycle': company.payment_cycle || '',
             'form-contract_start_date': company.contract_start_date || '',

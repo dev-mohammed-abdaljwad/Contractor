@@ -26,7 +26,7 @@ class WorkerRepository implements WorkerRepositoryInterface
             ])
             ->with([
                 'distributions:id,distribution_date,company_id',
-                'distributions.company:id,name,daily_wage',
+                'distributions.company:id,name,daily_wage,contractor_rate',
                 'advances:id,worker_id,amount,is_fully_collected,date,created_at,updated_at',
                 'deductions:id,worker_id,amount,type,distribution_id,reason,is_reversed,created_at',
                 'deductions.distribution:id,company_id,distribution_date',
@@ -68,7 +68,7 @@ class WorkerRepository implements WorkerRepositoryInterface
         ])
         ->with([
             'distributions:id,distribution_date,company_id',
-            'distributions.company:id,name,daily_wage',
+            'distributions.company:id,name,daily_wage,contractor_rate',
             'advances:id,worker_id,amount,is_fully_collected,date,created_at,updated_at',
             'deductions:id,worker_id,amount,type,distribution_id,reason,is_reversed,created_at',
             'deductions.distribution:id,company_id,distribution_date',

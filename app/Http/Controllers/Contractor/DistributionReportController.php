@@ -46,7 +46,7 @@ class DistributionReportController extends Controller
         }
 
         $distributions = $query
-            ->with(['company:id,name', 'workers:id'])
+            ->with(['company:id,name', 'workers'])
             ->get()
             ->groupBy('company_id');
 

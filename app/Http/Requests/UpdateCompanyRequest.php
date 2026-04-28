@@ -16,6 +16,7 @@ class UpdateCompanyRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'daily_wage' => 'sometimes|required|numeric|min:0',
+            'contractor_rate' => 'sometimes|required|numeric|min:0',
             'overtime_rate' => 'sometimes|required|numeric|min:0',
             'contract_start_date' => 'sometimes|required|date_format:Y-m-d',
             // Legacy fields (accepted but not required for update)

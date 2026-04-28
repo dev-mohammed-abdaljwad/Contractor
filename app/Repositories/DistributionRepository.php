@@ -20,8 +20,8 @@ class DistributionRepository implements DistributionRepositoryInterface
             ->select(['id', 'contractor_id', 'company_id', 'distribution_date', 'total_amount', 'created_at'])
             ->withCount('workers')
             ->with([
-                'workers:id,name,phone',
-                'company:id,name,daily_wage',
+                'workers',
+                'company:id,name,daily_wage,contractor_rate',
             ])
             ->orderByDesc('created_at')
             ->get();
@@ -37,8 +37,8 @@ class DistributionRepository implements DistributionRepositoryInterface
             ->select(['id', 'contractor_id', 'company_id', 'distribution_date', 'total_amount', 'created_at'])
             ->withCount('workers')
             ->with([
-                'workers:id,name,phone',
-                'company:id,name,daily_wage',
+                'workers',
+                'company:id,name,daily_wage,contractor_rate',
             ])
             ->orderByDesc('created_at')
             ->get();
@@ -51,7 +51,7 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         return DailyDistribution::where('distribution_date', $date)
             ->where('contractor_id', $contractorId)
-            ->with('workers:id')
+            ->with('workers')
             ->get()
             ->flatMap(fn($dist) => $dist->workers->pluck('id'))
             ->unique()
@@ -68,8 +68,8 @@ class DistributionRepository implements DistributionRepositoryInterface
             ->where('contractor_id', $contractorId)
             ->select(['id', 'contractor_id', 'company_id', 'distribution_date', 'total_amount'])
             ->with([
-                'workers:id,name,phone',
-                'company:id,name,daily_wage',
+                'workers',
+                'company:id,name,daily_wage,contractor_rate',
                 // Load deductions scoped to this date only
                 'workers.deductions' => fn($q) => $q
                     ->whereDate('created_at', $date)
@@ -93,7 +93,7 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         return DailyDistribution::where('distribution_date', $date)
             ->whereHas('workers', fn($q) => $q->whereIn('worker_id', $workerIds))
-            ->with(['workers' => fn($q) => $q->whereIn('worker_id', $workerIds)->select('id', 'name')])
+            ->with(['workers' => fn($q) => $q->whereIn('worker_id', $workerIds)->select('workers.*')])
             ->get()
             ->flatMap(fn($dist) => $dist->workers->pluck('id'))
             ->unique()
@@ -108,7 +108,7 @@ class DistributionRepository implements DistributionRepositoryInterface
         return DailyDistribution::where('company_id', $companyId)
             ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'contractor_id', 'distribution_date', 'total_amount'])
-            ->with(['workers:id,name'])
+            ->with(['workers'])
             ->get();
     }
 
@@ -120,7 +120,7 @@ class DistributionRepository implements DistributionRepositoryInterface
         return DailyDistribution::whereHas('workers', fn($q) => $q->where('worker_id', $workerId))
             ->whereBetween('distribution_date', [$fromDate, $toDate])
             ->select(['id', 'company_id', 'distribution_date', 'total_amount'])
-            ->with(['company:id,name,daily_wage'])
+            ->with(['company:id,name,daily_wage,contractor_rate'])
             ->get();
     }
 
@@ -128,8 +128,8 @@ class DistributionRepository implements DistributionRepositoryInterface
     {
         return DailyDistribution::withCount('workers')
             ->with([
-                'workers:id,name,phone',
-                'company:id,name,daily_wage',
+                'workers',
+                'company:id,name,daily_wage,contractor_rate',
                 'actionLogs',
             ])
             ->findOrFail($id);

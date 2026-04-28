@@ -41,6 +41,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 'contact_person',
                 'phone',
                 'daily_wage',
+                'contractor_rate',
                 'payment_cycle',
                 'weekly_pay_day',
                 'is_active',
@@ -72,6 +73,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 'contact_person',
                 'phone',
                 'daily_wage',
+                'contractor_rate',
                 'payment_cycle',
                 'weekly_pay_day',
                 'is_active',
@@ -83,7 +85,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 // Distributions with only needed columns
                 'distributions:id,company_id,distribution_date,created_at',
                 // Workers nested in distributions with only needed columns from workers table
-                'distributions.workers:id,name,phone,national_id',
+                'distributions.workers',
                 // Collections with only needed columns
                 'collections:id,company_id,period_start,period_end,net_amount,is_paid,payment_date,created_at',
             ])
@@ -104,6 +106,7 @@ class CompanyRepository implements CompanyRepositoryInterface
             'contact_person',
             'phone',
             'daily_wage',
+            'contractor_rate',
             'payment_cycle',
             'weekly_pay_day',
             'is_active',
@@ -127,6 +130,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 'contractor_id',
                 'name',
                 'daily_wage',
+                'contractor_rate',
                 'payment_cycle',
                 'is_active',
             ])
@@ -148,6 +152,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 'contact_person',
                 'phone',
                 'daily_wage',
+                'contractor_rate',
                 'payment_cycle',
                 'weekly_pay_day',
                 'is_active',
@@ -158,7 +163,7 @@ class CompanyRepository implements CompanyRepositoryInterface
                 // Eager load distributions (prevent N+1)
                 'distributions:id,company_id,distribution_date,created_at',
                 // Eager load workers for distributions (prevent N+1 for workers)
-                'distributions.workers:id,name,phone,national_id',
+                'distributions.workers',
                 // Eager load collections (prevent N+1)
                 'collections:id,company_id,period_start,period_end,net_amount,is_paid,payment_date',
             ])
@@ -178,6 +183,7 @@ class CompanyRepository implements CompanyRepositoryInterface
             'contact_person',
             'phone',
             'daily_wage',
+            'contractor_rate',
             'payment_cycle',
             'weekly_pay_day',
             'is_active',
@@ -189,7 +195,7 @@ class CompanyRepository implements CompanyRepositoryInterface
             ->with([
                 // Distributions with workers for detail view
                 'distributions:id,company_id,distribution_date,created_at',
-                'distributions.workers:id,name,phone,national_id',
+                'distributions.workers',
                 // Collections for payment history
                 'collections:id,company_id,period_start,period_end,net_amount,is_paid,payment_date,created_at',
             ])
