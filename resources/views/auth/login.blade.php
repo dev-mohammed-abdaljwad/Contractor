@@ -523,30 +523,22 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Phone Field -->
+            <!-- Login Field (Phone or Email) -->
             <div class="field">
-                <label for="phone">رقم الهاتف</label>
+                <label for="login">رقم الهاتف أو البريد الإلكتروني</label>
                 <div class="input-wrap">
                     <input
                         type="text"
-                        id="phone"
-                        name="phone"
-                        class="inp has-prefix @error('phone') err @enderror"
-                        placeholder="01X XXXX XXXX"
-                        value="{{ old('phone') }}"
-                        dir="ltr"
+                        id="login"
+                        name="login"
+                        class="inp @error('login') err @enderror"
+                        placeholder="01X XXXX XXXX أو example@mail.com"
+                        value="{{ old('login') }}"
+                        dir="auto"
                     >
-                    <div class="prefix">
-                        <div class="flag">
-                            <div class="f1"></div>
-                            <div class="f2"></div>
-                            <div class="f3"></div>
-                        </div>
-                    
-                    </div>
-                    <span class="icon-r" id="phone-icon">phone</span>
+                    <span class="icon-r" id="login-icon">person</span>
                 </div>
-                @error('phone')
+                @error('login')
                     <div class="errmsg">
                         <span style="font-family:'Material Symbols Outlined';font-size:14px">error</span>
                         {{ $message }}
@@ -608,13 +600,12 @@
     }
 
     // Update icon color on focus
-    document.getElementById('phone').addEventListener('focus', function() {
-        document.getElementById('phone-icon').style.color = '#0d631b';
+    document.getElementById('login').addEventListener('focus', function() {
+        document.getElementById('login-icon').style.color = '#0d631b';
     });
-
-    document.getElementById('phone').addEventListener('blur', function() {
+    document.getElementById('login').addEventListener('blur', function() {
         if (!this.classList.contains('err')) {
-            document.getElementById('phone-icon').style.color = '#9e9e9e';
+            document.getElementById('login-icon').style.color = '#9e9e9e';
         }
     });
 

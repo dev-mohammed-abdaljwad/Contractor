@@ -26,15 +26,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'phone' => 'required|string',
+        $validated = $request->validate([
+            'login' => 'required|string',
             'password' => 'required|string',
         ], [
-            'phone.required' => 'رقم الهاتف مطلوب',
+            'login.required' => 'رقم الهاتف أو البريد الإلكتروني مطلوب',
             'password.required' => 'كلمة المرور مطلوبة',
         ]);
 
-        if (Auth::attempt(['phone' => $credentials['phone'], 'password' => $credentials['password']])) {
+        $login = $validated['login'];
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+
+        if (Auth::attempt([$fieldType => $login, 'password' => $validated['password']])) {
             $request->session()->regenerate();
 
             if (Auth::user()->isAdmin()) {
@@ -45,8 +48,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'phone' => 'بيانات الدخول غير صحيحة',
-        ])->onlyInput('phone');
+            'login' => 'بيانات الدخول غير صحيحة',
+        ])->onlyInput('login');
     }
 
     public function submitRegistrationRequest(Request $request)

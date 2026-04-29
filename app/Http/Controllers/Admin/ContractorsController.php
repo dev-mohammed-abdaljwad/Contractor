@@ -106,6 +106,7 @@ class ContractorsController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|max:20',
             'password' => 'required|string|min:8',
             'plan' => 'required|in:free,pro,enterprise',
@@ -113,7 +114,7 @@ class ContractorsController extends Controller
 
         $user = User::create([
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
-            'email' => null,
+            'email' => $validated['email'],
             'phone' => $validated['phone'],
             'password' => bcrypt($validated['password']),
             'role' => 'contractor',

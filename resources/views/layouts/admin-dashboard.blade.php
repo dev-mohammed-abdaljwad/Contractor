@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" @if(auth()->check() && auth()->user()->preferences && auth()->user()->preferences->dark_mode)data-dark-mode="1"@else data-dark-mode="0" @endif>
+<html lang="ar" dir="rtl" @if(auth()->check() && optional(auth()->user()->preferences)->dark_mode)data-dark-mode="1"@else data-dark-mode="0" @endif>
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
