@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'نسيت كلمة المرور — iDara')
+@section('title', 'تأكيد الرمز — iDara')
 
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
@@ -30,15 +30,6 @@
         min-height: 100vh;
     }
 
-    .left-panel::before {
-        content: '';
-        position: absolute;
-        top: -60px; left: -60px;
-        width: 220px; height: 220px;
-        background: rgba(255,255,255,0.04);
-        border-radius: 50%;
-    }
-
     .brand-logo {
         width: 72px; height: 72px;
         background: linear-gradient(135deg, #0a4f14 0%, #1D9E75 100%);
@@ -56,14 +47,6 @@
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    .brand-sub {
-        font-size: 14px;
-        color: rgba(255,255,255,0.7);
-        text-align: center;
-        line-height: 1.6;
-        max-width: 260px;
-    }
-
     .icon-hero {
         margin-top: 40px;
         width: 100px; height: 100px;
@@ -71,13 +54,6 @@
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         border: 1px solid rgba(255,255,255,0.12);
-        animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
     }
 
     .icon-hero span {
@@ -100,33 +76,33 @@
     .form-title { font-size: 24px; font-weight: 800; color: #1a1c19; margin-bottom: 8px; }
     .form-sub { font-size: 14px; color: #707a6c; margin-bottom: 32px; line-height: 1.6; }
 
-    .field { margin-bottom: 24px; }
-    .field label {
-        display: block; font-size: 13px; font-weight: 700;
-        color: #1a1c19; margin-bottom: 8px;
+    .otp-container {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 32px;
+        direction: ltr;
     }
 
-    .input-wrap { position: relative; }
-
-    .inp {
-        width: 100%; height: 52px;
-        border: 1.5px solid #e2e2e2;
+    .otp-input {
+        width: 50px;
+        height: 60px;
+        border: 2px solid #e2e2e2;
         border-radius: 12px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 800;
+        color: #0d631b;
         background: #fdfdfd;
-        font-family: 'Tajawal', sans-serif;
-        font-size: 14px; color: #1a1c19;
-        outline: none;
-        padding: 0 48px 0 16px;
         transition: all 0.2s;
+        outline: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    .inp:focus { border-color: #0d631b; background: #fff; box-shadow: 0 0 0 4px rgba(13, 99, 27, 0.08); }
-    .inp.err { border-color: #ba1a1a; }
-
-    .icon-r {
-        position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-        color: #9e9e9e; font-size: 20px;
-        font-family: 'Material Symbols Outlined';
+    .otp-input:focus {
+        border-color: #0d631b;
+        box-shadow: 0 0 0 4px rgba(13, 99, 27, 0.08);
+        background: #fff;
     }
 
     .btn-primary {
@@ -140,18 +116,6 @@
     .btn-primary:hover { background: #0a5216; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13, 99, 27, 0.2); }
     .btn-primary:active { transform: translateY(0); }
 
-    .btn-secondary {
-        width: 100%; height: 48px;
-        background: transparent; border: 1.5px solid #e2e2e2; border-radius: 12px;
-        color: #707a6c; font-family: 'Tajawal', sans-serif;
-        font-size: 14px; font-weight: 700;
-        cursor: pointer; transition: all 0.2s;
-        margin-top: 12px;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        text-decoration: none;
-    }
-    .btn-secondary:hover { border-color: #0d631b; color: #0d631b; background: rgba(13, 99, 27, 0.02); }
-
     .alert {
         padding: 12px 16px;
         border-radius: 12px;
@@ -160,14 +124,26 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        line-height: 1.5;
     }
     .alert-danger { background: #fff5f5; border: 1px solid #f0c0c0; color: #ba1a1a; }
-    .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+
+    .resend-text {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #707a6c;
+    }
+
+    .resend-link {
+        color: #0d631b;
+        text-decoration: none;
+        font-weight: 700;
+        cursor: pointer;
+    }
 
     @media (max-width: 900px) {
         .page { flex-direction: column; }
-        .left-panel { min-height: 300px; padding: 40px 20px; }
+        .left-panel { min-height: 250px; padding: 40px 20px; }
         .right-panel { width: 100%; min-height: auto; padding: 40px 24px; border-radius: 24px 24px 0 0; margin-top: -24px; }
     }
 </style>
@@ -178,55 +154,104 @@
             <span style="color: #a7f3d0;">i</span><span style="color: #fff;">D</span>
         </div>
         <div class="brand-name">iDara</div>
-        <div class="brand-sub">نظام إدارة العمالة الذكي<br>استعادة الوصول إلى حسابك بخطوات بسيطة</div>
-        
         <div class="icon-hero">
-            <span>mail_lock</span>
+            <span>verified_user</span>
         </div>
     </div>
 
     <div class="right-panel">
-        <div class="form-title">نسيت كلمة المرور؟</div>
-        <div class="form-sub">أدخل بريدك الإلكتروني المسجل، وسنرسل لك كود التحقق المكون من 6 أرقام.</div>
+        <div class="form-title">تأكيد رمز التحقق</div>
+        <div class="form-sub">تم إرسال رمز مكون من 6 أرقام إلى:<br><strong>{{ $email }}</strong></div>
 
-        @if ($errors->has('email'))
+        @if ($errors->has('code'))
             <div class="alert alert-danger">
                 <span class="material-symbols-outlined">error</span>
-                {{ $errors->first('email') }}
+                {{ $errors->first('code') }}
             </div>
         @endif
 
-        @if (session('status'))
-            <div class="alert alert-success">
-                <span class="material-symbols-outlined">check_circle</span>
-                {{ session('status') }}
-            </div>
-        @endif
-
-        <form action="{{ route('password.send-code') }}" method="POST">
+        <form action="{{ route('password.verify') }}" method="POST" id="otp-form">
             @csrf
-            <div class="field">
-                <label for="email">البريد الإلكتروني</label>
-                <div class="input-wrap">
-                    <input type="email" id="email" name="email" class="inp @error('email') err @enderror" placeholder="example@idara.app" required value="{{ old('email') }}" autofocus>
-                    <span class="icon-r">alternate_email</span>
-                </div>
+            <input type="hidden" name="email" value="{{ $email }}">
+            <input type="hidden" name="code" id="final-code">
+
+            <div class="otp-container">
+                <input type="text" maxlength="1" class="otp-input" required autofocus>
+                <input type="text" maxlength="1" class="otp-input" required>
+                <input type="text" maxlength="1" class="otp-input" required>
+                <input type="text" maxlength="1" class="otp-input" required>
+                <input type="text" maxlength="1" class="otp-input" required>
+                <input type="text" maxlength="1" class="otp-input" required>
             </div>
 
             <button type="submit" class="btn-primary">
-                إرسال كود التحقق
-                <span class="material-symbols-outlined">send</span>
+                تأكيد الرمز
+                <span class="material-symbols-outlined">check_circle</span>
             </button>
         </form>
 
-        <a href="{{ route('login') }}" class="btn-secondary">
-            العودة لتسجيل الدخول
-            <span class="material-symbols-outlined">arrow_back</span>
-        </a>
+        <div class="resend-text">
+            لم يصلك الرمز؟ 
+            <form action="{{ route('password.send-code') }}" method="POST" style="display:inline;">
+                @csrf
+                <input type="hidden" name="email" value="{{ $email }}">
+                <button type="submit" class="resend-link" style="background:none;border:none;padding:0;">أعد الإرسال</button>
+            </form>
+        </div>
 
         <div style="margin-top: 32px; text-align: center; font-size: 12px; color: #b0b0a8;">
             نظام iDara © {{ date('Y') }}
         </div>
     </div>
 </div>
+
+<script>
+    const inputs = document.querySelectorAll('.otp-input');
+    const finalCode = document.getElementById('final-code');
+    const form = document.getElementById('otp-form');
+
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length > 1) {
+                e.target.value = e.target.value.slice(0, 1);
+            }
+            if (e.target.value && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            updateFinalCode();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+
+        // Handle Paste
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const data = e.clipboardData.getData('text').slice(0, 6);
+            if (!/^\d+$/.test(data)) return;
+
+            data.split('').forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
+            });
+            inputs[Math.min(data.length, 5)].focus();
+            updateFinalCode();
+        });
+    });
+
+    function updateFinalCode() {
+        let code = '';
+        inputs.forEach(input => code += input.value);
+        finalCode.value = code;
+    }
+
+    form.addEventListener('submit', (e) => {
+        if (finalCode.value.length !== 6) {
+            e.preventDefault();
+            alert('يرجى إدخال الرمز كاملاً (6 أرقام)');
+        }
+    });
+</script>
 @endsection

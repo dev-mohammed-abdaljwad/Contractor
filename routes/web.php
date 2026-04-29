@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ContractorsController;
+use App\Http\Controllers\Auth\PasswordResetController;
 
 // Public Routes
 Route::get('/', function () {
@@ -49,10 +50,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Forgot Password
-    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.forgot');
-    Route::post('/forgot-password/verify', [AuthController::class, 'verifyPhone'])->name('password.verify-phone');
-    Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword'])->name('password.reset');
+    // Forgot Password (OTP Flow)
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])->name('password.forgot');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendCode'])->name('password.send-code')->middleware('throttle:password-reset-request');
+    Route::get('/verify-code', [PasswordResetController::class, 'showVerifyForm'])->name('password.verify-form');
+    Route::post('/verify-code', [PasswordResetController::class, 'verifyCode'])->name('password.verify')->middleware('throttle:password-reset-verify');
+    Route::get('/reset-password', [PasswordResetController::class, 'showResetForm'])->name('password.reset-form');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
 });
 
 // Public Routes

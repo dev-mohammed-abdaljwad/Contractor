@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Repositories\Interfaces\SettingsRepositoryInterface::class, \App\Repositories\SettingsRepository::class);
         $this->app->bind(\App\Repositories\Interfaces\OvertimeRepositoryInterface::class, \App\Repositories\OvertimeRepository::class);
         $this->app->bind(\App\Repositories\Interfaces\ProfitRepositoryInterface::class, \App\Repositories\ProfitRepository::class);
+        $this->app->bind(\App\Repositories\Interfaces\PasswordResetRepositoryInterface::class, \App\Repositories\PasswordResetRepository::class);
 
         // Service Bindings
         $this->app->singleton(\App\Services\CompanyService::class, function ($app) {
@@ -36,5 +37,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Telescope will be registered if available
+        
+        // Rate Limiting
+        \Illuminate\Support\Facades\RateLimiter::for('password-reset-request', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinutes(10, 3)->by($request->ip());
+        });
+
+        \Illuminate\Support\Facades\RateLimiter::for('password-reset-verify', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinutes(10, 5)->by($request->ip());
+        });
     }
 }

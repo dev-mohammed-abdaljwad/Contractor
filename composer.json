@@ -12,7 +12,8 @@
         "php": "^8.3",
         "laravel/framework": "^13.0",
         "laravel/telescope": "*",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "resend/resend-laravel": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",
